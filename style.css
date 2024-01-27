@@ -1,0 +1,22 @@
+
+.container{
+    display: flex;
+    justify-content: center;
+    position: relative;
+    margin: 0;
+}
+
+.info{
+    position: absolute;
+    left:5px;
+    width: 200px;
+    height: 100px;
+    background-color:aquamarine;
+    padding-left: 1rem;
+
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+canvas{
+    border: 1px solid black;
+}
