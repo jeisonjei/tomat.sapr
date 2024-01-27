@@ -3,5 +3,7 @@ export class BasicShape{
         this.gl = gl;
         this.program = program;
         this.aspectRatio = aspectRatio;
+
+        this.selectionZoneWidth = 0.02;
     }
 }

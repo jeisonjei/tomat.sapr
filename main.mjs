@@ -2,9 +2,15 @@
 import { Point } from "./models/Point.mjs"
 import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
-import { canvasGetMouse } from "./common.mjs";
+import { canvasGetMouse } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
 import { gm, setMode } from "./page.mjs";
+import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
+
+/**
+ * В этой версии программы попробуем осущещствлять вызовы к webgl только из текущего файла.
+ * Когда вызовы к webgl осуществляются из различных классов, возникает серьёзная путаница.
+ */
 
 
 
@@ -14,6 +20,9 @@ const gl = canvas.getContext('webgl2');
 const program = createProgram(gl, getVertexshaderSource(), getFragmentShaderSource());
 gl.useProgram(program);
 gl.viewport(0, 0, canvas.width, canvas.height);
+gl.enable(gl.BLEND);
+gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
 const a_position = gl.getAttribLocation(program, 'a_position');
 const vertex_buffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
@@ -40,7 +49,8 @@ const a = {
     end: null,
 
     // shapes
-    line: new Line(gl, program, canvas.height / canvas.width, new Point(0, 0), new Point(0, 0), [1, 0, 0, 1])
+    line: new Line(gl, program, canvas.height / canvas.width, new Point(0, 0), new Point(0, 0), [1, 0, 0, 1]),
+    selectFrame: new AbstractFrame(new Point(0, 0), new Point(0, 0), [0, 1, 0, 1])
 }
 // --------- GLOBALS ---------
 
@@ -50,20 +60,61 @@ const a = {
 // --------- MOUSE EVENTS ---------
 function handleMouseDown(mouseEvent) {
     a.isMouseDown = true;
-    a.line.start = canvasGetMouse(mouseEvent, canvas);
+    a.start = canvasGetMouse(mouseEvent, canvas);
+    switch (gm()) {
+        case 'select':
+            a.selectFrame.start = a.start;
+            break;
+        case 'line':
+            a.line.start = a.start;
+            break;
+        default:
+            break;
+    }
 }
+
 function handleMouseMove(mouseEvent) {
     drawShapes();
 
     if (a.isMouseDown) {
-        a.line.end = canvasGetMouse(mouseEvent, canvas);
-        drawShape(a.line, gl.DYNAMIC_DRAW);
+        switch (gm()) {
+            case 'select':
+                a.selectFrame.end = canvasGetMouse(mouseEvent, canvas);
+                drawShape(a.selectFrame, gl.DYNAMIC_DRAW);
+                break;
+            case 'line':
+                a.line.end = canvasGetMouse(mouseEvent, canvas);
+                drawShape(a.line, gl.DYNAMIC_DRAW);
+
+                break;
+            default:
+                break;
+        }
     }
 }
+
 function handleMouseUp(mouseEvent) {
     a.isMouseDown = false;
-    const line = a.line.getClone();
-    a.shapes.push(line);
+
+    console.log(a.shapes.length);
+
+    switch (gm()) {
+        case 'select':
+            a.shapes.forEach(shape => {
+                if (shape.isinSelectFrame(a.selectFrame)) {
+                    shape.isSelected = !shape.isSelected;
+                }
+            });
+
+            break;
+        case 'line':
+            const line = a.line.getClone();
+            a.shapes.push(line);
+
+            break;
+        default:
+            break;
+    }
 }
 
 document.addEventListener('mousedown', handleMouseDown);
@@ -74,10 +125,10 @@ document.addEventListener('mouseup', handleMouseUp);
 
 
 
-// --------- SHAPES ---------
+// --------- DRAW ---------
 function drawShapes() {
     for (const shape of a.shapes) {
-        drawShape(shape, gl.STATIC_DRAW);
+        drawShape(shape, gl.DYNAMIC_DRAW);
     }
 }
 
@@ -86,10 +137,19 @@ function drawShape(shape, glMode) {
     const vertices = shape.getVertices();
     const size = vertices.length;
     const [a, b, c, d] = shape.color;
-    gl.uniform4f(u_color, a, b, c, d);
+    if (shape.isSelected) {
+        gl.uniform4f(u_color, 0.1, 0.1, 0.1, 1);
+    }
+    else {
+        gl.uniform4f(u_color, a, b, c, d);
+    }
     gl.bufferData(gl.ARRAY_BUFFER, vertices, glMode);
 
     switch (shape.type) {
+        case 'select_frame':
+            gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
+
+            break;
         case 'line':
             gl.drawArrays(gl.LINES, 0, size / 2);
 
@@ -108,14 +168,9 @@ function drawShape(shape, glMode) {
     }
 }
 
+
 function drawMagnets(shape) {
-    
+
 }
 // --------- SHAPES ---------
-
-
-
-
-// --------- MODES ---------
-
 

@@ -4,11 +4,11 @@ setMode(mode_elem, 'select');
 
 
 export function setMode(mode_elem, mode) {
-    mode_elem.innerHTML = 'mode: '+mode;
+    mode_elem.innerHTML = 'mode: '+ mode;
 }
 
 export function gm() {
-    return mode_elem.innerHTML;
+    return mode_elem.innerHTML.split(' ')[1];
 }
 
 // --------- KEY EVENTS ---------
