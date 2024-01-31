@@ -48,7 +48,7 @@ export function  getMid(start, end) {
   return new Point(midX, midY);
 }
 
-export function transformPointByMatrix(matrix, point) {
+export function transformPointByMatrix4(matrix, point) {
   if (point.x === 0 && point.y === 0) {
     return g(0,0);
   }
@@ -63,12 +63,29 @@ export function transformPointByMatrix(matrix, point) {
 
   return transformedPoint;
 }
+
+export function transformPointByMatrix3(matrix, point) {
+  if (point.x === 0 && point.y === 0) {
+    return new Point(0,0);
+  }
+  const transformedPoint = new Point(0, 0);
+
+  const x = point.x;
+  const y = point.y;
+  const w = 1;
+
+  transformedPoint.x = matrix[0] * x + matrix[1] * y + matrix[2] * w;
+  transformedPoint.y = matrix[3] * x + matrix[4] * y + matrix[5] * w;
+
+  return transformedPoint;
+}
 export function canvasGetMouse(event, canvas) {
   return new Point(
       (event.clientX - canvas.offsetLeft) / canvas.width * 2 - 1,
       -(event.clientY - canvas.offsetTop) / canvas.height * 2 + 1
   )
 }
+
 export function canvasGetClientY(event, canvas) {
   return (canvas.height - (event.clientY - canvas.offsetTop)) / canvas.height * 2 - 1;
 }

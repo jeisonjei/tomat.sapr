@@ -1,28 +1,32 @@
+import { getMoveMatrix } from "../../shared/transform.mjs";
 import { BasicShape } from "../BasicShape.mjs";
 import { Point } from "../Point.mjs";
 
-export class Line extends BasicShape{
+export class Line extends BasicShape {
 
     get start() {
         return this._start;
     }
     set start(point) {
-        this._start = {...point};
+        this._start = { ...point };
     }
     get end() {
         return this._end;
     }
     set end(point) {
-        this._end = {...point};
+        this._end = { ...point };
     }
 
-    constructor(gl, program, aspectRatio, start, end, color) {
-        super(gl, program, aspectRatio);
+    constructor(aspectRatio, start, end, color) {
+        super(aspectRatio);
         this.type = 'line';
         this.isSelected = false;
-        this._start = {...start};
-        this._end = {...end};
+        this._start = { ...start };
+        this._end = { ...end };
         this.color = [...color];
+
+
+
     }
 
     getVertices() {
@@ -43,8 +47,8 @@ export class Line extends BasicShape{
         const angle = Math.atan2(this.end.y - this.start.y, this.end.x - this.start.x);
 
         // Calculate the offset for the rectangle based on the line angle
-        const offsetX = this.selectionZoneWidth * Math.sin(angle) * this.aspectRatio;
-        const offsetY = this.selectionZoneWidth * Math.cos(angle);
+        const offsetX = this.tolerance * Math.sin(angle) * this.aspectRatio;
+        const offsetY = this.tolerance * Math.cos(angle);
 
         // Calculate the coordinates of the rectangle vertices
         const point1 = new Point(this.start.x - offsetX, this.start.y + offsetY);
@@ -72,4 +76,5 @@ export class Line extends BasicShape{
         }
         return false;
     }
+
 }

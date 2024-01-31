@@ -1,9 +1,13 @@
-export class BasicShape{
-    constructor(gl, program, aspectRatio) {
-        this.gl = gl;
-        this.program = program;
+import { Grip } from "./grips/Grip.mjs";
+
+export class BasicShape {
+    constructor(aspectRatio) {
         this.aspectRatio = aspectRatio;
 
-        this.selectionZoneWidth = 0.02;
+        this.tolerance = 0.02;
+
+        this.move_mat = null;
+
+        this.grip = new Grip(aspectRatio, this.tolerance, new Point(0, 0), 0, [0, 1, 0, 1]);
     }
 }
