@@ -1,7 +1,6 @@
 export class BasicMagnet{
-    constructor(aspectRatio, tolerance, color) {
+    constructor(aspectRatio) {
         this.aspectRatio = aspectRatio;
-        this.tolerance = tolerance;
-        this.color = color;
+        this.tolerance = 0.02;
     }
 }

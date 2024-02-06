@@ -5,7 +5,7 @@ setMode(mode_elem, 'select');
 
 
 export function setMode(mode_elem, mode) {
-    mode_elem.innerHTML = 'mode: '+ mode;
+    mode_elem.innerHTML = 'mode: ' + mode;
 }
 
 export function gm() {
@@ -42,7 +42,28 @@ document.addEventListener('keydown', (ev) => {
         a.shapes.filter(shape=>shape.isSelected).forEach(shape => {
             shape.isSelected = false;
         });
+        reset();
         setMode(mode_elem, 'select');
         drawShapes();
     }
 });
+
+document.querySelector('body').addEventListener('keydown', function (event) {
+    if (event.shiftKey) {
+        a.angle_snap = true;
+    }
+});
+
+document.querySelector('body').addEventListener('keyup', function (event) {
+    if (!event.shiftKey) {
+        a.angle_snap = false;
+    }
+});
+
+function reset() {
+    a.clickCopyStart = null;
+    a.clickMoveStart = null;
+    a.start = null;
+    a.isMouseDown = false;
+    a.gripPosition = null;
+}
