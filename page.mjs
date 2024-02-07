@@ -1,4 +1,4 @@
-import { a, drawShapes } from "./main.mjs";
+import { a, drawShapes } from "./main.js";
 
 const mode_elem = document.getElementById('mode');
 setMode(mode_elem, 'select');

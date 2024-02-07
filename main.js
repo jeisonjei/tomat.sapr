@@ -7,13 +7,14 @@ import { Line } from "./models/shapes/Line.mjs";
 import { gm, setMode } from "./page.mjs";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
 import { getMoveMatrix, getRotateSnap } from "./shared/transform.mjs";
+import { assignGripPositionAndGetGrip, assignProjectionEndPointAndGetProjection, getGrip$ } from "./shared/magnets.mjs";
+import { mat3 } from 'gl-matrix';
+import { buffer, bufferCount, from } from "rxjs";
 
 /**
  * В этой версии программы попробуем осущещствлять вызовы к webgl только из текущего файла.
  * Когда вызовы к webgl осуществляются из различных классов, возникает серьёзная путаница.
  */
-
-
 
 // --------- WEBGL ---------
 const canvas = document.querySelector('canvas');
@@ -43,7 +44,6 @@ gl.uniformMatrix3fv(u_pan, false, mat3.create());
 function init() {
 }
 init();
-
 
 // --------- GLOBALS ---------
 export const a = {
@@ -86,6 +86,7 @@ export const a = {
 
 
 
+
 // --------- MOUSE EVENTS ---------
 function handleMouseDown(mouseEvent) {
     if (a.pan) {
@@ -119,8 +120,8 @@ function handleMouseDown(mouseEvent) {
                 a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                     shape.start = transformPointByMatrix3(move_mat, shape.start);
                     shape.end = transformPointByMatrix3(move_mat, shape.end);
-                    shape.isSelected = false;
                     pushVertices(shape);
+                    shape.isSelected = false;
                 });
                 gl.uniformMatrix3fv(u_move, false, mat3.create());
             }
@@ -160,24 +161,24 @@ function pushVertices(shape) {
 }
 
 function handleMouseMove(mouseEvent) {
+    /**
+     * Функция выполняется при движении мыши. В зависимости от режима выполняются разные операции.
+     * В то время, как вся отрисовка выполняется в функции drawSingle, в этой функции в зависимости
+     * от режима могут выполняться трансформации.
+     */
     requestAnimationFrame(() => {
-
-
-        drawShapes();
 
         const mouse = canvasGetMouse(mouseEvent, canvas);
 
-        // magnet observer
+        
         if (gm() !== 'select') {
             if (!a.pan) {
-                for (const shape of a.shapes) {
-                    const grip = assignGripPositionAndGetGrip(shape, mouseEvent);
-                    if (grip) {
-                        drawSingle(grip, gl.DYNAMIC_DRAW);
-                        // если ручка найдена, выход, чтобы в текущем цикле 'mousemove' a.gripPosition не переписывалась
-                        break;
-                    }
-                }
+                a.gripPosition = null;
+                getGrip$(a.shapes, mouse).subscribe(grip => {
+                    a.gripPosition = grip.center;
+                    drawSingle(grip,gl.DYNAMIC_DRAW);
+                });
+        
             }
         }
 
@@ -196,6 +197,7 @@ function handleMouseMove(mouseEvent) {
             gl.uniformMatrix3fv(u_pan, false, pan_mat);
         }
 
+        // assign end if in magnet
         if (a.gripPosition) {
             a.end = { ...a.gripPosition };
         }
@@ -340,19 +342,30 @@ document.addEventListener('keyup', (ev) => {
 
 // --------- DRAW ---------
 export function drawShapes() {
+    gl.uniformMatrix3fv(u_move, false, mat3.create());
     // if (a.vertices.length === 0) {
     //     return;
     // }
-    gl.uniformMatrix3fv(u_move, false, mat3.create());
     // gl.uniform4f(u_color,1,0,0,1);
     // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a.vertices), gl.DYNAMIC_DRAW);
     // gl.drawArrays(gl.LINES, 0, a.vertices.length / 2);
     for (const shape of a.shapes) {
-        drawSingle(shape, gl.DYNAMIC_DRAW);
+        drawSingle(i, gl.DYNAMIC_DRAW);
     }
 }
 
+setInterval(() => {
+    drawShapes();
+}, 10);
+
 function drawSingle(shape, glMode) {
+    /**
+     * Предполагается, что основное общение с webgl будет происходить через эту функцию.
+     * В то же время трансформации происходят также через функцию handleMouseMove
+     * @param {Line, Grip, Projection, Circle, rectangle} shape - фигура, которую нужно отрисовать.
+     * В качестве фигуры также могут выступать и магниты
+     * @param {WebGL enum} glMode - Режим отрисовки - gl.STATIC_DRAW или gl.DYNAMIC_DRAW
+     */
     const vertices = shape.getVertices();
     const size = vertices.length;
     const [a, b, c, d] = shape.color;
@@ -389,39 +402,4 @@ function drawSingle(shape, glMode) {
             break;
     }
 }
-
-
-function assignGripPositionAndGetGrip(shape, mouseEvent) {
-    /**
-     * Получаем фигуру, а возвращаем фигуру-ручку, которую нужно отрисовать
-     */
-    const mouse = canvasGetMouse(mouseEvent, canvas);
-    switch (shape.type) {
-        case 'line':
-            if (shape.isMouseInGripAtStart(mouse)) {
-                a.gripPosition = { ...shape.start };
-                shape.grip.center = { ...shape.start };
-                return shape.grip;
-            }
-            else if (shape.isMouseInGripAtMid(mouse)) {
-                a.gripPosition = { ...shape.mid };
-                shape.grip.center = { ...shape.mid };
-                return shape.grip;
-            }
-            else if (shape.isMouseInGripAtEnd(mouse)) {
-                a.gripPosition = { ...shape.end };
-                shape.grip.center = { ...shape.end };
-                return shape.grip;
-            }
-            else {
-                a.gripPosition = null;
-                return null;
-            }
-
-        default:
-            break;
-
-    }
-}
 // --------- SHAPES ---------
-
