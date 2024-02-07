@@ -1,7 +1,9 @@
+import { Observable, filter, of } from "rxjs";
 import { transformPointByMatrix3 } from "../../shared/common.mjs";
 import { getMoveMatrix } from "../../shared/transform.mjs";
 import { BasicShape } from "../BasicShape.mjs";
 import { Point } from "../Point.mjs";
+import { mat3 } from "gl-matrix";
 
 export class Line extends BasicShape {
 
@@ -89,6 +91,48 @@ export class Line extends BasicShape {
             return true;
         }
         return false;
+    }
+
+    isMouseInGripAtStart$(mouse) {
+        return of(mouse).pipe(
+            filter(mouse => {
+                const minX = this.start.x - this.tolerance * this.aspectRatio;
+                const maxX = this.start.x + this.tolerance * this.aspectRatio;
+                const minY = this.start.y - this.tolerance;
+                const maxY = this.start.y + this.tolerance;
+                console.log((mouse.x >= minX && mouse.x <= maxX && mouse.y >= minY && mouse.y <= maxY));
+                return (mouse.x >= minX && mouse.x <= maxX && mouse.y >= minY && mouse.y <= maxY);
+    
+            })
+        )
+    }
+
+    isMouseInGripAtEnd$(mouse) {
+
+        return of(mouse).pipe(
+            filter(mouse => {
+                const minX = this.end.x - this.tolerance * this.aspectRatio;
+                const maxX = this.end.x + this.tolerance * this.aspectRatio;
+                const minY = this.end.y - this.tolerance;
+                const maxY = this.end.y + this.tolerance;
+        
+                return (mouse.x >= minX && mouse.x <= maxX && mouse.y >= minY && mouse.y <= maxY);
+    
+            })
+        )
+    }
+
+    isMouseInGripAtMid$(mouse) {
+        return of(mouse).pipe(
+            filter(mouse => {
+                const minX = this.mid.x - this.tolerance * this.aspectRatio;
+                const maxX = this.mid.x + this.tolerance * this.aspectRatio;
+                const minY = this.mid.y - this.tolerance;
+                const maxY = this.mid.y + this.tolerance;
+
+                return (mouse.x >= minX && mouse.x <= maxX && mouse.y >= minY && mouse.y <= maxY);
+            })
+        )
     }
 
     isMouseInGripAtStart(mouse) {
