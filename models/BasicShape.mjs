@@ -2,6 +2,14 @@ import { Grip } from "./snaps/Grip.mjs";
 import { Point } from "./Point.mjs";
 
 export class BasicShape {
+
+    set id(id) {
+        this._id = id;
+    }
+    get id() {
+        return this._id;
+    }
+
     constructor(aspectRatio) {
         this.aspectRatio = aspectRatio;
 
