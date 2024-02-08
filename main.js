@@ -170,6 +170,7 @@ function handleMouseMove(mouseEvent) {
 
         const mouse = canvasGetMouse(mouseEvent, canvas);
 
+        drawShapes();
         
         if (gm() !== 'select') {
             if (!a.pan) {
@@ -343,20 +344,17 @@ document.addEventListener('keyup', (ev) => {
 // --------- DRAW ---------
 export function drawShapes() {
     gl.uniformMatrix3fv(u_move, false, mat3.create());
-    // if (a.vertices.length === 0) {
-    //     return;
-    // }
-    // gl.uniform4f(u_color,1,0,0,1);
-    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a.vertices), gl.DYNAMIC_DRAW);
-    // gl.drawArrays(gl.LINES, 0, a.vertices.length / 2);
-    for (const shape of a.shapes) {
-        drawSingle(i, gl.DYNAMIC_DRAW);
+    if (a.vertices.length === 0) {
+        return;
     }
+    gl.uniform4f(u_color,1,0,0,1);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a.vertices), gl.DYNAMIC_DRAW);
+    gl.drawArrays(gl.LINES, 0, a.vertices.length / 2);
+    // for (const shape of a.shapes) {
+    //     drawSingle(shape, gl.DYNAMIC_DRAW);
+    // }
 }
 
-setInterval(() => {
-    drawShapes();
-}, 10);
 
 function drawSingle(shape, glMode) {
     /**

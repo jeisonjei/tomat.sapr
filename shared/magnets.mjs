@@ -52,3 +52,11 @@ export function getGrip$(shapes, mouse) {
         })
     )
 }
+
+export function getHorizontalProjection(shapes, mouse) {
+    
+}
+
+export function getVerticalProjection(shapes, mouse) {
+    
+}
