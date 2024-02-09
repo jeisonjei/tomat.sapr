@@ -132,7 +132,6 @@ function handleMouseDown(mouseEvent) {
             }
             else if (a.clickMoveStart) {
                 const move_mat = getMoveMatrix(a.clickMoveStart, a.start);
-                a.clickMoveStart = null;
                 a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                     shape.start = transformPointByMatrix3(move_mat, shape.start);
                     shape.end = transformPointByMatrix3(move_mat, shape.end);
@@ -147,14 +146,11 @@ function handleMouseDown(mouseEvent) {
             if (!a.clickCopyStart) {
                 a.clickCopyStart = { ...a.start };
                 a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                    pushShapes(shape.getClone());
-                    // ---
-                    a.vertices = pushVertices(shape, a.vertices);
+                    addShapes(shape.getClone());
                 });
             }
             else if (a.clickCopyStart) {
                 const move_mat = getMoveMatrix(a.clickCopyStart, a.start);
-                a.clickCopyStart = null;
                 a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                     shape.start = transformPointByMatrix3(move_mat, shape.start);
                     shape.end = transformPointByMatrix3(move_mat, shape.end);
@@ -292,7 +288,7 @@ function handleMouseUp(mouseEvent) {
             break;
         case 'line':
             const line = a.line.getClone();
-            pushShapes(line);
+            addShapes(line);
             // ---
             a.vertices = pushVertices(line, a.vertices);
             break;
@@ -307,11 +303,7 @@ function handleMouseUp(mouseEvent) {
 function handleMouseWheel(ev) {
     a.zl = ev.deltaY > 0 ? 0.9 : 1.1;
     a.zlc *= a.zl;
-
-    a.shapes.forEach(shape => {
-        shape.zoom(a.zl);
-    })
-    a.vertices = getNewVertices(a.shapes);
+    updateShapes('zoom');
     drawShapes();
 }
 
@@ -322,21 +314,18 @@ function handleSpacebarDown() {
 function handleSpacebarUp() {
     a.pan = false;
     gl.uniformMatrix3fv(u_pan, false, mat3.create());
-    a.shapes.forEach(shape => {
-        shape.pan(a.pan_tx, a.pan_ty);
-    });
-    a.vertices = getNewVertices(a.shapes);
+    updateShapes('pan');
     a.pan_tx = 0;
     a.pan_ty = 0;
 
-    drawShapes(); 
+    drawShapes();
 }
 
 
-document.addEventListener('mousedown', handleMouseDown);
-document.addEventListener('mousemove', handleMouseMove);
-document.addEventListener('mouseup', handleMouseUp);
-document.addEventListener('wheel', handleMouseWheel);
+canvas.addEventListener('mousedown', handleMouseDown);
+canvas.addEventListener('mousemove', handleMouseMove);
+canvas.addEventListener('mouseup', handleMouseUp);
+canvas.addEventListener('wheel', handleMouseWheel);
 
 let spacebarPressed = false;
 
@@ -358,13 +347,39 @@ document.addEventListener('keyup', (ev) => {
 
 // --------- DRAW ---------
 a.shapes$.subscribe((shapes) => {
-    
+    a.vertices = getNewVertices(shapes);
 });
 
 let id = 0;
-function pushShapes(shape) {
+function addShapes(shape) {
     shape.id = id++;
     a.shapes.push(shape);
+    a.vertices = pushVertices(shape, a.vertices);
+}
+
+function updateShapes(mode) {
+    switch (mode) {
+        case 'zoom':
+            a.shapes.forEach(shape => {
+                shape.zoom(a.zl);
+            })
+
+            break;
+        case 'pan':
+            a.shapes.forEach(shape => {
+                shape.pan(a.pan_tx, a.pan_ty);
+            });
+
+            break;
+        default:
+            break;
+    }
+    a.shapes$.next(a.shapes);
+}
+
+function deleteShapes(shapes) {
+    // ...
+    a.shapes$.next(a.shapes);
 }
 
 
