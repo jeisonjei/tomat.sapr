@@ -9,11 +9,19 @@ import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
 import { getMoveMatrix, getRotateSnap } from "./shared/transform.mjs";
 import { assignGripPositionAndGetGrip, assignProjectionEndPointAndGetProjection, getGrip$ } from "./shared/magnets.mjs";
 import { mat3 } from 'gl-matrix';
-import { buffer, bufferCount, from } from "rxjs";
+import { getNewVertices, pushVertices, replaceVertices } from "./shared/webgl/reshape.mjs";
+
+// rxjs
+import { Subject } from "rxjs";
 
 /**
  * В этой версии программы попробуем осущещствлять вызовы к webgl только из текущего файла.
  * Когда вызовы к webgl осуществляются из различных классов, возникает серьёзная путаница.
+ * В этой версии серьёзно увеличилась производительности из-за того,
+ * что теперь функция drawShapes не выполняет проход в цикле по массиву a.shapes,
+ * а отрисовывает вершины из массива a.vertices. 
+ * При всяком изменении массива a.shapes, например при операциях pan, zoom ... 
+ * обновляется и массив вершин a.vertices
  */
 
 // --------- WEBGL ---------
@@ -53,6 +61,8 @@ export const a = {
     aspectRatio: canvas.height / canvas.width,
 
     shapes: [],
+    shapes$: new Subject(),
+
     isMouseDown: false,
     gripPosition: null,
 
@@ -91,6 +101,10 @@ export const a = {
 
 // --------- MOUSE EVENTS ---------
 function handleMouseDown(mouseEvent) {
+    /**
+     * Функция выполняется при нажатии мыши. В зависимости от режима select, move, copy, rotate, mirror, line, circle ...
+     * выполняются разные блоки. 
+     */
     if (a.pan) {
         return;
     }
@@ -122,9 +136,10 @@ function handleMouseDown(mouseEvent) {
                 a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                     shape.start = transformPointByMatrix3(move_mat, shape.start);
                     shape.end = transformPointByMatrix3(move_mat, shape.end);
-                    pushVertices(shape);
+                    a.vertices = replaceVertices(shape, a.vertices);
                     shape.isSelected = false;
                 });
+                a.clickMoveStart = null;
                 gl.uniformMatrix3fv(u_move, false, mat3.create());
             }
             break;
@@ -134,7 +149,7 @@ function handleMouseDown(mouseEvent) {
                 a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                     pushShapes(shape.getClone());
                     // ---
-                    pushVertices(shape);
+                    a.vertices = pushVertices(shape, a.vertices);
                 });
             }
             else if (a.clickCopyStart) {
@@ -143,8 +158,9 @@ function handleMouseDown(mouseEvent) {
                 a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                     shape.start = transformPointByMatrix3(move_mat, shape.start);
                     shape.end = transformPointByMatrix3(move_mat, shape.end);
-                    pushVertices(shape);
+                    a.vertices = replaceVertices(shape, a.vertices);
                 });
+                a.clickCopyStart = null;
                 gl.uniformMatrix3fv(u_move, false, mat3.create());
             }
             break;
@@ -153,13 +169,6 @@ function handleMouseDown(mouseEvent) {
     }
 
     drawShapes();
-}
-
-function pushVertices(shape) {
-    const vertices = shape.getVerticesArray();
-    for (const v of vertices) {
-        a.vertices.push(v);
-    }
 }
 
 function handleMouseMove(mouseEvent) {
@@ -285,7 +294,7 @@ function handleMouseUp(mouseEvent) {
             const line = a.line.getClone();
             pushShapes(line);
             // ---
-            pushVertices(line);
+            a.vertices = pushVertices(line, a.vertices);
             break;
         default:
             break;
@@ -294,11 +303,6 @@ function handleMouseUp(mouseEvent) {
     drawShapes();
 }
 
-let id = 0;
-function pushShapes(shape) {
-    shape.id = id++;
-    a.shapes.push(shape);
-}
 
 function handleMouseWheel(ev) {
     a.zl = ev.deltaY > 0 ? 0.9 : 1.1;
@@ -307,7 +311,7 @@ function handleMouseWheel(ev) {
     a.shapes.forEach(shape => {
         shape.zoom(a.zl);
     })
-
+    a.vertices = getNewVertices(a.shapes);
     drawShapes();
 }
 
@@ -321,8 +325,11 @@ function handleSpacebarUp() {
     a.shapes.forEach(shape => {
         shape.pan(a.pan_tx, a.pan_ty);
     });
+    a.vertices = getNewVertices(a.shapes);
     a.pan_tx = 0;
     a.pan_ty = 0;
+
+    drawShapes(); 
 }
 
 
@@ -350,6 +357,17 @@ document.addEventListener('keyup', (ev) => {
 
 
 // --------- DRAW ---------
+a.shapes$.subscribe((shapes) => {
+    
+});
+
+let id = 0;
+function pushShapes(shape) {
+    shape.id = id++;
+    a.shapes.push(shape);
+}
+
+
 export function drawShapes() {
     gl.uniformMatrix3fv(u_move, false, mat3.create());
     if (a.vertices.length === 0) {
@@ -358,9 +376,6 @@ export function drawShapes() {
     gl.uniform4f(u_color, 1, 0, 0, 1);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a.vertices), gl.DYNAMIC_DRAW);
     gl.drawArrays(gl.LINES, 0, a.vertices.length / 2);
-    // for (const shape of a.shapes) {
-    //     drawSingle(shape, gl.DYNAMIC_DRAW);
-    // }
 }
 
 
