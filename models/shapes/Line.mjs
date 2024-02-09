@@ -42,13 +42,13 @@ export class Line extends BasicShape {
     getVertices() {
         return new Float32Array([
             this.start.x, this.start.y,
-            this.end.x, this.end.y
+            this.end.x, this.end.y,
         ]);
     }
     getVerticesArray() {
         return [
             this.start.x, this.start.y,
-            this.end.x, this.end.y
+            this.end.x, this.end.y,
         ];
     }
 

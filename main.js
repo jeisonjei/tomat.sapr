@@ -25,11 +25,13 @@ gl.viewport(0, 0, canvas.width, canvas.height);
 gl.enable(gl.BLEND);
 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-const a_position = gl.getAttribLocation(program, 'a_position');
 const vertex_buffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-gl.vertexAttribPointer(a_position, 2, gl.FLOAT, false, 0, 0);
+
+const a_position = gl.getAttribLocation(program, 'a_position');
 gl.enableVertexAttribArray(a_position);
+gl.vertexAttribPointer(a_position, 2, gl.FLOAT, false, 0, 0);
+
 
 const u_color = gl.getUniformLocation(program, 'u_color');
 const u_pan = gl.getUniformLocation(program, 'u_pan');
@@ -130,7 +132,7 @@ function handleMouseDown(mouseEvent) {
             if (!a.clickCopyStart) {
                 a.clickCopyStart = { ...a.start };
                 a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                    a.shapes.push(shape.getClone());
+                    pushShapes(shape.getClone());
                     // ---
                     pushVertices(shape);
                 });
@@ -171,15 +173,15 @@ function handleMouseMove(mouseEvent) {
         const mouse = canvasGetMouse(mouseEvent, canvas);
 
         drawShapes();
-        
+
         if (gm() !== 'select') {
             if (!a.pan) {
                 a.gripPosition = null;
                 getGrip$(a.shapes, mouse).subscribe(grip => {
                     a.gripPosition = grip.center;
-                    drawSingle(grip,gl.DYNAMIC_DRAW);
+                    drawSingle(grip, gl.DYNAMIC_DRAW);
                 });
-        
+
             }
         }
 
@@ -281,7 +283,7 @@ function handleMouseUp(mouseEvent) {
             break;
         case 'line':
             const line = a.line.getClone();
-            a.shapes.push(line);
+            pushShapes(line);
             // ---
             pushVertices(line);
             break;
@@ -290,6 +292,12 @@ function handleMouseUp(mouseEvent) {
     }
 
     drawShapes();
+}
+
+let id = 0;
+function pushShapes(shape) {
+    shape.id = id++;
+    a.shapes.push(shape);
 }
 
 function handleMouseWheel(ev) {
@@ -347,7 +355,7 @@ export function drawShapes() {
     if (a.vertices.length === 0) {
         return;
     }
-    gl.uniform4f(u_color,1,0,0,1);
+    gl.uniform4f(u_color, 1, 0, 0, 1);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a.vertices), gl.DYNAMIC_DRAW);
     gl.drawArrays(gl.LINES, 0, a.vertices.length / 2);
     // for (const shape of a.shapes) {

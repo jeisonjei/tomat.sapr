@@ -3,9 +3,9 @@ export function getVertexshaderSource() {
     in vec2 a_position;
     uniform mat3 u_pan;
     uniform mat3 u_move;
-
+    
     void main() {
-        gl_Position = vec4(vec3(a_position, 1.0) * u_pan * u_move, 1.0);
+        gl_Position = vec4(vec3(a_position,1.0) * u_pan * u_move, 1.0);
     }
 `;
 }
