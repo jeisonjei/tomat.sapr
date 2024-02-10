@@ -107,4 +107,18 @@ export class Line extends BasicShape {
         this.end = transformPointByMatrix3(pan_mat, this.end);
     }
 
+    getMoveMatrix() {
+        
+    }
+    getRotateMatrix() {
+        
+
+    }
+    getMirrorMatrix() {
+        
+    }
+    getScaleMatrix() {
+        
+    }
+
 }

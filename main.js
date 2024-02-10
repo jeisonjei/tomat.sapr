@@ -6,8 +6,8 @@ import { canvasGetClientX, canvasGetClientY, canvasGetMouse, getAngleDegrees, ge
 import { Line } from "./models/shapes/Line.mjs";
 import { gm, setMode } from "./page.mjs";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
-import { getMoveMatrix, getRotateSnap } from "./shared/transform.mjs";
-import { observeMagnet, magnetState$, getExtensionCoordDraw } from "./shared/magnets.mjs";
+import { getMirrorMatrix, getMoveMatrix, getRotateMatrix, getRotateSnap } from "./shared/transform.mjs";
+import { observeMagnet, magnetState$, getExtensionCoordDraw, getAnglePosition } from "./shared/magnets.mjs";
 import { mat3 } from 'gl-matrix';
 import { getNewVertices, pushVertices, replaceVertices } from "./shared/webgl/reshape.mjs";
 import { s } from './shared/settings.mjs';
@@ -45,25 +45,27 @@ gl.vertexAttribPointer(a_position, 2, gl.FLOAT, false, 0, 0);
 const u_color = gl.getUniformLocation(program, 'u_color');
 const u_pan = gl.getUniformLocation(program, 'u_pan');
 const u_move = gl.getUniformLocation(program, 'u_move');
+const u_rotate = gl.getUniformLocation(program, 'u_rotate');
 gl.uniform4f(u_color, 1, 0, 0, 1);
 gl.uniformMatrix3fv(u_move, false, mat3.create());
 gl.uniformMatrix3fv(u_pan, false, mat3.create());
+gl.uniformMatrix3fv(u_rotate, false, mat3.create());
 // --------- WEBGL ---------
 
 
 // --------- INIT ---------
 function init() {
     s.tolerance = 0.02;
+    s.setAspectRatio(canvas.width, canvas.height);
 }
 init();
 
 // --------- GLOBALS ---------
 export const a = {
 
-    aspectRatio: canvas.height / canvas.width,
-
     shapes: [],
     shapes$: new Subject(),
+    selected: false,
 
     isMouseDown: false,
     magnetPosition: null,
@@ -71,12 +73,14 @@ export const a = {
 
     clickMoveStart: null,
     clickCopyStart: null,
+    clickRotateStart: null,
+    clickMirrorStart: null,
 
     start: null,
     end: null,
 
     // shapes
-    line: new Line(canvas.height / canvas.width, new Point(0, 0), new Point(0, 0), [1, 0, 0, 1]),
+    line: new Line(s.aspectRatio, new Point(0, 0), new Point(0, 0), [1, 0, 0, 1]),
     selectFrame: new AbstractFrame(new Point(0, 0), new Point(0, 0), [0, 1, 0, 1]),
 
     // zoom
@@ -94,7 +98,7 @@ export const a = {
     // angle snap
     angle_snap: false,
 
-    vertices: []
+    vertices: [],
 }
 // --------- GLOBALS ---------
 
@@ -163,6 +167,42 @@ function handleMouseDown(mouse) {
                 gl.uniformMatrix3fv(u_move, false, mat3.create());
             }
             break;
+        case 'rotate':
+            if (!a.clickRotateStart) {
+                a.clickRotateStart = { ...a.start };
+            }
+            else {
+                const rotate_mat = getRotateMatrix(a.clickRotateStart, mouse);
+
+                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                    shape.start = transformPointByMatrix3(rotate_mat, shape.start);
+                    shape.end = transformPointByMatrix3(rotate_mat, shape.end);
+                    a.vertices = replaceVertices(shape, a.vertices);
+                })
+                a.clickRotateStart = null;
+                gl.uniformMatrix3fv(u_rotate, false, mat3.create());
+            }
+            break;
+        case 'mirror':
+            if (!a.clickMirrorStart) {
+                a.clickMirrorStart = { ...a.start };
+                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                    addShapes(shape.getClone());
+                });
+
+            }
+            else {
+                const mirror_mat = getMirrorMatrix(a.clickMirrorStart, mouse);
+
+                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                    shape.start = transformPointByMatrix3(mirror_mat, shape.start);
+                    shape.end = transformPointByMatrix3(mirror_mat, shape.end);
+                    a.vertices = replaceVertices(shape, a.vertices);
+                });
+                a.clickMirrorStart = null;
+                gl.uniformMatrix3fv(u_rotate, false, mat3.create());
+            }
+            break;
         default:
             break;
     }
@@ -198,11 +238,11 @@ magnetState$.pipe(
     if (magnet && a.start) {
         if (magnet.magnet instanceof Array) {
             a.magnetPosition = getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
-            magnet.magnet.forEach(magnet => drawSingle(magnet, gl.DYNAMIC_DRAW));
+            magnet.magnet.forEach(magnet => drawSingle(magnet));
         }
         else {
             a.magnetPosition = magnet.magnet.center ?? getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
-            drawSingle(magnet.magnet, gl.DYNAMIC_DRAW);
+            drawSingle(magnet.magnet);
         }
     }
 });
@@ -221,15 +261,7 @@ function handleMouseMove(mouse) {
         a.anglePosition = null;
 
         if (a.angle_snap) {
-            const dx = (mouse.x - a.start.x) / a.aspectRatio;
-            const dy = mouse.y - a.start.y;
-            const angle = -Math.atan2(dy, dx);
-            const distance = Math.hypot(dx, dy);
-            const snappedAngleRad = getRotateSnap(angle);
-            const snappedDistance = distance / Math.cos(angle - snappedAngleRad);
-            const snappedDx = snappedDistance * Math.cos(snappedAngleRad) * a.aspectRatio;
-            const snappedDy = snappedDistance * Math.sin(snappedAngleRad);
-            a.anglePosition = new Point(a.start.x + snappedDx, a.start.y - snappedDy);
+            a.anglePosition = getAnglePosition(mouse, a.start);
         }
 
         // magnets
@@ -261,7 +293,7 @@ function handleMouseMove(mouse) {
             switch (gm()) {
                 case 'select':
                     a.selectFrame.end = mouse;
-                    drawSingle(a.selectFrame, gl.DYNAMIC_DRAW);
+                    drawSingle(a.selectFrame);
                     break;
                 case 'line':
 
@@ -272,7 +304,7 @@ function handleMouseMove(mouse) {
                     } else {
                         a.line.end = mouse;
                     }
-                    drawSingle(a.line, gl.DYNAMIC_DRAW);
+                    drawSingle(a.line);
                     break;
 
 
@@ -286,7 +318,7 @@ function handleMouseMove(mouse) {
                         const move_mat = getMoveMatrix(a.clickMoveStart, mouse);
                         gl.uniformMatrix3fv(u_move, false, move_mat);
                         a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                            drawSingle(shape, gl.DYNAMIC_DRAW);
+                            drawSingle(shape);
                         });
                     }
                     break;
@@ -295,8 +327,27 @@ function handleMouseMove(mouse) {
                         const move_mat = getMoveMatrix(a.clickCopyStart, mouse);
                         gl.uniformMatrix3fv(u_move, false, move_mat);
                         a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                            drawSingle(shape, gl.DYNAMIC_DRAW);
+                            drawSingle(shape);
                         });
+                    }
+                    break;
+                case 'rotate':
+                    if (a.clickRotateStart) {
+                            
+                        const rotate_mat = getRotateMatrix(a.clickRotateStart, mouse);
+                        gl.uniformMatrix3fv(u_rotate, false, rotate_mat);
+                        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                            drawSingle(shape);
+                        })
+                    }
+                    break;
+                case 'mirror':
+                    if (a.clickMirrorStart) {
+                        const mirror_mat = getMirrorMatrix(a.clickMirrorStart, mouse);
+                        gl.uniformMatrix3fv(u_rotate, false, mirror_mat);
+                        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                            drawSingle(shape);
+                        })
                     }
                     break;
                 default:
@@ -321,6 +372,11 @@ function handleMouseUp(mouse) {
         a.end = mouse;
     }
 
+    // сброс a.selected
+    if (a.shapes.filter(shape => shape.isSelected).length === 0) {
+        a.selected = false;
+    }
+
     switch (gm()) {
         case 'select':
             a.shapes.forEach(shape => {
@@ -340,7 +396,6 @@ function handleMouseUp(mouse) {
 
     drawShapes();
 }
-
 
 function handleMouseWheel(ev) {
     a.zl = ev.deltaY > 0 ? 0.9 : 1.1;
@@ -398,6 +453,7 @@ a.shapes$.subscribe((shapes) => {
 });
 
 let id = 0;
+
 function addShapes(shape) {
     shape.id = id++;
     a.shapes.push(shape);
@@ -432,16 +488,21 @@ function deleteShapes(shapes) {
 
 export function drawShapes() {
     gl.uniformMatrix3fv(u_move, false, mat3.create());
+    gl.uniformMatrix3fv(u_rotate, false, mat3.create());
     if (a.vertices.length === 0) {
         return;
     }
     gl.uniform4f(u_color, 1, 0, 0, 1);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a.vertices), gl.DYNAMIC_DRAW);
     gl.drawArrays(gl.LINES, 0, a.vertices.length / 2);
+
+    a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+        drawSingle(shape);
+    })
 }
 
 
-function drawSingle(shape, glMode) {
+function drawSingle(shape) {
     /**
      * Предполагается, что основное общение с webgl будет происходить через эту функцию.
      * В то же время трансформации происходят также через функцию handleMouseMove
@@ -458,7 +519,7 @@ function drawSingle(shape, glMode) {
     else {
         gl.uniform4f(u_color, a, b, c, d);
     }
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, glMode);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
 
     switch (shape.type) {
         case 'select_frame':

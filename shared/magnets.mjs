@@ -1,13 +1,14 @@
-import { filter, from, map, switchMap, tap, of, Subject } from "rxjs";
+import { filter, from, map, switchMap, tap, of, Subject, AsyncSubject, ReplaySubject } from "rxjs";
 import { scan } from "rxjs";
 import { canvasGetClientX, canvasGetClientY, canvasGetMouse } from "./common.mjs";
 import { s } from './settings.mjs';
 import { a } from '../main.js';
 import { ms } from "../models/snaps/MagnetState.mjs";
 import { Point } from "../models/Point.mjs";
+import { getRotateSnap } from "./transform.mjs";
 
 // --------- MAGNETS ---------
-export const magnetState$ = new Subject();
+export const magnetState$ = new ReplaySubject();
 
 
 export function observeMagnet(shapes, mouse) {
@@ -57,8 +58,7 @@ export function observeMagnet(shapes, mouse) {
             return acc;
         }, []),
         tap(acc => {
-            acc.push({'mouse':mouse});
-            magnetState$.next(acc);
+            magnetState$.next([...acc, {'mouse':mouse}]);
         }),
     )
 }
@@ -95,4 +95,17 @@ export function getExtensionCoordDraw(magnet, start, mouse) {
         return new Point(magnet.start.x, start.y + dy);
     }
 }
+
+export function getAnglePosition(mouse, start) {
+    const dx = (mouse.x - start.x) / s.aspectRatio;
+    const dy = mouse.y - start.y;
+    const angle = -Math.atan2(dy, dx);
+    const distance = Math.hypot(dx, dy);
+    const snappedAngleRad = getRotateSnap(angle);
+    const snappedDistance = distance / Math.cos(angle - snappedAngleRad);
+    const snappedDx = snappedDistance * Math.cos(snappedAngleRad) * s.aspectRatio;
+    const snappedDy = snappedDistance * Math.sin(snappedAngleRad);
+    return new Point(start.x + snappedDx, start.y - snappedDy);
+}
+
 

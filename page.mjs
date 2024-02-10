@@ -13,6 +13,7 @@ export function gm() {
 }
 
 // --------- KEY EVENTS ---------
+// SELECT
 document.addEventListener('keydown', (ev) => {
     if (ev.key === 's' || ev.key === 'ы') {
         a.shapes.filter(shape=>shape.isSelected).forEach(shape => {
@@ -24,25 +25,37 @@ document.addEventListener('keydown', (ev) => {
     }
 
 });
-
+// LINE
 document.addEventListener('keydown', (ev) => {
     if (ev.key === 'l' || ev.key === 'д') {
         setMode(mode_elem, 'line');
     }
 });
-
+// MOVE
 document.addEventListener('keydown', (ev) => {
     if (ev.key === 'm' || ev.key === 'ь') {
         setMode(mode_elem, 'move');
     }
 });
-
+// COPY
 document.addEventListener('keydown', (ev) => {
     if (ev.key === 'c' || ev.key === 'с') {
         setMode(mode_elem, 'copy');
     }
 });
-
+// ROTATE
+document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'r' || ev.key === 'к') {
+        setMode(mode_elem, 'rotate');
+    }
+})
+// MIRROR
+document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'i' || ev.key === 'ш') {
+        setMode(mode_elem, 'mirror');
+    }
+})
+// ESCAPE
 document.addEventListener('keydown', (ev) => {
     if (ev.key === 'Escape') { // Check for 'Escape' key
         a.shapes.filter(shape=>shape.isSelected).forEach(shape => {
@@ -53,7 +66,7 @@ document.addEventListener('keydown', (ev) => {
         drawShapes();
     }
 });
-
+// SHIFT
 document.querySelector('body').addEventListener('keydown', function (event) {
     if (event.shiftKey) {
         a.angle_snap = true;
@@ -69,7 +82,8 @@ document.querySelector('body').addEventListener('keyup', function (event) {
 function reset() {
     a.clickCopyStart = null;
     a.clickMoveStart = null;
-    a.start = null;
+    a.clickRotateStart = null;
+    a.clickMirrorStart = null;
     a.isMouseDown = false;
     a.magnetPosition = null;
 }
