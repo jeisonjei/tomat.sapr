@@ -42,7 +42,7 @@ export function getB(radius, e, phi) {
   const b = radius * Math.sqrt(1 - (e ** 2) * (Math.cos(phi) ** 2));
   return b;
 }
-export function  getMid(start, end) {
+export function getMid(start, end) {
   const midX = (start.x + end.x) / 2;
   const midY = (start.y + end.y) / 2;
   return new Point(midX, midY);
@@ -50,7 +50,7 @@ export function  getMid(start, end) {
 
 export function transformPointByMatrix4(matrix, point) {
   if (point.x === 0 && point.y === 0) {
-    return g(0,0);
+    return g(0, 0);
   }
   const transformedPoint = new Point(0, 0);
 
@@ -66,7 +66,7 @@ export function transformPointByMatrix4(matrix, point) {
 
 export function transformPointByMatrix3(matrix, point) {
   if (point.x === 0 && point.y === 0) {
-    return new Point(0,0);
+    return new Point(0, 0);
   }
   const transformedPoint = new Point(0, 0);
 
@@ -81,8 +81,8 @@ export function transformPointByMatrix3(matrix, point) {
 }
 export function canvasGetMouse(event, canvas) {
   return new Point(
-      (event.clientX - canvas.offsetLeft) / canvas.width * 2 - 1,
-      -(event.clientY - canvas.offsetTop) / canvas.height * 2 + 1
+    (event.clientX - canvas.offsetLeft) / canvas.width * 2 - 1,
+    -(event.clientY - canvas.offsetTop) / canvas.height * 2 + 1
   )
 }
 
@@ -94,3 +94,19 @@ export function canvasGetClientX(event, canvas) {
   return (event.clientX - canvas.offsetLeft) / canvas.width * 2 - 1;
 }
 
+export function convertVerticesToPoints(vertices) {
+  let points = [];
+  for (let i = 0; i < vertices.length; i += 2) {
+    let point = new Point(vertices[i], vertices[i + 1]);
+    points.push(point);
+  }
+  return points;
+}
+
+export function isPointInsideFrame(frame, x, y) {
+  const { point1, point2, point3 } = frame;
+  if (x > point1.x && x < point2.x && y > point3.y && y < point2.y) {
+      return true;
+  }
+  return false;
+}

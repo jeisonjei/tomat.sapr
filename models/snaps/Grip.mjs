@@ -1,4 +1,5 @@
 import { BasicMagnet } from "../BasicMagnet.mjs";
+import { s } from "../../shared/settings.mjs";
 
 export class Grip extends BasicMagnet {
 
@@ -13,8 +14,8 @@ export class Grip extends BasicMagnet {
         super(aspectRatio);
 
         this._center = { ...center };
-        this.width = this.tolerance * this.aspectRatio;
-        this.height = this.tolerance;
+        this.width = s.tolerance * this.aspectRatio;
+        this.height = s.tolerance;
 
         this.type = 'm_grip';
 
@@ -29,6 +30,15 @@ export class Grip extends BasicMagnet {
             this.center.x - this.width / 2, this.center.y - this.height / 2,
         ]);
 
+    }
+
+    isin(point, mouse) {
+        const minX = point.x - s.tolerance * this.aspectRatio;
+        const maxX = point.x + s.tolerance * this.aspectRatio;
+        const minY = point.y - s.tolerance;
+        const maxY = point.y + s.tolerance;
+
+        return (mouse.x >= minX && mouse.x <= maxX && mouse.y >= minY && mouse.y <= maxY);
     }
 
 

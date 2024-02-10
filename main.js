@@ -7,12 +7,13 @@ import { Line } from "./models/shapes/Line.mjs";
 import { gm, setMode } from "./page.mjs";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
 import { getMoveMatrix, getRotateSnap } from "./shared/transform.mjs";
-import { assignGripPositionAndGetGrip, assignProjectionEndPointAndGetProjection, getGrip$ } from "./shared/magnets.mjs";
+import { observeMagnet, magnetState$, getExtensionCoordDraw } from "./shared/magnets.mjs";
 import { mat3 } from 'gl-matrix';
 import { getNewVertices, pushVertices, replaceVertices } from "./shared/webgl/reshape.mjs";
+import { s } from './shared/settings.mjs';
 
 // rxjs
-import { Subject } from "rxjs";
+import { Subject, filter, map } from "rxjs";
 
 /**
  * В этой версии программы попробуем осущещствлять вызовы к webgl только из текущего файла.
@@ -52,6 +53,7 @@ gl.uniformMatrix3fv(u_pan, false, mat3.create());
 
 // --------- INIT ---------
 function init() {
+    s.tolerance = 0.02;
 }
 init();
 
@@ -65,6 +67,7 @@ export const a = {
 
     isMouseDown: false,
     gripPosition: null,
+    tripPosition: null,
 
     clickMoveStart: null,
     clickCopyStart: null,
@@ -167,6 +170,39 @@ function handleMouseDown(mouseEvent) {
     drawShapes();
 }
 
+magnetState$.pipe(
+    map(state => {
+        const mouse = state.filter(object => object.hasOwnProperty('mouse'))[0].mouse;
+        const grips = state.filter(magnet => magnet.type === 'm_grip');
+        const tripsH = state.filter(magnet => magnet.type === 'm_triph');
+        const tripsV = state.filter(magnet => magnet.type === 'm_tripv');
+        if (grips.length > 0) {
+            return { mouse: mouse, magnet: grips[0] };
+        }
+        else if (tripsH.length > 0 && tripsV.length > 0) {
+            return { mouse: mouse, magnet: [tripsH[0], tripsV[0]] };
+        }
+        else if (tripsH.length > 0) {
+            return { mouse: mouse, magnet: tripsH[0] };
+        }
+        else if (tripsV.length > 0) {
+            return { mouse: mouse, magnet: tripsV[0] };
+        }
+
+    })
+).subscribe(magnet => {
+    a.gripPosition = null;
+    if (magnet) {
+        if (magnet.magnet instanceof Array) {
+            magnet.magnet.forEach(magnet => drawSingle(magnet, gl.DYNAMIC_DRAW));
+        }
+        else {
+            a.gripPosition = magnet.magnet.center ?? getExtensionCoordDraw(magnet.mouse, magnet.magnet, a.start, a.end);
+            drawSingle(magnet.magnet, gl.DYNAMIC_DRAW);
+        }
+    }
+});
+
 function handleMouseMove(mouseEvent) {
     /**
      * Функция выполняется при движении мыши. В зависимости от режима выполняются разные операции.
@@ -179,14 +215,18 @@ function handleMouseMove(mouseEvent) {
 
         drawShapes();
 
+        // assign end if in magnet
+        if (a.gripPosition) {
+            a.end = { ...a.gripPosition };
+        }
+        else {
+            a.end = mouse;
+        }
+
+        // magnets
         if (gm() !== 'select') {
             if (!a.pan) {
-                a.gripPosition = null;
-                getGrip$(a.shapes, mouse).subscribe(grip => {
-                    a.gripPosition = grip.center;
-                    drawSingle(grip, gl.DYNAMIC_DRAW);
-                });
-
+                observeMagnet(a.shapes, mouse).subscribe();
             }
         }
 
@@ -205,13 +245,9 @@ function handleMouseMove(mouseEvent) {
             gl.uniformMatrix3fv(u_pan, false, pan_mat);
         }
 
-        // assign end if in magnet
-        if (a.gripPosition) {
-            a.end = { ...a.gripPosition };
-        }
-        else {
-            a.end = mouse;
-        }
+
+
+
 
         if (a.isMouseDown) {
             switch (gm()) {
@@ -342,6 +378,7 @@ document.addEventListener('keyup', (ev) => {
         spacebarPressed = false;
     }
 });
+// --------- MOUSE EVENTS ---------
 
 
 
@@ -420,6 +457,9 @@ function drawSingle(shape, glMode) {
             break;
         case 'm_grip':
             gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
+        case 'm_triph':
+        case 'm_tripv':
+            gl.drawArrays(gl.LINES, 0, size / 2);
         case 'line':
         case 'move':
             gl.drawArrays(gl.LINES, 0, size / 2);

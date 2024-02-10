@@ -1,5 +1,7 @@
 import { Grip } from "./snaps/Grip.mjs";
 import { Point } from "./Point.mjs";
+import { TripH } from "./snaps/TripH.mjs";
+import { TripV } from "./snaps/TripV.mjs";
 
 export class BasicShape {
 
@@ -13,11 +15,11 @@ export class BasicShape {
     constructor(aspectRatio) {
         this.aspectRatio = aspectRatio;
 
-        this.tolerance = 0.02;
-
         this.move_mat = null;
 
-        this.grip = new Grip(aspectRatio, this.tolerance, new Point(0, 0), 0);
+        this.grip = new Grip(aspectRatio, new Point(0, 0), 0);
+        this.tripH = new TripH(aspectRatio, new Point(0, 0));
+        this.tripV = new TripV(aspectRatio, new Point(0,0));
 
     }
 }
