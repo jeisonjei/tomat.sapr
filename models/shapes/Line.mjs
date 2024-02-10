@@ -27,8 +27,8 @@ export class Line extends BasicShape {
 
     constructor(aspectRatio, start, end, color) {
         super(aspectRatio);
-        this.type = 'line';
-        this.isSelected = false;
+            this.type = 'line';
+            this.isSelected = false;
         this._start = { ...start };
         this._end = { ...end };
         this.mid = this.getMid(start, end);
@@ -107,18 +107,5 @@ export class Line extends BasicShape {
         this.end = transformPointByMatrix3(pan_mat, this.end);
     }
 
-    getMoveMatrix() {
-        
-    }
-    getRotateMatrix() {
-        
-
-    }
-    getMirrorMatrix() {
-        
-    }
-    getScaleMatrix() {
-        
-    }
 
 }
