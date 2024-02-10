@@ -15,8 +15,14 @@ export function gm() {
 // --------- KEY EVENTS ---------
 document.addEventListener('keydown', (ev) => {
     if (ev.key === 's' || ev.key === 'ы') {
+        a.shapes.filter(shape=>shape.isSelected).forEach(shape => {
+            shape.isSelected = false;
+        });
+        reset();
         setMode(mode_elem, 'select');
+        drawShapes();
     }
+
 });
 
 document.addEventListener('keydown', (ev) => {

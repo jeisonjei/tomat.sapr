@@ -64,27 +64,35 @@ export function observeMagnet(shapes, mouse) {
 }
 
 
-export function getExtensionCoordDraw(mouse, trip, start, end) {
+export function getExtensionCoordDraw(magnet, start, mouse) {
+    let angle = null;
+    if (a.angle_snap) {
+        angle = Math.atan2(a.anglePosition.y - start.y, a.anglePosition.x - start.x);
+    }
+    else {
+        angle = Math.atan2(mouse.y - start.y, mouse.x - start.x);
+    }
 
-    let angle = Math.atan2(end.y - start.y, end.x - start.x);
+    if (magnet instanceof Array) {
+        return new Point(magnet[1].start.x,magnet[0].start.y);
+    }
 
-    if (trip.type === 'm_triph') {
-        if (Math.abs(start.y - trip.start.y) <= s.tolerance) {
-         return   new Point(mouse.x, trip.start.y);
+    if (magnet.type === 'm_triph') {
+        if (Math.abs(start.y - magnet.start.y) <= s.tolerance) {
+         return   new Point(mouse.x, magnet.start.y);
         }
-        let dy = trip.start.y - start.y;
+        let dy = magnet.start.y - start.y;
         let dx = dy / Math.tan(angle);
-        return new Point(start.x + dx,trip.start.y);
+        return new Point(start.x + dx,magnet.start.y);            
 
     }
-    else if (trip.type === 'm_tripv') {
-        if (Math.abs(start.x - trip.start.x) <= s.tolerance) {
-            return new Point(trip.start.x, mouse.y);
+    else if (magnet.type === 'm_tripv') {
+        if (Math.abs(start.x - magnet.start.x) <= s.tolerance) {
+            return new Point(magnet.start.x, mouse.y);
         }
-        let dx = trip.start.x - start.x;
+        let dx = magnet.start.x - start.x;
         let dy = dx * Math.tan(angle);
-        return new Point(trip.start.x, start.y + dy);
-
+        return new Point(magnet.start.x, start.y + dy);
     }
 }
 

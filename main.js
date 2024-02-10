@@ -67,7 +67,7 @@ export const a = {
 
     isMouseDown: false,
     gripPosition: null,
-    tripPosition: null,
+    anglePosition: null,
 
     clickMoveStart: null,
     clickCopyStart: null,
@@ -171,6 +171,10 @@ function handleMouseDown(mouseEvent) {
 }
 
 magnetState$.pipe(
+    /**
+     * Функция получает начальную или конечную привязку.
+     * Переменная a.gripPosition назначается только здесь
+     */
     map(state => {
         const mouse = state.filter(object => object.hasOwnProperty('mouse'))[0].mouse;
         const grips = state.filter(magnet => magnet.type === 'm_grip');
@@ -194,10 +198,11 @@ magnetState$.pipe(
     a.gripPosition = null;
     if (magnet) {
         if (magnet.magnet instanceof Array) {
+            a.gripPosition = getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
             magnet.magnet.forEach(magnet => drawSingle(magnet, gl.DYNAMIC_DRAW));
         }
         else {
-            a.gripPosition = magnet.magnet.center ?? getExtensionCoordDraw(magnet.mouse, magnet.magnet, a.start, a.end);
+            a.gripPosition = magnet.magnet.center ?? getExtensionCoordDraw( magnet.magnet, a.start, magnet.mouse);
             drawSingle(magnet.magnet, gl.DYNAMIC_DRAW);
         }
     }
@@ -214,14 +219,6 @@ function handleMouseMove(mouseEvent) {
         const mouse = canvasGetMouse(mouseEvent, canvas);
 
         drawShapes();
-
-        // assign end if in magnet
-        if (a.gripPosition) {
-            a.end = { ...a.gripPosition };
-        }
-        else {
-            a.end = mouse;
-        }
 
         // magnets
         if (gm() !== 'select') {
@@ -246,9 +243,6 @@ function handleMouseMove(mouseEvent) {
         }
 
 
-
-
-
         if (a.isMouseDown) {
             switch (gm()) {
                 case 'select':
@@ -259,8 +253,8 @@ function handleMouseMove(mouseEvent) {
 
                     if (a.angle_snap) {
 
-                        const dx = (canvasGetClientX(mouseEvent, canvas) - a.start.x) / a.aspectRatio;
-                        const dy = canvasGetClientY(mouseEvent, canvas) - a.start.y;
+                        const dx = (mouse.x - a.start.x) / a.aspectRatio;
+                        const dy = mouse.y - a.start.y;
                         const angle = -Math.atan2(dy, dx);
                         const distance = Math.hypot(dx, dy);
                         const snappedAngleRad = getRotateSnap(angle);
@@ -269,8 +263,9 @@ function handleMouseMove(mouseEvent) {
                         const snappedDy = snappedDistance * Math.sin(snappedAngleRad);
                         a.line.end.x = (a.start.x + snappedDx);
                         a.line.end.y = (a.start.y - snappedDy);
+                        a.anglePosition = new Point(a.start.x + snappedDx,a.start.y - snappedDy);
                     } else {
-                        a.line.end = { ...a.end };
+                        a.line.end = mouse;
                     }
                     drawSingle(a.line, gl.DYNAMIC_DRAW);
                     break;
@@ -308,10 +303,19 @@ function handleMouseMove(mouseEvent) {
 }
 
 function handleMouseUp(mouseEvent) {
-
     console.log('shapes', a.shapes.length);
-
+    const mouse = canvasGetMouse(mouseEvent, canvas);
     a.isMouseDown = false;
+    
+    if (a.gripPosition) {
+        a.end = { ...a.gripPosition };
+    }
+    else if (a.anglePosition) {
+        a.end = {...a.anglePosition};
+    }
+    else {
+        a.end = mouse;
+    }
 
     switch (gm()) {
         case 'select':
@@ -323,10 +327,8 @@ function handleMouseUp(mouseEvent) {
 
             break;
         case 'line':
-            const line = a.line.getClone();
-            addShapes(line);
-            // ---
-            a.vertices = pushVertices(line, a.vertices);
+            a.line.end = a.end;
+            addShapes(a.line.getClone());
             break;
         default:
             break;
