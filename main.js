@@ -13,7 +13,7 @@ import { getNewVertices, pushVertices, replaceVertices } from "./shared/webgl/re
 import { s } from './shared/settings.mjs';
 
 // rxjs
-import { Subject, filter, map } from "rxjs";
+import { Subject, filter, fromEvent, map } from "rxjs";
 
 /**
  * В этой версии программы попробуем осущещствлять вызовы к webgl только из текущего файла.
@@ -103,7 +103,7 @@ export const a = {
 
 
 // --------- MOUSE EVENTS ---------
-function handleMouseDown(mouseEvent) {
+function handleMouseDown(mouse) {
     /**
      * Функция выполняется при нажатии мыши. В зависимости от режима select, move, copy, rotate, mirror, line, circle ...
      * выполняются разные блоки. 
@@ -119,7 +119,7 @@ function handleMouseDown(mouseEvent) {
         a.start = { ...a.magnetPosition };
     }
     else {
-        a.start = canvasGetMouse(mouseEvent, canvas);
+        a.start = mouse
     }
 
     switch (gm()) {
@@ -195,20 +195,19 @@ magnetState$.pipe(
 
     })
 ).subscribe(magnet => {
-    a.magnetPosition = null;
-    if (magnet) {
+    if (magnet && a.start) {
         if (magnet.magnet instanceof Array) {
             a.magnetPosition = getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
             magnet.magnet.forEach(magnet => drawSingle(magnet, gl.DYNAMIC_DRAW));
         }
         else {
-            a.magnetPosition = magnet.magnet.center ?? getExtensionCoordDraw( magnet.magnet, a.start, magnet.mouse);
+            a.magnetPosition = magnet.magnet.center ?? getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
             drawSingle(magnet.magnet, gl.DYNAMIC_DRAW);
         }
     }
 });
 
-function handleMouseMove(mouseEvent) {
+function handleMouseMove(mouse) {
     /**
      * Функция выполняется при движении мыши. В зависимости от режима выполняются разные операции.
      * В то время, как вся отрисовка выполняется в функции drawSingle, в этой функции в зависимости
@@ -216,9 +215,22 @@ function handleMouseMove(mouseEvent) {
      */
     requestAnimationFrame(() => {
 
-        const mouse = canvasGetMouse(mouseEvent, canvas);
-
         drawShapes();
+
+        a.magnetPosition = null;
+        a.anglePosition = null;
+
+        if (a.angle_snap) {
+            const dx = (mouse.x - a.start.x) / a.aspectRatio;
+            const dy = mouse.y - a.start.y;
+            const angle = -Math.atan2(dy, dx);
+            const distance = Math.hypot(dx, dy);
+            const snappedAngleRad = getRotateSnap(angle);
+            const snappedDistance = distance / Math.cos(angle - snappedAngleRad);
+            const snappedDx = snappedDistance * Math.cos(snappedAngleRad) * a.aspectRatio;
+            const snappedDy = snappedDistance * Math.sin(snappedAngleRad);
+            a.anglePosition = new Point(a.start.x + snappedDx, a.start.y - snappedDy);
+        }
 
         // magnets
         if (gm() !== 'select') {
@@ -226,6 +238,8 @@ function handleMouseMove(mouseEvent) {
                 observeMagnet(a.shapes, mouse).subscribe();
             }
         }
+
+
 
         // pan
         if (a.pan) {
@@ -253,17 +267,8 @@ function handleMouseMove(mouseEvent) {
 
                     if (a.angle_snap) {
 
-                        const dx = (mouse.x - a.start.x) / a.aspectRatio;
-                        const dy = mouse.y - a.start.y;
-                        const angle = -Math.atan2(dy, dx);
-                        const distance = Math.hypot(dx, dy);
-                        const snappedAngleRad = getRotateSnap(angle);
-                        const snappedDistance = distance / Math.cos(angle - snappedAngleRad);
-                        const snappedDx = snappedDistance * Math.cos(snappedAngleRad) * a.aspectRatio;
-                        const snappedDy = snappedDistance * Math.sin(snappedAngleRad);
-                        a.line.end.x = (a.start.x + snappedDx);
-                        a.line.end.y = (a.start.y - snappedDy);
-                        a.anglePosition = new Point(a.start.x + snappedDx,a.start.y - snappedDy);
+                        a.line.end.x = a.anglePosition.x;
+                        a.line.end.y = a.anglePosition.y;
                     } else {
                         a.line.end = mouse;
                     }
@@ -302,16 +307,15 @@ function handleMouseMove(mouseEvent) {
     });
 }
 
-function handleMouseUp(mouseEvent) {
+function handleMouseUp(mouse) {
     console.log('shapes', a.shapes.length);
-    const mouse = canvasGetMouse(mouseEvent, canvas);
     a.isMouseDown = false;
-    
+
     if (a.magnetPosition) {
         a.end = { ...a.magnetPosition };
     }
     else if (a.anglePosition) {
-        a.end = {...a.anglePosition};
+        a.end = { ...a.anglePosition };
     }
     else {
         a.end = mouse;
@@ -359,11 +363,15 @@ function handleSpacebarUp() {
     drawShapes();
 }
 
+const mouseDown$ = fromEvent(canvas, 'mousedown').pipe(map(ev => canvasGetMouse(ev, canvas)));
+const mouseMove$ = fromEvent(canvas, 'mousemove').pipe(map(ev => canvasGetMouse(ev, canvas)));
+const mouseUp$ = fromEvent(canvas, 'mouseup').pipe(map(ev => canvasGetMouse(ev, canvas)));
+mouseDown$.subscribe(handleMouseDown);
+mouseMove$.subscribe(handleMouseMove);
+mouseUp$.subscribe(handleMouseUp);
 
-canvas.addEventListener('mousedown', handleMouseDown);
-canvas.addEventListener('mousemove', handleMouseMove);
-canvas.addEventListener('mouseup', handleMouseUp);
 canvas.addEventListener('wheel', handleMouseWheel);
+
 
 let spacebarPressed = false;
 

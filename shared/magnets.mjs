@@ -22,15 +22,15 @@ export function observeMagnet(shapes, mouse) {
                 case shape.isinGripStart(mouse):
                     shape.grip.center = shape.start;
                     acc.push(shape.grip);
-                    break;
+                    return acc;
                 case shape.isinGripMid(mouse):
                     shape.grip.center = shape.mid;
                     acc.push(shape.grip);
-                    break;
+                    return acc;
                 case shape.isinGripEnd(mouse):
                     shape.grip.center = shape.end;
                     acc.push(shape.grip);
-                    break;
+                    return acc;
                 case shape.isinTripHstart(mouse):
                     shape.tripH.mouse = mouse;
                     shape.tripH.start = shape.start;
