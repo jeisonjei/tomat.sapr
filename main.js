@@ -66,7 +66,7 @@ export const a = {
     shapes$: new Subject(),
 
     isMouseDown: false,
-    gripPosition: null,
+    magnetPosition: null,
     anglePosition: null,
 
     clickMoveStart: null,
@@ -115,8 +115,8 @@ function handleMouseDown(mouseEvent) {
     a.isMouseDown = true;
 
 
-    if (a.gripPosition) {
-        a.start = { ...a.gripPosition };
+    if (a.magnetPosition) {
+        a.start = { ...a.magnetPosition };
     }
     else {
         a.start = canvasGetMouse(mouseEvent, canvas);
@@ -195,14 +195,14 @@ magnetState$.pipe(
 
     })
 ).subscribe(magnet => {
-    a.gripPosition = null;
+    a.magnetPosition = null;
     if (magnet) {
         if (magnet.magnet instanceof Array) {
-            a.gripPosition = getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
+            a.magnetPosition = getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
             magnet.magnet.forEach(magnet => drawSingle(magnet, gl.DYNAMIC_DRAW));
         }
         else {
-            a.gripPosition = magnet.magnet.center ?? getExtensionCoordDraw( magnet.magnet, a.start, magnet.mouse);
+            a.magnetPosition = magnet.magnet.center ?? getExtensionCoordDraw( magnet.magnet, a.start, magnet.mouse);
             drawSingle(magnet.magnet, gl.DYNAMIC_DRAW);
         }
     }
@@ -307,8 +307,8 @@ function handleMouseUp(mouseEvent) {
     const mouse = canvasGetMouse(mouseEvent, canvas);
     a.isMouseDown = false;
     
-    if (a.gripPosition) {
-        a.end = { ...a.gripPosition };
+    if (a.magnetPosition) {
+        a.end = { ...a.magnetPosition };
     }
     else if (a.anglePosition) {
         a.end = {...a.anglePosition};

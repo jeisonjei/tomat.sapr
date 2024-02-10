@@ -71,5 +71,5 @@ function reset() {
     a.clickMoveStart = null;
     a.start = null;
     a.isMouseDown = false;
-    a.gripPosition = null;
+    a.magnetPosition = null;
 }
