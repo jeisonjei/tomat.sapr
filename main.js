@@ -16,6 +16,7 @@ import { s } from './shared/settings.mjs';
 import { Subject, filter, fromEvent, map } from "rxjs";
 import { Rectangle } from "./models/shapes/Rectangle.mjs";
 import { Circle } from "./models/shapes/Circle.mjs";
+import { SymLine } from "./models/shapes/SymLine.mjs";
 
 /**
  * В этой версии программы попробуем осущещствлять вызовы к webgl только из текущего файла.
@@ -84,6 +85,7 @@ export const a = {
 
     // shapes
     line: new Line(s.aspectRatio, new Point(0, 0), new Point(0, 0), [1, 0, 0, 1]),
+    symline: new SymLine(s.aspectRatio, new Point(0,0), new Point(0,0), [1, 0, 0, 1]),
     circle: new Circle(s.aspectRatio, new Point(0, 0), 0, [1, 0, 0, 1]),
     rectangle: new Rectangle(s.aspectRatio, new Point(0, 0), new Point(0, 0), new Point(0, 0), new Point(0, 0), 0, 0, [1, 0, 0, 1]),
     selectFrame: new AbstractFrame(new Point(0, 0), new Point(0, 0), [0, 1, 0, 1]),
@@ -146,7 +148,9 @@ function handleMouseDown(mouse) {
         case 'line':
             a.line.start = a.start;
             break;
-
+        case 'symline':
+            a.symline.start = a.start;
+            break;
         case 'rectangle':
             a.rectangle.p1 = a.start;
             break;
@@ -521,7 +525,18 @@ function handleMouseMove(mouse) {
                     }
                     drawSingle(a.line);
                     break;
-
+                case 'symline':
+                    if (a.angle_snap) {
+                        a.symline.start = a.start;
+                        a.symline.end.x = a.anglePosition.x;
+                        a.symline.end.y = a.anglePosition.y;
+                        
+                    }
+                    else {
+                        a.symline.end = mouse;
+                    }
+                    drawSingle(a.symline);
+                    break;
                 case 'rectangle':
                     a.rectangle.width = mouse.x - a.start.x;
                     a.rectangle.height = mouse.y - a.start.y;
@@ -653,6 +668,12 @@ function handleMouseUp(mouse) {
             break;
         case 'line':
             a.line.end = a.end;
+            addShapes(a.line.getClone());
+            break;
+        case 'symline':
+            a.symline.end = a.end;
+            a.line.start = a.symline.end;
+            a.line.end = a.symline.symend;
             addShapes(a.line.getClone());
             break;
         case 'rectangle':
@@ -823,6 +844,7 @@ export function drawSingle(shape) {
         case 'm_tripv':
             gl.drawArrays(gl.LINES, 0, size / 2);
         case 'line':
+        case 'symline':
             gl.drawArrays(gl.LINES, 0, size / 2);
             break;
         case 'rectangle':
