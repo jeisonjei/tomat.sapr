@@ -2,11 +2,10 @@
   "name": "webgl",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --mode production",
-    "start": "webpack serve --mode development --open"
+    "start": "webpack --config webpack.dev.js",
+    "build":"webpack --config webpack.prod.js"
   },
   "keywords": [],
   "author": "",
