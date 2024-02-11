@@ -1,8 +1,8 @@
 
 
 canvas{
-    width: 100%;
-    height: 96vh;
+    width: 99vw;
+    height: 97.5vh;
     display: block;
     border: 1px solid black;
 }
@@ -63,8 +63,9 @@ canvas{
   
   .absolute-div {
       position: absolute;
-      left: 2rem;
+      left: 1rem;
       user-select: none;
+      font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
   }
   td:first-child{
     padding-right: 10px;
