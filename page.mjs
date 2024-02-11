@@ -1,4 +1,4 @@
-import { a, drawShapes } from "./main.js";
+import { a, deleteShapes, drawShapes } from "./main.js";
 
 const mode_elem = document.getElementById('mode');
 setMode(mode_elem, 'select');
@@ -96,6 +96,13 @@ document.querySelector('body').addEventListener('keyup', function (event) {
         a.angle_snap = false;
     }
 });
+// DELETE
+document.querySelector('body').addEventListener('keydown', function (event) {
+    if (event.key === 'Delete') {
+        deleteShapes();
+        drawShapes();
+    }
+})
 
 function reset() {
     a.clickCopyStart = null;
@@ -104,4 +111,5 @@ function reset() {
     a.clickMirrorStart = null;
     a.isMouseDown = false;
     a.magnetPosition = null;
+    a.anglePosition = null;
 }
