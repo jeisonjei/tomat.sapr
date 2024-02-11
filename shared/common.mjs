@@ -128,3 +128,7 @@ export function resizeCanvasToDisplaySize(canvas) {
  
   return needResize;
 }
+
+export function checkFunction(shape, functionName, mouse) {
+  return typeof shape[functionName] === 'function' ? shape[functionName](mouse) : null;
+}

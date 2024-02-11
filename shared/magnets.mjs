@@ -1,6 +1,6 @@
 import { filter, from, map, switchMap, tap, of, Subject, AsyncSubject, ReplaySubject } from "rxjs";
 import { scan } from "rxjs";
-import { canvasGetClientX, canvasGetClientY, canvasGetMouse } from "./common.mjs";
+import { canvasGetClientX, canvasGetClientY, canvasGetMouse, checkFunction } from "./common.mjs";
 import { s } from './settings.mjs';
 import { a } from '../main.js';
 import { ms } from "../models/snaps/MagnetState.mjs";
@@ -211,10 +211,6 @@ export function observeMagnet(shapes, mouse) {
         }),
     )
 }
-
-function checkFunction(shape, functionName, mouse) {
-    return typeof shape[functionName] === 'function' ? shape[functionName](mouse) : null;
-  }
 
 
 export function getExtensionCoordDraw(magnet, start, mouse) {

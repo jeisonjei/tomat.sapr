@@ -82,6 +82,13 @@ export class Circle extends BasicShape {
 
         return false;
     }
+    isinSelectBoundary() {
+        
+    }
+    setSelectBoundary() {
+        
+    }
+
 
     // --------- MAGNETS ---------
     isinGripCenter = (mouse) => this.grip.isin(this.center, mouse);

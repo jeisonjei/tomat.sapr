@@ -2,9 +2,9 @@
 import { Point } from "./models/Point.mjs"
 import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
-import { canvasGetClientX, canvasGetClientY, canvasGetMouse, getAngleDegrees, getAngleRadians, resizeCanvasToDisplaySize, transformPointByMatrix3, transformPointByMatrix4 } from "./shared/common.mjs";
+import { canvasGetClientX, canvasGetClientY, canvasGetMouse, checkFunction, getAngleDegrees, getAngleRadians, resizeCanvasToDisplaySize, transformPointByMatrix3, transformPointByMatrix4 } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
-import { editModeObserver, gm, mode_elem, setMode } from "./page.mjs";
+import { boundaryModeObserver, editModeObserver, gm, mode_elem, setMode } from "./page.mjs";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
 import { getMirrorMatrix, getMoveMatrix, getRotateMatrix, getRotateSnap } from "./shared/transform.mjs";
 import { observeMagnet, magnetState$, getExtensionCoordDraw, getAnglePosition } from "./shared/magnets.mjs";
@@ -134,6 +134,14 @@ function handleMouseDown(mouse) {
     switch (gm()) {
         case 'select':
             a.selectFrame.start = a.start;
+            break;
+        case 'boundary':
+            const isinSelectBoundary = a.shapes.filter(shape => shape.isinSelectBoundary(mouse));
+            if (isinSelectBoundary.length > 0) {
+                isinSelectBoundary.forEach(shape => {
+                    shape.isSelected = !shape.isSelected;
+                })
+            }
             break;
         case 'line':
             a.line.start = a.start;
@@ -399,9 +407,9 @@ function handleMouseMove(mouse) {
         }
 
 
-        
+
         // magnets
-        if (gm() !== 'select') {
+        if (gm() !== 'select' && gm()!=='boundary') {
             if (!a.pan) {
                 // disabling magnets for currently edited shape
                 observeMagnet(a.shapes.filter(shape => shape.edit === null), mouse).subscribe();
@@ -427,6 +435,8 @@ function handleMouseMove(mouse) {
 
         // enable edit mode
         editModeObserver(mouse);
+        // enable boundary mode
+        boundaryModeObserver(mouse);
 
 
         if (a.isMouseDown) {
@@ -458,6 +468,7 @@ function handleMouseMove(mouse) {
                     }
                     break;
                 case 'select':
+                case 'boundary':
                     a.selectFrame.end = mouse;
                     drawSingle(a.selectFrame);
                     break;
@@ -572,7 +583,6 @@ function handleMouseUp(mouse) {
 
 
     switch (gm()) {
-        case 'select':
         case 'edit':
             const editShapes = a.shapes.filter(shape => shape.edit !== null);
             if (editShapes.length > 0) {
@@ -593,14 +603,14 @@ function handleMouseUp(mouse) {
                     }
                 })
             }
-            else {
-                a.shapes.forEach(shape => {
-                    if (shape.isinSelectFrame(a.selectFrame)) {
-                        shape.isSelected = !shape.isSelected;
-                    }
-                });
-            }
 
+            break;
+        case 'select':
+            a.shapes.forEach(shape => {
+                if (shape.isinSelectFrame(a.selectFrame)) {
+                    shape.isSelected = !shape.isSelected;
+                }
+            });
             break;
         case 'line':
             a.line.end = a.end;
@@ -742,7 +752,7 @@ export function drawShapes() {
 }
 
 
-function drawSingle(shape) {
+export function drawSingle(shape) {
     /**
      * Предполагается, что основное общение с webgl будет происходить через эту функцию.
      * В то же время трансформации происходят также через функцию handleMouseMove
@@ -764,6 +774,9 @@ function drawSingle(shape) {
         case 'select_frame':
             gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
 
+            break;
+        case 'selectBoundary':
+            gl.drawArrays(gl.LINES, 0, size / 2);
             break;
         case 'm_grip':
             gl.drawArrays(gl.LINE_LOOP, 0, size / 2);

@@ -117,6 +117,13 @@ export class Rectangle extends BasicShape {
         return false;
     }
 
+    isinSelectBoundary() {
+        
+    }
+    setSelectBoundary() {
+        
+    }
+
     // --------- MAGNETS ---------
     isinGripP1 = (mouse) => this.grip.isin(this.p1, mouse);
     isinGripP2 = (mouse) => this.grip.isin(this.p2, mouse);

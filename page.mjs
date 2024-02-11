@@ -1,4 +1,5 @@
-import { a, deleteShapes, drawShapes } from "./main.js";
+import { a, deleteShapes, drawShapes, drawSingle } from "./main.js";
+import { checkFunction } from "./shared/common.mjs";
 
 export const mode_elem = document.getElementById('mode');
 setMode(mode_elem, 'select');
@@ -34,6 +35,22 @@ export function editModeObserver(mouse) {
                     break;
             }
         });
+    }
+}
+
+export function boundaryModeObserver(mouse) {
+    if (gm() === 'select' || gm() === 'boundary') {
+        const isinSelectBoundary = a.shapes.filter(shape => checkFunction(shape, 'isinSelectBoundary', mouse));
+        if (isinSelectBoundary.length>0) {
+            setMode(mode_elem, 'boundary');
+            isinSelectBoundary.forEach(shape => {
+                shape.setSelectBoundary();
+                drawSingle(shape.selectBoundary);
+            })
+        }
+        else {
+            setMode(mode_elem, 'select');
+        }
     }
 }
 
@@ -134,7 +151,6 @@ function reset() {
     a.clickMoveStart = null;
     a.clickRotateStart = null;
     a.clickMirrorStart = null;
-    a.isMouseDown = false;
     a.magnetPosition = null;
     a.anglePosition = null;
 }
