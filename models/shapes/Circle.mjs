@@ -1,5 +1,8 @@
 import { isPointInsideFrame } from "../../shared/common.mjs";
 import { BasicShape } from "../BasicShape.mjs";
+import { Point } from "../Point.mjs";
+import { mat3 } from "gl-matrix";
+import { transformPointByMatrix3 } from "../../shared/common.mjs";
 
 export class Circle extends BasicShape {
     set center(point) {
@@ -20,7 +23,7 @@ export class Circle extends BasicShape {
         return this._radius;
     }
 
-    
+
     constructor(aspectRatio, center, radius, color) {
         super(aspectRatio);
         this.type = 'circle';
@@ -52,15 +55,19 @@ export class Circle extends BasicShape {
         return circleVertices;
     }
 
+    getClone() {
+        return new Circle(this.aspectRatio, this.center, this.radius, this.color);
+    }
+
 
     updateBoundary() {
         const center = this.center;
         const radius = this.radius;
 
-        this.quad1 = new Point2d(center.x, center.y + radius); // top point
-        this.quad2 = new Point2d(center.x + radius * this.aspectRatio, center.y); // right point
-        this.quad3 = new Point2d(center.x, center.y - radius); // bottom point
-        this.quad4 = new Point2d(center.x - radius * this.aspectRatio, center.y); // left point
+        this.quad1 = new Point(center.x, center.y + radius); // top point
+        this.quad2 = new Point(center.x + radius * this.aspectRatio, center.y); // right point
+        this.quad3 = new Point(center.x, center.y - radius); // bottom point
+        this.quad4 = new Point(center.x - radius * this.aspectRatio, center.y); // left point
     }
 
     isinSelectFrame(frame) {
@@ -83,24 +90,23 @@ export class Circle extends BasicShape {
     isinGripQ2 = (mouse) => this.grip.isin(this.quad2, mouse);
     isinGripQ3 = (mouse) => this.grip.isin(this.quad3, mouse);
     isinGripQ4 = (mouse) => this.grip.isin(this.quad4, mouse);
+    isinTripHcenter = (mouse) => this.tripH.isin(this.center, mouse);
+    isinTripVcenter = (mouse) => this.tripV.isin(this.center, mouse);
+    isinTripHq1 = (mouse) => this.tripH.isin(this.quad1, mouse);
+    isinTripHq3 = (mouse) => this.tripH.isin(this.quad3, mouse);
+    isinTripVq4 = (mouse) => this.tripV.isin(this.quad4, mouse);
+    isinTripVq2 = (mouse) => this.tripV.isin(this.quad2, mouse);
     // --------- MAGNETS ---------
 
     zoom(zl) {
         const zoom_mat = mat3.fromScaling(mat3.create(), [zl, zl, 1]);
         this.center = transformPointByMatrix3(zoom_mat, this.center);
-        this.quad1 = transformPointByMatrix3(zoom_mat, this.quad1);
-        this.quad2 = transformPointByMatrix3(zoom_mat, this.quad2);
-        this.quad3 = transformPointByMatrix3(zoom_mat, this.quad3);
-        this.quad4 = transformPointByMatrix3(zoom_mat, this.quad4);
+        this.radius = this.radius * zl;
     }
 
     pan(tx, ty) {
         const pan_mat = mat3.fromTranslation(mat3.create(), [tx, ty, 0]);
         mat3.transpose(pan_mat, pan_mat);
         this.center = transformPointByMatrix3(pan_mat, this.center);
-        this.quad1 = transformPointByMatrix3(pan_mat, this.quad1);
-        this.quad2 = transformPointByMatrix3(pan_mat, this.quad2);
-        this.quad3 = transformPointByMatrix3(pan_mat, this.quad3);
-        this.quad4 = transformPointByMatrix3(pan_mat, this.quad4);
     }
 }

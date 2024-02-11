@@ -14,6 +14,8 @@ import { s } from './shared/settings.mjs';
 
 // rxjs
 import { Subject, filter, fromEvent, map } from "rxjs";
+import { Rectangle } from "./models/shapes/Rectangle.mjs";
+import { Circle } from "./models/shapes/Circle.mjs";
 
 /**
  * В этой версии программы попробуем осущещствлять вызовы к webgl только из текущего файла.
@@ -81,6 +83,8 @@ export const a = {
 
     // shapes
     line: new Line(s.aspectRatio, new Point(0, 0), new Point(0, 0), [1, 0, 0, 1]),
+    circle: new Circle(s.aspectRatio, new Point(0, 0), 0, [1, 0, 0, 1]),
+    rectangle: new Rectangle(s.aspectRatio, new Point(0, 0), new Point(0, 0), new Point(0, 0), new Point(0, 0), 0, 0, [1, 0, 0, 1]),
     selectFrame: new AbstractFrame(new Point(0, 0), new Point(0, 0), [0, 1, 0, 1]),
 
     // zoom
@@ -128,10 +132,20 @@ function handleMouseDown(mouse) {
 
     switch (gm()) {
         case 'select':
-            a.selectFrame.start = { ...a.start };
+            a.selectFrame.start = a.start;
             break;
         case 'line':
-            a.line.start = { ...a.start };
+            a.line.start = a.start;
+            break;
+
+        case 'rectangle':
+            a.rectangle.p1 = a.start;
+            break;
+        case 'square':
+            a.rectangle.p1 = a.start;
+            break;
+        case 'circle':
+            a.circle.center = a.start;
             break;
         case 'move':
             if (!a.clickMoveStart) {
@@ -140,9 +154,23 @@ function handleMouseDown(mouse) {
             else if (a.clickMoveStart) {
                 const move_mat = getMoveMatrix(a.clickMoveStart, a.start);
                 a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                    shape.start = transformPointByMatrix3(move_mat, shape.start);
-                    shape.end = transformPointByMatrix3(move_mat, shape.end);
-                    a.vertices = replaceVertices(shape, a.vertices);
+                    switch (shape.type) {
+                        case 'line':
+                            shape.start = transformPointByMatrix3(move_mat, shape.start);
+                            shape.end = transformPointByMatrix3(move_mat, shape.end);
+                            a.vertices = replaceVertices(shape, a.vertices);
+
+                            break;
+                        case 'rectangle':
+                            shape.p1 = transformPointByMatrix3(move_mat, shape.p1);
+                            shape.p2 = transformPointByMatrix3(move_mat, shape.p2);
+                            shape.p3 = transformPointByMatrix3(move_mat, shape.p3);
+                            shape.p4 = transformPointByMatrix3(move_mat, shape.p4);
+                            // TODO: replaceVertices
+                            break;
+                        default:
+                            break;
+                    }
                     shape.isSelected = false;
                 });
                 a.clickMoveStart = null;
@@ -159,9 +187,22 @@ function handleMouseDown(mouse) {
             else if (a.clickCopyStart) {
                 const move_mat = getMoveMatrix(a.clickCopyStart, a.start);
                 a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                    shape.start = transformPointByMatrix3(move_mat, shape.start);
-                    shape.end = transformPointByMatrix3(move_mat, shape.end);
-                    a.vertices = replaceVertices(shape, a.vertices);
+                    switch (shape.type) {
+                        case 'line':
+                            shape.start = transformPointByMatrix3(move_mat, shape.start);
+                            shape.end = transformPointByMatrix3(move_mat, shape.end);
+                            a.vertices = replaceVertices(shape, a.vertices);
+                            break;
+                        case 'rectangle':
+                            shape.p1 = transformPointByMatrix3(move_mat, shape.p1);
+                            shape.p2 = transformPointByMatrix3(move_mat, shape.p2);
+                            shape.p3 = transformPointByMatrix3(move_mat, shape.p3);
+                            shape.p4 = transformPointByMatrix3(move_mat, shape.p4);
+                            // TODO replaceVertices
+                            break;
+                        default:
+                            break;
+                    }
                 });
                 a.clickCopyStart = null;
                 gl.uniformMatrix3fv(u_move, false, mat3.create());
@@ -175,9 +216,22 @@ function handleMouseDown(mouse) {
                 const rotate_mat = getRotateMatrix(a.clickRotateStart, mouse);
 
                 a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                    shape.start = transformPointByMatrix3(rotate_mat, shape.start);
-                    shape.end = transformPointByMatrix3(rotate_mat, shape.end);
-                    a.vertices = replaceVertices(shape, a.vertices);
+                    switch (shape.type) {
+                        case 'line':
+                            shape.start = transformPointByMatrix3(rotate_mat, shape.start);
+                            shape.end = transformPointByMatrix3(rotate_mat, shape.end);
+                            a.vertices = replaceVertices(shape, a.vertices);
+
+                            break;
+                        case 'rectangle':
+                            shape.p1 = transformPointByMatrix3(rotate_mat, shape.p1);
+                            shape.p2 = transformPointByMatrix3(rotate_mat, shape.p2);
+                            shape.p3 = transformPointByMatrix3(rotate_mat, shape.p3);
+                            shape.p4 = transformPointByMatrix3(rotate_mat, shape.p4);
+                        // TODO replaceVertices
+                        default:
+                            break;
+                    }
                 })
                 a.clickRotateStart = null;
                 gl.uniformMatrix3fv(u_rotate, false, mat3.create());
@@ -195,9 +249,22 @@ function handleMouseDown(mouse) {
                 const mirror_mat = getMirrorMatrix(a.clickMirrorStart, mouse);
 
                 a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                    shape.start = transformPointByMatrix3(mirror_mat, shape.start);
-                    shape.end = transformPointByMatrix3(mirror_mat, shape.end);
-                    a.vertices = replaceVertices(shape, a.vertices);
+                    switch (shape.type) {
+                        case 'line':
+                            shape.start = transformPointByMatrix3(mirror_mat, shape.start);
+                            shape.end = transformPointByMatrix3(mirror_mat, shape.end);
+                            a.vertices = replaceVertices(shape, a.vertices);
+
+                            break;
+                        case 'rectangle':
+                            shape.p1 = transformPointByMatrix3(mirror_mat, shape.p1);
+                            shape.p2 = transformPointByMatrix3(mirror_mat, shape.p2);
+                            shape.p3 = transformPointByMatrix3(mirror_mat, shape.p3);
+                            shape.p4 = transformPointByMatrix3(mirror_mat, shape.p4);
+                        // TODO replaceVertices
+                        default:
+                            break;
+                    }
                 });
                 a.clickMirrorStart = null;
                 gl.uniformMatrix3fv(u_rotate, false, mat3.create());
@@ -307,6 +374,31 @@ function handleMouseMove(mouse) {
                     drawSingle(a.line);
                     break;
 
+                case 'rectangle':
+                    a.rectangle.width = mouse.x - a.start.x;
+                    a.rectangle.height = mouse.y - a.start.y;
+                    drawSingle(a.rectangle);
+                    break;
+
+                case 'square':
+                    a.rectangle.width = mouse.x - a.start.x;
+                    const height = mouse.y - a.start.y;
+                    if (height < 0 && a.width < 0) {
+                        a.height = a.width;
+                    } else if (height < 0 && a.width > 0) {
+                        a.height = -a.width;
+                    } else if (height > 0 && a.width < 0) {
+                        a.height = -a.width;
+                    } else if (height > 0 && a.width > 0) {
+                        a.height = a.width;
+                    }
+                    drawSingle(a.rectangle);
+                    break;
+
+                case 'circle':
+                    a.circle.radius = Math.hypot((mouse.x - a.start.x)/s.aspectRatio, mouse.y - a.start.y);;
+                    drawSingle(a.circle);
+                    break;
 
                 default:
                     break;
@@ -333,7 +425,7 @@ function handleMouseMove(mouse) {
                     break;
                 case 'rotate':
                     if (a.clickRotateStart) {
-                            
+
                         const rotate_mat = getRotateMatrix(a.clickRotateStart, mouse);
                         gl.uniformMatrix3fv(u_rotate, false, rotate_mat);
                         a.shapes.filter(shape => shape.isSelected).forEach(shape => {
@@ -372,11 +464,6 @@ function handleMouseUp(mouse) {
         a.end = mouse;
     }
 
-    // сброс a.selected
-    if (a.shapes.filter(shape => shape.isSelected).length === 0) {
-        a.selected = false;
-    }
-
     switch (gm()) {
         case 'select':
             a.shapes.forEach(shape => {
@@ -389,6 +476,19 @@ function handleMouseUp(mouse) {
         case 'line':
             a.line.end = a.end;
             addShapes(a.line.getClone());
+            break;
+        case 'rectangle':
+            a.rectangle.width = a.end.x - a.start.x;
+            a.rectangle.height = a.end.y - a.start.y;
+            addShapes(a.rectangle.getClone());
+
+            break;
+        case 'square':
+
+            break;
+        case 'circle':
+            a.circle.radius = Math.hypot((a.end.x - a.start.x)/s.aspectRatio, a.end.y - a.start.y);;
+            addShapes(a.circle.getClone());
             break;
         default:
             break;
@@ -489,14 +589,14 @@ function deleteShapes(shapes) {
 export function drawShapes() {
     gl.uniformMatrix3fv(u_move, false, mat3.create());
     gl.uniformMatrix3fv(u_rotate, false, mat3.create());
-    if (a.vertices.length === 0) {
-        return;
-    }
-    gl.uniform4f(u_color, 1, 0, 0, 1);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a.vertices), gl.DYNAMIC_DRAW);
-    gl.drawArrays(gl.LINES, 0, a.vertices.length / 2);
+    // if (a.vertices.length === 0) {
+    //     return;
+    // }
+    // gl.uniform4f(u_color, 1, 0, 0, 1);
+    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a.vertices), gl.DYNAMIC_DRAW);
+    // gl.drawArrays(gl.LINES, 0, a.vertices.length / 2);
 
-    a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+    a.shapes.forEach(shape => {
         drawSingle(shape);
     })
 }
@@ -506,9 +606,8 @@ function drawSingle(shape) {
     /**
      * Предполагается, что основное общение с webgl будет происходить через эту функцию.
      * В то же время трансформации происходят также через функцию handleMouseMove
-     * @param {Line, Grip, Projection, Circle, rectangle} shape - фигура, которую нужно отрисовать.
+     * @param {Line, Grip, Projection, Circle, Rectangle} shape - фигура, которую нужно отрисовать.
      * В качестве фигуры также могут выступать и магниты
-     * @param {WebGL enum} glMode - Режим отрисовки - gl.STATIC_DRAW или gl.DYNAMIC_DRAW
      */
     const vertices = shape.getVertices();
     const size = vertices.length;
@@ -532,8 +631,18 @@ function drawSingle(shape) {
         case 'm_tripv':
             gl.drawArrays(gl.LINES, 0, size / 2);
         case 'line':
-        case 'move':
             gl.drawArrays(gl.LINES, 0, size / 2);
+            break;
+        case 'rectangle':
+            gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
+            break;
+
+        case 'square':
+            gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
+
+            break;
+        case 'circle':
+            gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
 
             break;
         case 'symline':

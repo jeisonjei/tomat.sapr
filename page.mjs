@@ -31,6 +31,24 @@ document.addEventListener('keydown', (ev) => {
         setMode(mode_elem, 'line');
     }
 });
+// RECTANGLE
+document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'k' || ev.key === 'л') {
+        setMode(mode_elem, 'rectangle');
+    }
+})
+// SQUARE
+document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'q' || ev.key === 'й') {
+        setMode(mode_elem, 'square');
+    }
+})
+// CIRCLE
+document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'e' || ev.key === 'у') {
+        setMode(mode_elem, 'circle');
+    }
+})
 // MOVE
 document.addEventListener('keydown', (ev) => {
     if (ev.key === 'm' || ev.key === 'ь') {
