@@ -2,7 +2,7 @@
 import { Point } from "./models/Point.mjs"
 import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
-import { canvasGetClientX, canvasGetClientY, canvasGetMouse, getAngleDegrees, getAngleRadians, transformPointByMatrix3, transformPointByMatrix4 } from "./shared/common.mjs";
+import { canvasGetClientX, canvasGetClientY, canvasGetMouse, getAngleDegrees, getAngleRadians, resizeCanvasToDisplaySize, transformPointByMatrix3, transformPointByMatrix4 } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
 import { gm, setMode } from "./page.mjs";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
@@ -29,6 +29,7 @@ import { Circle } from "./models/shapes/Circle.mjs";
 
 // --------- WEBGL ---------
 const canvas = document.querySelector('canvas');
+resizeCanvasToDisplaySize(canvas);
 const gl = canvas.getContext('webgl2');
 const program = createProgram(gl, getVertexshaderSource(), getFragmentShaderSource());
 gl.useProgram(program);
