@@ -15,14 +15,12 @@ export class Rectangle extends BasicShape {
     }
     set width(value) {
         this._width = value;
-        this.updatePoints();
     }
     get height() {
         return this._height;
     }
     set height(value) {
         this._height = value;
-        this.updatePoints();
     }
     get p1() {
         return this._p1;
@@ -66,17 +64,8 @@ export class Rectangle extends BasicShape {
         this.color = [...color];
 
         this.updateMid();
-        // this.updatePoints();
     }
-    updatePoints() {
-        this.p2 = new Point(this.p1.x + this.width, this.p1.y);
-        this.p3 = new Point(this.p1.x + this.width, this.p1.y + this.height);
-        this.p4 = new Point(this.p1.x, this.p1.y + this.height);
-        this.m1 = getMid(this.p1, this.p2);
-        this.m2 = getMid(this.p2, this.p3);
-        this.m3 = getMid(this.p3, this.p4);
-        this.m4 = getMid(this.p4, this.p1);
-    }
+
     updateMid() {
         this.m1 = getMid(this.p1, this.p2);
         this.m2 = getMid(this.p2, this.p3);

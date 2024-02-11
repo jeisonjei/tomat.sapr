@@ -169,6 +169,10 @@ function handleMouseDown(mouse) {
                             shape.p4 = transformPointByMatrix3(move_mat, shape.p4);
                             // TODO: replaceVertices
                             break;
+                        case 'circle':
+                            shape.center = transformPointByMatrix3(move_mat, shape.center);
+                            // TODO: replaceVertices
+                            break;
                         default:
                             break;
                     }
@@ -201,6 +205,10 @@ function handleMouseDown(mouse) {
                             shape.p4 = transformPointByMatrix3(move_mat, shape.p4);
                             // TODO replaceVertices
                             break;
+                        case 'circle':
+                            shape.center = transformPointByMatrix3(move_mat, shape.center);
+                            // TODO replaceVertices
+                            break;
                         default:
                             break;
                     }
@@ -229,7 +237,12 @@ function handleMouseDown(mouse) {
                             shape.p2 = transformPointByMatrix3(rotate_mat, shape.p2);
                             shape.p3 = transformPointByMatrix3(rotate_mat, shape.p3);
                             shape.p4 = transformPointByMatrix3(rotate_mat, shape.p4);
-                        // TODO replaceVertices
+                            // TODO replaceVertices
+                            break;
+                        case 'circle':
+                            shape.center = transformPointByMatrix3(rotate_mat, shape.center);
+                            // TODO replaceVertices
+                            break;
                         default:
                             break;
                     }
@@ -262,7 +275,13 @@ function handleMouseDown(mouse) {
                             shape.p2 = transformPointByMatrix3(mirror_mat, shape.p2);
                             shape.p3 = transformPointByMatrix3(mirror_mat, shape.p3);
                             shape.p4 = transformPointByMatrix3(mirror_mat, shape.p4);
-                        // TODO replaceVertices
+
+                            // TODO replaceVertices
+                            break;
+                        case 'circle':
+                            shape.center = transformPointByMatrix3(mirror_mat, shape.center);
+                            // TODO replaceVertices
+                            break;
                         default:
                             break;
                     }
@@ -378,6 +397,12 @@ function handleMouseMove(mouse) {
                 case 'rectangle':
                     a.rectangle.width = mouse.x - a.start.x;
                     a.rectangle.height = mouse.y - a.start.y;
+
+                    a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
+                    a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
+                    a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
+            
+
                     drawSingle(a.rectangle);
                     break;
 
@@ -479,8 +504,14 @@ function handleMouseUp(mouse) {
             addShapes(a.line.getClone());
             break;
         case 'rectangle':
+
             a.rectangle.width = a.end.x - a.start.x;
             a.rectangle.height = a.end.y - a.start.y;
+
+            a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
+            a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
+            a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
+
             addShapes(a.rectangle.getClone());
 
             break;
@@ -581,8 +612,9 @@ function updateShapes(mode) {
     a.shapes$.next(a.shapes);
 }
 
-function deleteShapes(shapes) {
+export function deleteShapes(shapes) {
     // ...
+    a.shapes = a.shapes.filter(shape => !shape.isSelected);
     a.shapes$.next(a.shapes);
 }
 
