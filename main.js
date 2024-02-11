@@ -259,6 +259,44 @@ function handleMouseDown(mouse) {
                 gl.uniformMatrix3fv(u_rotate, false, mat3.create());
             }
             break;
+        case 'rotatecopy':
+            if (!a.clickRotateStart) {
+                a.clickRotateStart = { ...a.start };
+                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                    addShapes(shape.getClone());
+                });
+
+            }
+            else {
+                const rotate_mat = getRotateMatrix(a.clickRotateStart, mouse);
+
+                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                    switch (shape.type) {
+                        case 'line':
+                            shape.start = transformPointByMatrix3(rotate_mat, shape.start);
+                            shape.end = transformPointByMatrix3(rotate_mat, shape.end);
+                            a.vertices = replaceVertices(shape, a.vertices);
+
+                            break;
+                        case 'rectangle':
+                            shape.p1 = transformPointByMatrix3(rotate_mat, shape.p1);
+                            shape.p2 = transformPointByMatrix3(rotate_mat, shape.p2);
+                            shape.p3 = transformPointByMatrix3(rotate_mat, shape.p3);
+                            shape.p4 = transformPointByMatrix3(rotate_mat, shape.p4);
+                            // TODO replaceVertices
+                            break;
+                        case 'circle':
+                            shape.center = transformPointByMatrix3(rotate_mat, shape.center);
+                            // TODO replaceVertices
+                            break;
+                        default:
+                            break;
+                    }
+                })
+                a.clickRotateStart = null;
+                gl.uniformMatrix3fv(u_rotate, false, mat3.create());
+            }
+            break;
         case 'mirror':
             if (!a.clickMirrorStart) {
                 a.clickMirrorStart = { ...a.start };
@@ -540,6 +578,7 @@ function handleMouseMove(mouse) {
                     }
                     break;
                 case 'rotate':
+                case 'rotatecopy':
                     if (a.clickRotateStart) {
 
                         const rotate_mat = getRotateMatrix(a.clickRotateStart, mouse);

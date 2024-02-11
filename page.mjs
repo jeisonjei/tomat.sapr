@@ -79,6 +79,12 @@ document.addEventListener('keydown', (ev) => {
         setMode(mode_elem, 'line');
     }
 });
+document.querySelector('body').addEventListener('keyup', function (ev) {
+    if (ev.altKey && ['l', 'д'].includes(ev.key)) {
+        setMode(mode_elem, 'symline');
+    }
+});
+
 // RECTANGLE
 document.addEventListener('keydown', (ev) => {
     if (ev.key === 'k' || ev.key === 'л') {
@@ -115,6 +121,13 @@ document.addEventListener('keydown', (ev) => {
         setMode(mode_elem, 'rotate');
     }
 })
+// ROTATECOPY
+document.querySelector('body').addEventListener('keyup', function (ev) {
+    if (ev.altKey && ['r', 'к'].includes(ev.key)) {
+        setMode(mode_elem, 'rotatecopy');
+    }
+});
+
 // MIRROR
 document.addEventListener('keydown', (ev) => {
     if (ev.key === 'i' || ev.key === 'ш') {
