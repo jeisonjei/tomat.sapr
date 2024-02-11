@@ -361,9 +361,16 @@ function handleMouseMove(mouse) {
 
         drawShapes();
 
+        /**
+         * есть только две глобальные переменные такого рода - вот они, причём a.magnetPosition назначается
+         * только в magnetState$ и больше нигде, а a.anglePosition назначается только в блоке ниже и больше нигде.
+         * Вот что значит хорошая архитектура программы
+         */
         a.magnetPosition = null;
         a.anglePosition = null;
 
+
+        // angle snap depends on edit mode
         if (a.angle_snap) {
             let start = null;
             if (gm() === 'edit') {
@@ -391,9 +398,12 @@ function handleMouseMove(mouse) {
             a.anglePosition = getAnglePosition(mouse, start);
         }
 
+
+        
         // magnets
         if (gm() !== 'select') {
             if (!a.pan) {
+                // disabling magnets for currently edited shape
                 observeMagnet(a.shapes.filter(shape => shape.edit === null), mouse).subscribe();
             }
         }
