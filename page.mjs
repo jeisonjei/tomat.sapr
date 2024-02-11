@@ -14,6 +14,9 @@ export function gm() {
 }
 
 export function editModeObserver(mouse) {
+    if (a.isMouseDown) {
+        return;
+    }
     if (gm() === 'select' || gm() === 'edit') {
         a.shapes.filter(shape => shape.isSelected).forEach(shape => {
             switch (shape.type) {
@@ -39,6 +42,9 @@ export function editModeObserver(mouse) {
 }
 
 export function boundaryModeObserver(mouse) {
+    if (a.isMouseDown) {
+        return;
+    }
     if (gm() === 'select' || gm() === 'boundary') {
         const isinSelectBoundary = a.shapes.filter(shape => checkFunction(shape, 'isinSelectBoundary', mouse));
         if (isinSelectBoundary.length>0) {
