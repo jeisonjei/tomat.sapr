@@ -54,7 +54,6 @@ export class Rectangle extends BasicShape {
     constructor(aspectRatio, p1, p2, p3, p4, width, height, color) {
         super(aspectRatio);
         this.type = 'rectangle';
-        this.isSelected = false;
         this._p1 = p1;
         this._p2 = p2;
         this._p3 = p3;

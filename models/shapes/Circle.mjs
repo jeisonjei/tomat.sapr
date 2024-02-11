@@ -27,7 +27,6 @@ export class Circle extends BasicShape {
     constructor(aspectRatio, center, radius, color) {
         super(aspectRatio);
         this.type = 'circle';
-        this.isSelected = false;
         this.center = { ...center };
         this.radius = radius;
         this.color = [...color];

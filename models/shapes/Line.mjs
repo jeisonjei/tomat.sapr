@@ -28,7 +28,6 @@ export class Line extends BasicShape {
     constructor(aspectRatio, start, end, color) {
         super(aspectRatio);
             this.type = 'line';
-            this.isSelected = false;
         this._start = { ...start };
         this._end = { ...end };
         this.mid = this.getMid(start, end);

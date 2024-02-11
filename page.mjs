@@ -1,6 +1,6 @@
 import { a, deleteShapes, drawShapes } from "./main.js";
 
-const mode_elem = document.getElementById('mode');
+export const mode_elem = document.getElementById('mode');
 setMode(mode_elem, 'select');
 
 
@@ -10,6 +10,31 @@ export function setMode(mode_elem, mode) {
 
 export function gm() {
     return mode_elem.innerHTML.split(' ')[1];
+}
+
+export function editModeObserver(mouse) {
+    if (gm() === 'select' || gm() === 'edit') {
+        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+            switch (shape.type) {
+                case 'line':
+                    if (shape.isinGripStart(mouse)) {
+                        setMode(mode_elem, 'edit');
+                    }
+                    else if (shape.isinGripEnd(mouse)) {
+                        setMode(mode_elem, 'edit');
+                    }
+                    else {
+                        if (!a.isMouseDown) {
+                            setMode(mode_elem, 'select');
+                        }
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        });
+    }
 }
 
 // --------- KEY EVENTS ---------

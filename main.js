@@ -4,7 +4,7 @@ import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
 import { canvasGetClientX, canvasGetClientY, canvasGetMouse, getAngleDegrees, getAngleRadians, resizeCanvasToDisplaySize, transformPointByMatrix3, transformPointByMatrix4 } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
-import { gm, setMode } from "./page.mjs";
+import { editModeObserver, gm, mode_elem, setMode } from "./page.mjs";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
 import { getMirrorMatrix, getMoveMatrix, getRotateMatrix, getRotateSnap } from "./shared/transform.mjs";
 import { observeMagnet, magnetState$, getExtensionCoordDraw, getAnglePosition } from "./shared/magnets.mjs";
@@ -290,6 +290,23 @@ function handleMouseDown(mouse) {
                 gl.uniformMatrix3fv(u_rotate, false, mat3.create());
             }
             break;
+        case 'edit':
+            a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                switch (shape.type) {
+                    case 'line':
+                        if (shape.isinGripStart(mouse)) {
+                            shape.edit = 'start';
+                        }
+                        else if (shape.isinGripEnd(mouse)) {
+                            shape.edit = 'end';
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+            })
+            break;
         default:
             break;
     }
@@ -348,13 +365,36 @@ function handleMouseMove(mouse) {
         a.anglePosition = null;
 
         if (a.angle_snap) {
-            a.anglePosition = getAnglePosition(mouse, a.start);
+            let start = null;
+            if (gm() === 'edit') {
+                const editShapes = a.shapes.filter(shape => shape.edit !== null);
+                editShapes.forEach(shape => {
+                    switch (shape.type) {
+                        case 'line':
+                            if (shape.edit === 'start') {
+                                start = shape.end;
+                            }
+                            else if (shape.edit === 'end') {
+                                start = shape.start;
+                            }
+
+                            break;
+
+                        default:
+                            break;
+                    }
+                })
+            }
+            else {
+                start = a.start;
+            }
+            a.anglePosition = getAnglePosition(mouse, start);
         }
 
         // magnets
         if (gm() !== 'select') {
             if (!a.pan) {
-                observeMagnet(a.shapes, mouse).subscribe();
+                observeMagnet(a.shapes.filter(shape => shape.edit === null), mouse).subscribe();
             }
         }
 
@@ -375,9 +415,38 @@ function handleMouseMove(mouse) {
             gl.uniformMatrix3fv(u_pan, false, pan_mat);
         }
 
+        // enable edit mode
+        editModeObserver(mouse);
+
 
         if (a.isMouseDown) {
             switch (gm()) {
+                case 'edit':
+                    const editShapes = a.shapes.filter(shape => shape.edit !== null);
+                    if (editShapes.length > 0) {
+                        editShapes.forEach(shape => {
+                            if (shape.edit === 'start') {
+                                if (a.angle_snap) {
+                                    shape.start.x = a.anglePosition.x;
+                                    shape.start.y = a.anglePosition.y;
+                                }
+                                else {
+
+                                    shape.start = mouse;
+                                }
+                            } else if (shape.edit === 'end') {
+                                if (a.angle_snap) {
+                                    shape.end.x = a.anglePosition.x;
+                                    shape.end.y = a.anglePosition.y;
+                                }
+                                else {
+                                    shape.end = mouse;
+
+                                }
+                            }
+                        });
+                    }
+                    break;
                 case 'select':
                     a.selectFrame.end = mouse;
                     drawSingle(a.selectFrame);
@@ -401,7 +470,7 @@ function handleMouseMove(mouse) {
                     a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
                     a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
                     a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
-            
+
 
                     drawSingle(a.rectangle);
                     break;
@@ -422,7 +491,7 @@ function handleMouseMove(mouse) {
                     break;
 
                 case 'circle':
-                    a.circle.radius = Math.hypot((mouse.x - a.start.x)/s.aspectRatio, mouse.y - a.start.y);;
+                    a.circle.radius = Math.hypot((mouse.x - a.start.x) / s.aspectRatio, mouse.y - a.start.y);;
                     drawSingle(a.circle);
                     break;
 
@@ -476,6 +545,7 @@ function handleMouseMove(mouse) {
     });
 }
 
+
 function handleMouseUp(mouse) {
     console.log('shapes', a.shapes.length);
     a.isMouseDown = false;
@@ -490,13 +560,36 @@ function handleMouseUp(mouse) {
         a.end = mouse;
     }
 
+
     switch (gm()) {
         case 'select':
-            a.shapes.forEach(shape => {
-                if (shape.isinSelectFrame(a.selectFrame)) {
-                    shape.isSelected = !shape.isSelected;
-                }
-            });
+        case 'edit':
+            const editShapes = a.shapes.filter(shape => shape.edit !== null);
+            if (editShapes.length > 0) {
+                editShapes.forEach(shape => {
+                    switch (shape.type) {
+                        case 'line':
+                            if (shape.edit === 'start') {
+                                shape.start = a.end;
+                            }
+                            else if (shape.edit === 'end') {
+                                shape.end = a.end;
+                            }
+
+                            break;
+
+                        default:
+                            break;
+                    }
+                })
+            }
+            else {
+                a.shapes.forEach(shape => {
+                    if (shape.isinSelectFrame(a.selectFrame)) {
+                        shape.isSelected = !shape.isSelected;
+                    }
+                });
+            }
 
             break;
         case 'line':
@@ -519,12 +612,16 @@ function handleMouseUp(mouse) {
 
             break;
         case 'circle':
-            a.circle.radius = Math.hypot((a.end.x - a.start.x)/s.aspectRatio, a.end.y - a.start.y);;
+            a.circle.radius = Math.hypot((a.end.x - a.start.x) / s.aspectRatio, a.end.y - a.start.y);;
             addShapes(a.circle.getClone());
             break;
         default:
             break;
     }
+
+    // reset all edits
+    a.shapes.filter(shape => shape.edit !== null).forEach(shape => shape.edit = null);
+
 
     drawShapes();
 }

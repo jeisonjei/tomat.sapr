@@ -14,6 +14,8 @@ export class BasicShape {
 
     constructor(aspectRatio) {
         this.aspectRatio = aspectRatio;
+        this.isSelected = false;
+        this.edit = null;
 
         this.move_mat = null;
 
