@@ -1,5 +1,6 @@
 import { a, deleteShapes, drawShapes, drawSingle } from "./main.js";
 import { checkFunction } from "./shared/common.mjs";
+import { generateDXFContent } from "./shared/export/dxf.mjs";
 
 export const mode_elem = document.getElementById('mode');
 setMode(mode_elem, 'select');
@@ -47,7 +48,7 @@ export function boundaryModeObserver(mouse) {
     }
     if (gm() === 'select' || gm() === 'boundary') {
         const isinSelectBoundary = a.shapes.filter(shape => checkFunction(shape, 'isinSelectBoundary', mouse));
-        if (isinSelectBoundary.length>0) {
+        if (isinSelectBoundary.length > 0) {
             setMode(mode_elem, 'boundary');
             isinSelectBoundary.forEach(shape => {
                 shape.setSelectBoundary();
@@ -64,7 +65,7 @@ export function boundaryModeObserver(mouse) {
 // SELECT
 document.addEventListener('keydown', (ev) => {
     if (ev.key === 's' || ev.key === 'ы') {
-        a.shapes.filter(shape=>shape.isSelected).forEach(shape => {
+        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
             shape.isSelected = false;
         });
         reset();
@@ -79,11 +80,9 @@ document.addEventListener('keydown', (ev) => {
         setMode(mode_elem, 'line');
     }
 });
-document.querySelector('body').addEventListener('keyup', function (ev) {
-    if (ev.altKey && ['l', 'д'].includes(ev.key)) {
-        setMode(mode_elem, 'symline');
-    }
-});
+
+
+
 
 // RECTANGLE
 document.addEventListener('keydown', (ev) => {
@@ -121,12 +120,7 @@ document.addEventListener('keydown', (ev) => {
         setMode(mode_elem, 'rotate');
     }
 })
-// ROTATECOPY
-document.querySelector('body').addEventListener('keyup', function (ev) {
-    if (ev.altKey && ['r', 'к'].includes(ev.key)) {
-        setMode(mode_elem, 'rotatecopy');
-    }
-});
+
 
 // MIRROR
 document.addEventListener('keydown', (ev) => {
@@ -137,7 +131,7 @@ document.addEventListener('keydown', (ev) => {
 // ESCAPE
 document.addEventListener('keydown', (ev) => {
     if (ev.key === 'Escape') { // Check for 'Escape' key
-        a.shapes.filter(shape=>shape.isSelected).forEach(shape => {
+        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
             shape.isSelected = false;
         });
         reset();
@@ -164,6 +158,49 @@ document.querySelector('body').addEventListener('keydown', function (event) {
         drawShapes();
     }
 })
+
+// SYMLINE, ROTATECOPY
+let pressedKeys = [];
+document.addEventListener('keydown', (event) => {
+    const keyCode = event.code;
+    console.log(keyCode);
+    if (!pressedKeys.includes(keyCode)) {
+        pressedKeys.push(keyCode);
+    }
+    console.log(pressedKeys);
+    if (pressedKeys.includes('KeyS') && pressedKeys.includes('KeyL')) {
+        setMode(mode_elem, 'symline');
+    }
+
+    if (pressedKeys.includes('KeyR') && pressedKeys.includes('KeyC')) {
+        setMode(mode_elem, 'rotatecopy');
+    }
+});
+
+document.addEventListener('keyup', (event) => {
+    const combinationTF1 = ['KeyS', 'KeyL'];
+    const combinationTF2 = ['KeyR', 'KeyC'];
+    const isTFCombinationPressed1 = combinationTF1.every(key => pressedKeys.includes(key));
+    const isTFCombinationPressed2 = combinationTF2.every(key => pressedKeys.includes(key));
+
+    if (isTFCombinationPressed1) {
+        pressedKeys.length = 0;
+    }
+    else if (isTFCombinationPressed2) {
+        pressedKeys.length = 0;
+    }
+});
+
+// ---
+
+
+
+// --------- BUTTONS ---------
+const saveButton = document.getElementById('save');
+saveButton.addEventListener('click', (ev) => {
+    generateDXFContent();
+})
+// --------- BUTTONS ---------
 
 function reset() {
     a.clickCopyStart = null;
