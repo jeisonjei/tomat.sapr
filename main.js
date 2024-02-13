@@ -29,7 +29,7 @@ import { SymLine } from "./models/shapes/SymLine.mjs";
  */
 
 // --------- WEBGL ---------
-const canvas = document.querySelector('canvas');
+export const canvas = document.querySelector('canvas');
 resizeCanvasToDisplaySize(canvas);
 const gl = canvas.getContext('webgl2');
 const program = createProgram(gl, getVertexshaderSource(), getFragmentShaderSource());
@@ -540,27 +540,34 @@ function handleMouseMove(mouse) {
                 case 'rectangle':
                     a.rectangle.width = mouse.x - a.start.x;
                     a.rectangle.height = mouse.y - a.start.y;
-
+                
                     a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
                     a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
                     a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
+                
 
 
                     drawSingle(a.rectangle);
                     break;
 
                 case 'square':
-                    a.rectangle.width = mouse.x - a.start.x;
-                    const height = mouse.y - a.start.y;
-                    if (height < 0 && a.width < 0) {
-                        a.height = a.width;
-                    } else if (height < 0 && a.width > 0) {
-                        a.height = -a.width;
-                    } else if (height > 0 && a.width < 0) {
-                        a.height = -a.width;
-                    } else if (height > 0 && a.width > 0) {
-                        a.height = a.width;
+                    a.rectangle.width = (mouse.x - a.start.x);
+
+                    const height = (mouse.y - a.start.y);
+                    if (height < 0 && a.rectangle.width < 0) {
+                        a.rectangle.height = a.rectangle.width / s.aspectRatio;
+                    } else if (height < 0 && a.rectangle.width > 0) {
+                        a.rectangle.height = -a.rectangle.width / s.aspectRatio;
+                    } else if (height > 0 && a.rectangle.width < 0) {
+                        a.rectangle.height = -a.rectangle.width / s.aspectRatio;
+                    } else if (height > 0 && a.rectangle.width > 0) {
+                        a.rectangle.height = a.rectangle.width / s.aspectRatio;
                     }
+                    a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
+                    a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
+                    a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
+                
+
                     drawSingle(a.rectangle);
                     break;
 
@@ -619,6 +626,8 @@ function handleMouseMove(mouse) {
 
     });
 }
+
+
 
 
 function handleMouseUp(mouse) {
@@ -689,7 +698,23 @@ function handleMouseUp(mouse) {
 
             break;
         case 'square':
+            a.rectangle.width = (a.end.x - a.start.x);
 
+            const height = (a.end.y - a.start.y);
+            if (height < 0 && a.rectangle.width < 0) {
+                a.rectangle.height = a.rectangle.width / s.aspectRatio;
+            } else if (height < 0 && a.rectangle.width > 0) {
+                a.rectangle.height = -a.rectangle.width / s.aspectRatio;
+            } else if (height > 0 && a.rectangle.width < 0) {
+                a.rectangle.height = -a.rectangle.width / s.aspectRatio;
+            } else if (height > 0 && a.rectangle.width > 0) {
+                a.rectangle.height = a.rectangle.width / s.aspectRatio;
+            }
+            a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
+            a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
+            a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
+        
+            addShapes(a.rectangle.getClone());
             break;
         case 'circle':
             a.circle.radius = Math.hypot((a.end.x - a.start.x) / s.aspectRatio, a.end.y - a.start.y);;
@@ -849,11 +874,6 @@ export function drawSingle(shape) {
             break;
         case 'rectangle':
             gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
-            break;
-
-        case 'square':
-            gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
-
             break;
         case 'circle':
             gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
