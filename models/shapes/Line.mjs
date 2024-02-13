@@ -80,14 +80,15 @@ export class Line extends BasicShape {
     }
 
     isinSelectBoundary(mouse) {
+        const width = s.tolerance / 2;
         const angle = Math.atan2(this.end.y - this.start.y, this.end.x - this.start.x);
-        const offsetX = s.tolerance * Math.sin(angle);
-        const offsetY = s.tolerance * Math.cos(angle);
+        const offsetX = width * Math.sin(angle);
+        const offsetY = width * Math.cos(angle);
 
-        const point1 = new Point(this.start.x - offsetX + s.tolerance * Math.cos(angle), this.start.y + offsetY + s.tolerance * Math.sin(angle));
-        const point2 = new Point(this.end.x - offsetX - s.tolerance * Math.cos(angle), this.end.y + offsetY - s.tolerance * Math.sin(angle));
-        const point3 = new Point(this.end.x + offsetX - s.tolerance * Math.cos(angle), this.end.y - offsetY - s.tolerance * Math.sin(angle));
-        const point4 = new Point(this.start.x + offsetX + s.tolerance * Math.cos(angle), this.start.y - offsetY + s.tolerance * Math.sin(angle));
+        const point1 = new Point(this.start.x - offsetX + width * Math.cos(angle), this.start.y + offsetY + width * Math.sin(angle));
+        const point2 = new Point(this.end.x - offsetX - width * Math.cos(angle), this.end.y + offsetY - width * Math.sin(angle));
+        const point3 = new Point(this.end.x + offsetX - width * Math.cos(angle), this.end.y - offsetY - width * Math.sin(angle));
+        const point4 = new Point(this.start.x + offsetX + width * Math.cos(angle), this.start.y - offsetY + width * Math.sin(angle));
 
         const vertices = [
             point1.x, point1.y,
