@@ -6,6 +6,11 @@ canvas{
     display: block;
     border: 1px solid black;
 }
+.text{
+  position: absolute;
+  left:7px;
+  top:8px;
+}
 
   
   .tools {

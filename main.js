@@ -29,7 +29,7 @@ import { SymLine } from "./models/shapes/SymLine.mjs";
  */
 
 // --------- WEBGL ---------
-export const canvas = document.querySelector('canvas');
+export const canvas = document.querySelector('canvas.drawing');
 resizeCanvasToDisplaySize(canvas);
 const gl = canvas.getContext('webgl2');
 const program = createProgram(gl, getVertexshaderSource(), getFragmentShaderSource());
@@ -55,6 +55,15 @@ gl.uniformMatrix3fv(u_move, false, mat3.create());
 gl.uniformMatrix3fv(u_pan, false, mat3.create());
 gl.uniformMatrix3fv(u_rotate, false, mat3.create());
 // --------- WEBGL ---------
+
+
+// --------- CANVAS ---------
+export const canvasText = document.querySelector('canvas.text');
+const context = canvasText.getContext('2d');
+
+// --------- CANVAS ---------
+
+
 
 
 // --------- INIT ---------
@@ -106,6 +115,10 @@ export const a = {
     angle_snap: false,
 
     vertices: [],
+}
+
+t: {
+    
 }
 // --------- GLOBALS ---------
 
