@@ -168,6 +168,20 @@ document.querySelector('body').addEventListener('keydown', function (event) {
     }
 })
 
+// TEXT
+document.querySelector('body').addEventListener('keydown', function (event) {
+    if (event.key!== 't' || event.key!=='е') {
+        document.querySelector('canvas').style.cursor = 'crosshair';
+    }
+})
+
+document.querySelector('body').addEventListener('keydown', function (event) {
+    if (event.key === 't' || event.key === 'е') {
+        setMode(mode_elem, 'text');
+        document.querySelector('canvas').style.cursor = 'text';
+    }
+})
+
 
 
 // --------- BUTTONS ---------

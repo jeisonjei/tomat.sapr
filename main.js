@@ -57,15 +57,6 @@ gl.uniformMatrix3fv(u_rotate, false, mat3.create());
 // --------- WEBGL ---------
 
 
-// --------- CANVAS ---------
-export const canvasText = document.querySelector('canvas.text');
-const context = canvasText.getContext('2d');
-
-// --------- CANVAS ---------
-
-
-
-
 // --------- INIT ---------
 function init() {
     s.tolerance = 0.02;
@@ -117,9 +108,6 @@ export const a = {
     vertices: [],
 }
 
-t: {
-    
-}
 // --------- GLOBALS ---------
 
 
