@@ -1,8 +1,14 @@
 import { a } from '../../main.js';
+import { t } from '../../main.js';
+import {s} from '../settings.mjs';
 import { canvas } from '../../main.js';
+import { canvasGetWebglCoordinates } from '../common.mjs';
+import { Point } from '../../models/Point.mjs';
 
 export function generateDXFContent() {
-    let dxfContent = `0\nSECTION\n2\nENTITIES\n`; // DXF header
+    // let dxfContent = `0\nSECTION\n2\nENTITIES\n`; // DXF header
+    let dxfContent = `0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nSECTION\n2\nTABLES\n0\nENDSEC\n0\nSECTION\n2\nBLOCKS\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n`;
+
     const canvasHeight = canvas.height;
     const canvasWidth = canvas.width;
 
@@ -41,6 +47,22 @@ export function generateDXFContent() {
                 // Handle unknown shape types
                 break;
         }
+    });
+
+    const scaleY = 1 / canvas.height;
+    
+    t.textInputs.forEach((textInput, index) => {
+        const { position, text } = textInput;
+        const textString = text.join('');
+        const size = (parseInt(t.fontSize) + 4)*scaleY;
+        const x = (position.x);
+        const y = (position.y - size + 4);
+        const webglCoord = canvasGetWebglCoordinates(new Point(x, y), canvas);
+
+        const a = scalePoint(webglCoord, canvasWidth, canvasHeight);
+        const b = scaleLength(size,canvasWidth,canvasHeight);
+
+        dxfContent += `0\nTEXT\n8\n${index}\n10\n${a.x}\n20\n${a.y}\n40\n${b}\n1\n${textString}\n`;
     });
 
     dxfContent += `0\nENDSEC\n0\nEOF`; // DXF footer

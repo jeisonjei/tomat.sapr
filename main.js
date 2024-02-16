@@ -13,10 +13,11 @@ import { getNewVertices, pushVertices, replaceVertices } from "./shared/webgl/re
 import { s } from './shared/settings.mjs';
 
 // rxjs
-import { Subject, filter, fromEvent, map } from "rxjs";
+import { Subject, filter, fromEvent, map, takeUntil } from "rxjs";
 import { Rectangle } from "./models/shapes/Rectangle.mjs";
 import { Circle } from "./models/shapes/Circle.mjs";
 import { SymLine } from "./models/shapes/SymLine.mjs";
+import { filterText } from "./services/textFilter";
 
 /**
  * В этой версии программы попробуем осущещствлять вызовы к webgl только из текущего файла.
@@ -56,13 +57,10 @@ gl.uniformMatrix3fv(u_pan, false, mat3.create());
 gl.uniformMatrix3fv(u_rotate, false, mat3.create());
 // --------- WEBGL ---------
 
+s.setAspectRatio(canvas.width, canvas.height);
 
-// --------- INIT ---------
-function init() {
-    s.tolerance = 0.02;
-    s.setAspectRatio(canvas.width, canvas.height);
-}
-init();
+
+
 
 // --------- GLOBALS ---------
 export const a = {
@@ -92,7 +90,7 @@ export const a = {
 
     // zoom
     zl: null,
-    zlc: null,
+    zlc: 1,
 
     // pan
     pan: false,
@@ -108,9 +106,33 @@ export const a = {
     vertices: [],
 }
 
+export const t= {
+    textInputs: [],
+    position: new Point(0, 0),
+    
+    translateX: 0,
+    translateY: 0,
+    scale: 1,
+
+    isMouseDown: false,
+
+    isPanning: false,
+    panStartPoint:new Point(0,0)
+}
+
 // --------- GLOBALS ---------
 
 
+
+
+// --------- INIT ---------
+function init() {
+    s.tolerance = 0.02;
+
+    t.textInputs.push({ position: new Point(0, 0), text: [] });    
+}
+init();
+// --------- INIT ---------
 
 
 
@@ -737,6 +759,11 @@ function handleMouseWheel(ev) {
     a.zlc *= a.zl;
     updateShapes('zoom');
     drawShapes();
+
+    // --- text ---
+    t.scale = a.zlc; 
+    drawText();
+
 }
 
 function handleSpacebarDown() {
@@ -753,14 +780,14 @@ function handleSpacebarUp() {
     drawShapes();
 }
 
-const mouseDown$ = fromEvent(canvas, 'mousedown').pipe(map(ev => canvasGetMouse(ev, canvas)));
-const mouseMove$ = fromEvent(canvas, 'mousemove').pipe(map(ev => canvasGetMouse(ev, canvas)));
-const mouseUp$ = fromEvent(canvas, 'mouseup').pipe(map(ev => canvasGetMouse(ev, canvas)));
+const mouseDown$ = fromEvent(document, 'mousedown').pipe(map(ev => canvasGetMouse(ev, canvas)));
+const mouseMove$ = fromEvent(document, 'mousemove').pipe(map(ev => canvasGetMouse(ev, canvas)));
+const mouseUp$ = fromEvent(document, 'mouseup').pipe(map(ev => canvasGetMouse(ev, canvas)));
 mouseDown$.subscribe(handleMouseDown);
 mouseMove$.subscribe(handleMouseMove);
 mouseUp$.subscribe(handleMouseUp);
 
-canvas.addEventListener('wheel', handleMouseWheel);
+document.addEventListener('wheel', handleMouseWheel);
 
 
 let spacebarPressed = false;
@@ -894,3 +921,186 @@ export function drawSingle(shape) {
     }
 }
 // --------- SHAPES ---------
+
+
+
+// --------- NEW ---------
+const canvasText = document.querySelector('canvas.text');
+resizeCanvasToDisplaySize(canvasText);
+const context = canvasText.getContext('2d');
+t.fontSize = '18px';
+context.font = `${t.fontSize} sans-serif`;
+
+function handleMouseDownText(mouse) {
+
+    if (gm()!=='text') {
+        return;
+    }
+    
+    t.isMouseDown = true;
+    t.position = { ...mouse };
+    console.log(t.position);
+    const newTextInput = {
+        position:t.position,
+        text: []
+    };
+    t.textInputs.push(newTextInput);
+    console.log(t.textInputs);
+}
+
+function handleMouseMoveText(mouse) {
+}
+
+function handleMouseUpText() {
+        
+    if (gm()!=='text') {
+        return;
+    }
+    
+
+    t.isMouseDown = false;
+}
+
+function handleKeyPress(key) {
+        
+    if (gm()!=='text') {
+        return;
+    }
+
+    if (key === '-') {
+        downloadDxfFile();
+        return;
+    }
+    else if (key === 'Backspace') {
+        const currentTextInput = t.textInputs[t.textInputs.length - 1];
+        currentTextInput.text.pop();
+        drawText();
+    } else if (key) {
+        const currentTextInput = t.textInputs[t.textInputs.length - 1];
+        currentTextInput.text.push(key);
+        drawText();
+    }
+}
+
+function handleKeyDown(event) {
+        
+    if (gm()!=='text') {
+        return;
+    }
+    
+
+    if (event.key === ' ') {
+        if (!t.isPanning) {
+            t.isPanning = true;
+            t.panStartPoint = t.position;
+            const mouseMoveUntilKeyUp$ = fromEvent(document, 'mousemove').pipe(
+                map(ev => getPoint(ev)),
+                takeUntil(fromEvent(document, 'keyup')),
+                takeUntil(fromEvent(document, 'blur'))
+            );
+            mouseMoveUntilKeyUp$.subscribe(handlePan);
+        }
+    }
+}
+
+function handleKeyUp(event) {
+        
+    if (gm()!=='text') {
+        return;
+    }
+    
+
+    if (event.key === ' ') {
+        isPanning = false;
+        t.translateX = null;
+        t.translateY = null;
+    }
+}
+
+function handlePan(mouse) {
+    
+    if (t.isPanning) {
+        const panEndPoint = new Point(mouse.x, mouse.y);
+        const delta = panEndPoint.substract(panStartPoint);
+        t.translateX = delta.x;
+        t.translateY = delta.y;
+        drawText();
+    }
+}
+
+
+const mouseDownText$ = fromEvent(canvasText, 'mousedown').pipe(map(ev => getPoint(ev)));
+const mouseMoveText$ = fromEvent(canvasText, 'mousemove').pipe(map(ev => getPoint(ev)));
+const mouseUpText$ = fromEvent(canvasText, 'mouseup');
+const keyPress$ = fromEvent(document, 'keyup').pipe(
+    filter(ev => filterText(ev)),
+    map(ev => ev.key)
+);
+const keyDown$ = fromEvent(document, 'keydown');
+const keyUp$ = fromEvent(document, 'keyup');
+
+mouseDownText$.subscribe(handleMouseDownText);
+mouseMoveText$.subscribe(handleMouseMoveText);
+mouseUpText$.subscribe(handleMouseUpText);
+keyPress$.subscribe(handleKeyPress);
+keyDown$.subscribe(handleKeyDown);
+keyUp$.subscribe(handleKeyUp);
+
+// --------- EVENTS ---------
+
+// --------- TEXT ---------
+
+function drawText() {
+
+    context.clearRect(0, 0, canvasText.width, canvasText.height);
+    context.save();
+    context.translate(t.translateX, t.translateY);
+    context.scale(a.zlc, a.zlc);
+
+    t.textInputs.forEach(textInput => {
+        const { position, text } = textInput;
+        const textString = text.join('');
+        const tolerance = 4;
+        const size = parseInt(t.fontSize) + tolerance;
+        const x = position.x;
+        const y = position.y - size + tolerance;
+
+        context.fillText(textString, x, y);
+    });
+
+    context.restore();
+}
+
+// --------- TEXT ---------
+
+
+
+// --------- HELPERS ---------
+function getPoint(mouseEvent) {
+    return new Point(mouseEvent.clientX - canvasText.offsetLeft, mouseEvent.clientY - canvasText.offsetTop);
+}
+// --------- HELPERS ---------
+
+
+
+// --------- DXF ---------
+function generateDxfContent() {
+    let dxfContent = `0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nSECTION\n2\nTABLES\n0\nENDSEC\n0\nSECTION\n2\nBLOCKS\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n`;
+
+    t.textInputs.forEach((textInput, index) => {
+        const { position, text } = textInput;
+        const textString = text.join('');
+        const size = parseInt(t.fontSize) + 4;
+        const x = position.x;
+        const y = position.y - size + 4;
+
+        dxfContent += `0\nTEXT\n8\n${index}\n10\n${x}\n20\n${y}\n40\n${size}\n1\n${textString}\n`;
+    });
+
+    dxfContent += `0\nENDSEC\n0\nEOF\n`;
+
+    return dxfContent;
+}
+
+// --------- DXF ---------
+

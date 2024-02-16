@@ -1,131 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="row">
-        <div class="flex-row cont">
-          <div>
-            <div class="tools">
-              <div class="flex-row">
-                <div ><button id="selectLine">Линия</button></div>
-                <div ><button id="selectRectangle">Прямоуг.</button></div>
-                <div ><button id="selectCircle">Круг</button></div>
-                <span class="mx-1">|</span>
-                <div ><button id="setSelectMode">Выбор</button></div>
-                <div ><button id="moveShape">Перемест.</button></div>
-                <div ><button id="copyShape">Копир.</button></div>
-                <div ><button id="rotateShape">Поворот</button></div>
-                <div ><button id="deleteShape">Удал.</button></div>
-                <span class="mx-1">|</span>
-                <span ><button id="save">DXF</button></span>
-                <span class="mx-1">|</span>
-  
-                <div class="flex-row">
-                  <input type="checkbox" name="angleSnap" id="angleSnap">
-                  <label for="angleSnap">Угл.</label>
-                </div>
-                <div class="flex-row">
-                  <input type="checkbox" name="magnets" id="magnets">
-                  <label for="magnets">Маг.</label>
-                </div>
-                <span class="mx-1">|</span>
-                <div class="flex-row">
-                  <input type="checkbox" name="pan" id="pan">
-                  <label for="pan">Пан.</label>
-                </div>
-  
-              </div>
+  <div class="row">
+    <div class="flex-row cont">
+      <div>
+        <div class="tools" style="z-index: 100;">
+          <div class="flex-row">
+            <div><button id="selectLine">Линия</button></div>
+            <div><button id="selectRectangle">Прямоуг.</button></div>
+            <div><button id="selectCircle">Круг</button></div>
+            <span class="mx-1">|</span>
+            <div><button id="setSelectMode">Выбор</button></div>
+            <div><button id="moveShape">Перемест.</button></div>
+            <div><button id="copyShape">Копир.</button></div>
+            <div><button id="rotateShape">Поворот</button></div>
+            <div><button id="deleteShape">Удал.</button></div>
+            <span class="mx-1">|</span>
+            <span><button id="save">DXF</button></span>
+            <span class="mx-1">|</span>
+
+            <div class="flex-row">
+              <input type="checkbox" name="angleSnap" id="angleSnap">
+              <label for="angleSnap">Угл.</label>
             </div>
-            <div id="info" class="absolute-div">
-              <div>
-                <table>
-                  <tbody>
-                    <tr>
-                      <td>SHIFT</td>
-                      <td>Угловая привязка</td>
-                    </tr>
-                    <tr>
-                      <td>SPACE</td>
-                      <td>Панорамирование</td>
-                    </tr>
-                    <tr>
-                      <td>Колесо</td>
-                      <td>Зуммирование</td>
-                    </tr>
-                    <tr>
-                      <td>L</td>
-                      <td>Линия</td>
-                    </tr>
-                    <tr>
-                      <td>ALT+L</td>
-                      <td>Симметричная Линия</td>
-                    </tr>
-                    <tr>
-                      <td>K</td>
-                      <td>Прямоугольник</td>
-                    </tr>
-                    <tr>
-                      <td>Q</td>
-                      <td>Квадрат</td>
-                    </tr>
-                    <tr>
-                      <td>E</td>
-                      <td>Круг</td>
-                    </tr>
-                    <tr>
-                      <td>C</td>
-                      <td>Копировать</td>
-                    </tr>
-                    <tr>
-                      <td>M</td>
-                      <td>Переместить</td>
-                    </tr>
-                    <tr>
-                      <td>R</td>
-                      <td>Поворот</td>
-                    </tr>
-                    <tr>
-                      <td>ALT+R</td>
-                      <td>Поворот с копированием</td>
-                    </tr>
-                    <tr>
-                      <td>I</td>
-                      <td>Зеркально отразить</td>
-                    </tr>
-                    <tr>
-                      <td>ESC</td>
-                      <td>Отмена</td>
-                    </tr>
-                    <tr>
-                      <td>S</td>
-                      <td>Выбор</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div style="margin-left: 4px">
-                <p id="mode"></p>
-                <p id="tool"></p>
-                <p id="cursor"></p>
-                <p id="message1"></p>
-                <p id="message2"></p>
-                <p id="message3"></p>
-                <p id="error"></p>
-              </div>
-    
+            <div class="flex-row">
+              <input type="checkbox" name="magnets" id="magnets">
+              <label for="magnets">Маг.</label>
             </div>
-            <canvas class="drawing"></canvas>
-  
+            <span class="mx-1">|</span>
+            <div class="flex-row">
+              <input type="checkbox" name="pan" id="pan">
+              <label for="pan">Пан.</label>
+            </div>
+
           </div>
         </div>
+        <div id="info" class="absolute-div">
+          <div>
+            <table>
+              <tbody>
+                <tr>
+                  <td>SHIFT</td>
+                  <td>Угловая привязка</td>
+                </tr>
+                <tr>
+                  <td>SPACE</td>
+                  <td>Панорамирование</td>
+                </tr>
+                <tr>
+                  <td>Колесо</td>
+                  <td>Зуммирование</td>
+                </tr>
+                <tr>
+                  <td>L</td>
+                  <td>Линия</td>
+                </tr>
+                <tr>
+                  <td>ALT+L</td>
+                  <td>Симметричная Линия</td>
+                </tr>
+                <tr>
+                  <td>K</td>
+                  <td>Прямоугольник</td>
+                </tr>
+                <tr>
+                  <td>Q</td>
+                  <td>Квадрат</td>
+                </tr>
+                <tr>
+                  <td>E</td>
+                  <td>Круг</td>
+                </tr>
+                <tr>
+                  <td>C</td>
+                  <td>Копировать</td>
+                </tr>
+                <tr>
+                  <td>M</td>
+                  <td>Переместить</td>
+                </tr>
+                <tr>
+                  <td>R</td>
+                  <td>Поворот</td>
+                </tr>
+                <tr>
+                  <td>ALT+R</td>
+                  <td>Поворот с копированием</td>
+                </tr>
+                <tr>
+                  <td>I</td>
+                  <td>Зеркально отразить</td>
+                </tr>
+                <tr>
+                  <td>ESC</td>
+                  <td>Отмена</td>
+                </tr>
+                <tr>
+                  <td>S</td>
+                  <td>Выбор</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-left: 4px">
+            <p id="mode"></p>
+            <p id="tool"></p>
+            <p id="cursor"></p>
+            <p id="message1"></p>
+            <p id="message2"></p>
+            <p id="message3"></p>
+            <p id="error"></p>
+          </div>
+
+        </div>
+        <canvas class="drawing"></canvas>
+        <canvas class="text"></canvas>
       </div>
-    <script src="https://greggman.github.io/webgl-lint/webgl-lint.js"></script>
-    <script src="dist/bundle.js"></script>
+    </div>
+  </div>
+  <script src="https://greggman.github.io/webgl-lint/webgl-lint.js"></script>
+  <script src="dist/bundle.js"></script>
 
 </body>
+
 </html>

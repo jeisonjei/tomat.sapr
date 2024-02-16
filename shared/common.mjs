@@ -86,6 +86,10 @@ export function canvasGetMouse(event, canvas) {
   )
 }
 
+export function canvasGetWebglCoordinates(position, canvas) {
+  return new Point((position.x - canvas.offsetLeft) / canvas.width * 2 -1,(-position.y - canvas.offsetTop) / canvas.height * 2 +1);
+}
+
 export function canvasGetClientY(event, canvas) {
   return (canvas.height - (event.clientY - canvas.offsetTop)) / canvas.height * 2 - 1;
 }

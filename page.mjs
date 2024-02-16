@@ -1,3 +1,4 @@
+import { fromEvent } from "rxjs";
 import { a, deleteShapes, drawShapes, drawSingle } from "./main.js";
 import { checkFunction } from "./shared/common.mjs";
 import { generateDXFContent } from "./shared/export/dxf.mjs";
@@ -62,126 +63,94 @@ export function boundaryModeObserver(mouse) {
 }
 
 // --------- KEY EVENTS ---------
-// SELECT
-document.addEventListener('keydown', (ev) => {
-    if (ev.key === 's' || ev.key === 'ы') {
-        a.shapes.filter(shape=>shape.isSelected).forEach(shape => {
-            shape.isSelected = false;
-        });
-        reset();
-        setMode(mode_elem, 'select');
-        drawShapes();
-    }
 
-});
-// LINE
-document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'l' || ev.key === 'д') {
-        setMode(mode_elem, 'line');
-    }
-});
-
-// SYMLINE
-document.querySelector('body').addEventListener('keyup', function (ev) {
-    if (ev.altKey && ['l', 'д'].includes(ev.key)) {
-        setMode(mode_elem, 'symline');
-    }
-});
-
-// RECTANGLE
-document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'k' || ev.key === 'л') {
-        setMode(mode_elem, 'rectangle');
-    }
-})
-// SQUARE
-document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'q' || ev.key === 'й') {
-        setMode(mode_elem, 'square');
-    }
-})
-// CIRCLE
-document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'e' || ev.key === 'у') {
-        setMode(mode_elem, 'circle');
-    }
-})
-// MOVE
-document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'm' || ev.key === 'ь') {
-        setMode(mode_elem, 'move');
-    }
-});
-// COPY
-document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'c' || ev.key === 'с') {
-        setMode(mode_elem, 'copy');
-    }
-});
-// ROTATE
-document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'r' || ev.key === 'к') {
-        setMode(mode_elem, 'rotate');
-    }
-})
-// ROTATECOPY
-document.querySelector('body').addEventListener('keyup', function (ev) {
-    if (ev.altKey && ['r', 'к'].includes(ev.key)) {
-        setMode(mode_elem, 'rotatecopy');
+const keyDown$ = fromEvent(document, 'keydown');
+const keyUp$ = fromEvent(document, 'keyup');
+keyDown$.subscribe(event => {
+    // Handle key down events
+    switch (event.key) {
+        case 's':
+        case 'ы':
+            a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                shape.isSelected = false;
+            });
+            reset();
+            setMode(mode_elem, 'select');
+            drawShapes();
+            break;
+        case 'l':
+        case 'д':
+            setMode(mode_elem, 'line');
+            break;
+        case 'k':
+        case 'л':
+            setMode(mode_elem, 'rectangle');
+            break;
+        case 'q':
+        case 'й':
+            setMode(mode_elem, 'square');
+            break;
+        case 'e':
+        case 'у':
+            setMode(mode_elem, 'circle');
+            break;
+        case 'm':
+        case 'ь':
+            setMode(mode_elem, 'move');
+            break;
+        case 'c':
+        case 'с':
+            setMode(mode_elem, 'copy');
+            break;
+        case 'r':
+        case 'к':
+            setMode(mode_elem, 'rotate');
+            break;
+        case 'i':
+        case 'ш':
+            setMode(mode_elem, 'mirror');
+            break;
+        case 'Escape':
+            a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                shape.isSelected = false;
+            });
+            reset();
+            setMode(mode_elem, 'select');
+            drawShapes();
+            break;
+        case 'Delete':
+            deleteShapes();
+            drawShapes();
+            break;
+        
+        case 'Shift':
+            a.angle_snap = true;
+            break;
     }
 });
 
-// MIRROR
-document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'i' || ev.key === 'ш') {
-        setMode(mode_elem, 'mirror');
-    }
-})
-// ESCAPE
-document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'Escape') { // Check for 'Escape' key
-        a.shapes.filter(shape=>shape.isSelected).forEach(shape => {
-            shape.isSelected = false;
-        });
-        reset();
-        setMode(mode_elem, 'select');
-        drawShapes();
-    }
-});
-// SHIFT
-document.querySelector('body').addEventListener('keydown', function (event) {
-    if (event.shiftKey) {
-        a.angle_snap = true;
-    }
-});
-
-document.querySelector('body').addEventListener('keyup', function (event) {
+keyUp$.subscribe(event => {
+    // Handle key up events
     if (!event.shiftKey) {
         a.angle_snap = false;
     }
 });
-// DELETE
-document.querySelector('body').addEventListener('keydown', function (event) {
-    if (event.key === 'Delete') {
-        deleteShapes();
-        drawShapes();
-    }
-})
 
-// TEXT
-document.querySelector('body').addEventListener('keydown', function (event) {
-    if (event.key!== 't' || event.key!=='е') {
-        document.querySelector('canvas').style.cursor = 'crosshair';
-    }
-})
+const canvas = document.querySelector('canvas.text');
+const canvasBody = document.querySelector('body');
 
-document.querySelector('body').addEventListener('keydown', function (event) {
+fromEvent(canvasBody, 'keydown').subscribe(event => {
+    if (event.key !== 't' && event.key !== 'е') {
+        canvas.style.cursor = 'crosshair';
+    }
+});
+
+fromEvent(canvasBody, 'keydown').subscribe(event => {
     if (event.key === 't' || event.key === 'е') {
         setMode(mode_elem, 'text');
-        document.querySelector('canvas').style.cursor = 'text';
+        canvas.style.cursor = 'text';
     }
-})
-
+});
 
 
 // --------- BUTTONS ---------
