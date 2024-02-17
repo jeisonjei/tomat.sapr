@@ -2,7 +2,7 @@
 import { Point } from "./models/Point.mjs"
 import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
-import { canvasGetClientX, canvasGetClientY, canvasGetMouse, checkFunction, getAngleDegrees, getAngleRadians, resizeCanvasToDisplaySize, transformPointByMatrix3, transformPointByMatrix4 } from "./shared/common.mjs";
+import { canvasGetClientX, canvasGetClientY, canvasGetMouse, checkFunction, convertCanvas2DToWebGLPoint, convertWebGLToCanvas2DPoint, getAngleDegrees, getAngleRadians, resizeCanvasToDisplaySize, transformPointByMatrix3, transformPointByMatrix4 } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
 import { boundaryModeObserver, editModeObserver, gm, mode_elem, setMode } from "./page.mjs";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
@@ -83,7 +83,7 @@ export const a = {
 
     // shapes
     line: new Line(s.aspectRatio, new Point(0, 0), new Point(0, 0), [1, 0, 0, 1]),
-    symline: new SymLine(s.aspectRatio, new Point(0,0), new Point(0,0), [1, 0, 0, 1]),
+    symline: new SymLine(s.aspectRatio, new Point(0, 0), new Point(0, 0), [1, 0, 0, 1]),
     circle: new Circle(s.aspectRatio, new Point(0, 0), 0, [1, 0, 0, 1]),
     rectangle: new Rectangle(s.aspectRatio, new Point(0, 0), new Point(0, 0), new Point(0, 0), new Point(0, 0), 0, 0, [1, 0, 0, 1]),
     selectFrame: new AbstractFrame(new Point(0, 0), new Point(0, 0), [0, 1, 0, 1]),
@@ -99,6 +99,7 @@ export const a = {
     pan_ty: null,
     pan_start_x: null,
     pan_start_y: null,
+    pan_mat: null,
 
     // angle snap
     angle_snap: false,
@@ -106,18 +107,18 @@ export const a = {
     vertices: [],
 }
 
-export const t= {
-    textInputs: [],
-    position: new Point(0, 0),
-    
+export const t = {
+    text: [],
+    textPosition: new Point(0, 0),
+
     translateX: 0,
     translateY: 0,
     scale: 1,
 
-    isMouseDown: false,
+    mouseClick: false,
 
     isPanning: false,
-    panStartPoint:new Point(0,0)
+    panStartPoint: new Point(0, 0)
 }
 
 // --------- GLOBALS ---------
@@ -129,7 +130,7 @@ export const t= {
 function init() {
     s.tolerance = 0.02;
 
-    t.textInputs.push({ position: new Point(0, 0), text: [] });    
+    t.text.push({ position: new Point(0, 0), text: [] });
 }
 init();
 // --------- INIT ---------
@@ -474,7 +475,7 @@ function handleMouseMove(mouse) {
 
 
         // magnets
-        if (gm() !== 'select' && gm()!=='boundary') {
+        if (gm() !== 'select' && gm() !== 'boundary') {
             if (!a.pan) {
                 // disabling magnets for currently edited shape
                 observeMagnet(a.shapes.filter(shape => shape.edit === null), mouse).subscribe();
@@ -494,8 +495,21 @@ function handleMouseMove(mouse) {
             a.pan_tx = mouse.x - a.pan_start_x;
             a.pan_ty = mouse.y - a.pan_start_y;
             const pan_mat = mat3.fromTranslation(mat3.create(), [a.pan_tx, a.pan_ty, 0]);
+            a.pan_mat = [...pan_mat];
             mat3.transpose(pan_mat, pan_mat);
             gl.uniformMatrix3fv(u_pan, false, pan_mat);
+
+            // --- text
+            const scalex = 1 / canvasText.width;
+            const scaley = 1 / canvasText.height;
+            const tx = a.pan_tx / scalex / 2;
+            const ty = a.pan_ty / scaley / 2;
+
+            const matrix = new DOMMatrix([1, 0, 0, 1, tx, -ty]);
+            context.setTransform(matrix);
+            drawText();
+
+            
         }
 
         // enable edit mode
@@ -553,7 +567,7 @@ function handleMouseMove(mouse) {
                         a.symline.start = a.start;
                         a.symline.end.x = a.anglePosition.x;
                         a.symline.end.y = a.anglePosition.y;
-                        
+
                     }
                     else {
                         a.symline.end = mouse;
@@ -563,11 +577,11 @@ function handleMouseMove(mouse) {
                 case 'rectangle':
                     a.rectangle.width = mouse.x - a.start.x;
                     a.rectangle.height = mouse.y - a.start.y;
-                
+
                     a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
                     a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
                     a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
-                
+
 
 
                     drawSingle(a.rectangle);
@@ -589,7 +603,7 @@ function handleMouseMove(mouse) {
                     a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
                     a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
                     a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
-                
+
 
                     drawSingle(a.rectangle);
                     break;
@@ -736,7 +750,7 @@ function handleMouseUp(mouse) {
             a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
             a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
             a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
-        
+
             addShapes(a.rectangle.getClone());
             break;
         case 'circle':
@@ -760,8 +774,23 @@ function handleMouseWheel(ev) {
     updateShapes('zoom');
     drawShapes();
 
+
+
     // --- text ---
-    t.scale = a.zlc; 
+    const scalingMatrix = mat3.fromScaling(mat3.create(), [a.zl, a.zl]);
+    const translationMatrix = mat3.fromTranslation(mat3.create(), [
+        -(a.zl - 1) * context.canvas.width / 2,
+        -(a.zl - 1) * context.canvas.height / 2
+    ]);
+    const transformationMatrix = mat3.multiply(mat3.create(), translationMatrix, scalingMatrix);
+
+    t.text.forEach(line => {
+        line.position = applyTransformationToPoint(line.position.x, line.position.y, transformationMatrix);
+    });
+
+    t.fontSize = t.fontSize * a.zl;
+    context.font = `${t.fontSize}px sans-serif`;
+
     drawText();
 
 }
@@ -774,8 +803,26 @@ function handleSpacebarUp() {
     a.pan = false;
     gl.uniformMatrix3fv(u_pan, false, mat3.create());
     updateShapes('pan');
+
+    // --- text
+    const scalex = 1 / canvasText.width;
+    const scaley = 1 / canvasText.height;
+    const tx = a.pan_tx / scalex / 2;
+    const ty = a.pan_ty / scaley / 2;
+
+    t.text.forEach(line => {
+        line.position.x = line.position.x + tx;
+        line.position.y = line.position.y - ty;
+
+    });
+
     a.pan_tx = 0;
     a.pan_ty = 0;
+
+    context.setTransform(new DOMMatrix([1,0,0,1,0,0]));
+
+    drawText();
+
 
     drawShapes();
 }
@@ -928,147 +975,81 @@ export function drawSingle(shape) {
 const canvasText = document.querySelector('canvas.text');
 resizeCanvasToDisplaySize(canvasText);
 const context = canvasText.getContext('2d');
-t.fontSize = '18px';
-context.font = `${t.fontSize} sans-serif`;
+t.fontSize = 36;
+context.font = `${t.fontSize}px sans-serif`;
 
 function handleMouseDownText(mouse) {
 
-    if (gm()!=='text') {
+    if (gm() !== 'text') {
         return;
     }
-    
-    t.isMouseDown = true;
-    t.position = { ...mouse };
-    console.log(t.position);
-    const newTextInput = {
-        position:t.position,
+
+    t.textPosition = { ...mouse };
+    const line = {
+        position: t.textPosition,
         text: []
     };
-    t.textInputs.push(newTextInput);
-    console.log(t.textInputs);
-}
-
-function handleMouseMoveText(mouse) {
-}
-
-function handleMouseUpText() {
-        
-    if (gm()!=='text') {
-        return;
-    }
-    
-
-    t.isMouseDown = false;
+    t.text.push(line);
 }
 
 function handleKeyPress(key) {
-        
-    if (gm()!=='text') {
+
+    if (gm() !== 'text') {
+        return;
+    }
+    if (!t.textPosition) {
         return;
     }
 
-    if (key === '-') {
-        downloadDxfFile();
-        return;
-    }
     else if (key === 'Backspace') {
-        const currentTextInput = t.textInputs[t.textInputs.length - 1];
+        const currentTextInput = t.text[t.text.length - 1];
         currentTextInput.text.pop();
         drawText();
     } else if (key) {
-        const currentTextInput = t.textInputs[t.textInputs.length - 1];
+        const currentTextInput = t.text[t.text.length - 1];
         currentTextInput.text.push(key);
         drawText();
     }
 }
 
-function handleKeyDown(event) {
-        
-    if (gm()!=='text') {
-        return;
-    }
-    
 
-    if (event.key === ' ') {
-        if (!t.isPanning) {
-            t.isPanning = true;
-            t.panStartPoint = t.position;
-            const mouseMoveUntilKeyUp$ = fromEvent(document, 'mousemove').pipe(
-                map(ev => getPoint(ev)),
-                takeUntil(fromEvent(document, 'keyup')),
-                takeUntil(fromEvent(document, 'blur'))
-            );
-            mouseMoveUntilKeyUp$.subscribe(handlePan);
-        }
-    }
-}
-
-function handleKeyUp(event) {
-        
-    if (gm()!=='text') {
-        return;
-    }
-    
-
-    if (event.key === ' ') {
-        isPanning = false;
-        t.translateX = null;
-        t.translateY = null;
-    }
-}
-
-function handlePan(mouse) {
-    
-    if (t.isPanning) {
-        const panEndPoint = new Point(mouse.x, mouse.y);
-        const delta = panEndPoint.substract(panStartPoint);
-        t.translateX = delta.x;
-        t.translateY = delta.y;
-        drawText();
-    }
-}
 
 
 const mouseDownText$ = fromEvent(canvasText, 'mousedown').pipe(map(ev => getPoint(ev)));
-const mouseMoveText$ = fromEvent(canvasText, 'mousemove').pipe(map(ev => getPoint(ev)));
-const mouseUpText$ = fromEvent(canvasText, 'mouseup');
 const keyPress$ = fromEvent(document, 'keyup').pipe(
     filter(ev => filterText(ev)),
     map(ev => ev.key)
 );
-const keyDown$ = fromEvent(document, 'keydown');
-const keyUp$ = fromEvent(document, 'keyup');
 
 mouseDownText$.subscribe(handleMouseDownText);
-mouseMoveText$.subscribe(handleMouseMoveText);
-mouseUpText$.subscribe(handleMouseUpText);
 keyPress$.subscribe(handleKeyPress);
-keyDown$.subscribe(handleKeyDown);
-keyUp$.subscribe(handleKeyUp);
 
 // --------- EVENTS ---------
 
 // --------- TEXT ---------
 
 function drawText() {
-
     context.clearRect(0, 0, canvasText.width, canvasText.height);
     context.save();
-    context.translate(t.translateX, t.translateY);
-    context.scale(a.zlc, a.zlc);
 
-    t.textInputs.forEach(textInput => {
-        const { position, text } = textInput;
+    t.text.forEach(line => {
+        const { position, text } = line;
+
         const textString = text.join('');
-        const tolerance = 4;
-        const size = parseInt(t.fontSize) + tolerance;
+
         const x = position.x;
-        const y = position.y - size + tolerance;
+        const y = position.y;
 
         context.fillText(textString, x, y);
     });
 
     context.restore();
+}
+
+function applyTransformationToPoint(x, y, matrix) {
+    const newX = matrix[0] * x + matrix[3] * y + matrix[6];
+    const newY = matrix[1] * x + matrix[4] * y + matrix[7];
+    return new Point(newX, newY);
 }
 
 // --------- TEXT ---------
@@ -1077,30 +1058,8 @@ function drawText() {
 
 // --------- HELPERS ---------
 function getPoint(mouseEvent) {
-    return new Point(mouseEvent.clientX - canvasText.offsetLeft, mouseEvent.clientY - canvasText.offsetTop);
+    return new Point(mouseEvent.clientX - 7, mouseEvent.clientY - 2);
 }
 // --------- HELPERS ---------
 
-
-
-// --------- DXF ---------
-function generateDxfContent() {
-    let dxfContent = `0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nSECTION\n2\nTABLES\n0\nENDSEC\n0\nSECTION\n2\nBLOCKS\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n`;
-
-    t.textInputs.forEach((textInput, index) => {
-        const { position, text } = textInput;
-        const textString = text.join('');
-        const size = parseInt(t.fontSize) + 4;
-        const x = position.x;
-        const y = position.y - size + 4;
-
-        dxfContent += `0\nTEXT\n8\n${index}\n10\n${x}\n20\n${y}\n40\n${size}\n1\n${textString}\n`;
-    });
-
-    dxfContent += `0\nENDSEC\n0\nEOF\n`;
-
-    return dxfContent;
-}
-
-// --------- DXF ---------
 

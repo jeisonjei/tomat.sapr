@@ -51,18 +51,17 @@ export function generateDXFContent() {
 
     const scaleY = 1 / canvas.height;
     
-    t.textInputs.forEach((textInput, index) => {
+    t.text.forEach((textInput, index) => {
         const { position, text } = textInput;
         const textString = text.join('');
-        const size = (parseInt(t.fontSize) + 4)*scaleY;
+        const size = (parseInt(t.fontSize));
         const x = (position.x);
-        const y = (position.y - size + 4);
+        const y = (position.y);
         const webglCoord = canvasGetWebglCoordinates(new Point(x, y), canvas);
 
-        const a = scalePoint(webglCoord, canvasWidth, canvasHeight);
-        const b = scaleLength(size,canvasWidth,canvasHeight);
+        const a = scalePoint(webglCoord, canvasHeight, canvasWidth);
 
-        dxfContent += `0\nTEXT\n8\n${index}\n10\n${a.x}\n20\n${a.y}\n40\n${b}\n1\n${textString}\n`;
+        dxfContent += `0\nTEXT\n8\n${index}\n10\n${a.x}\n20\n${a.y}\n40\n${size*scaleY*0.1}\n1\n${textString}\n`;
     });
 
     dxfContent += `0\nENDSEC\n0\nEOF`; // DXF footer

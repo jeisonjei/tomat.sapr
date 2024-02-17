@@ -136,3 +136,13 @@ export function resizeCanvasToDisplaySize(canvas) {
 export function checkFunction(shape, functionName, mouse) {
   return typeof shape[functionName] === 'function' ? shape[functionName](mouse) : null;
 }
+
+export function convertWebGLToCanvas2DPoint(point, canvas2DWidth, canvas2DHeight) {
+  // Convert x-coordinate from WebGL to Canvas2D
+  const canvas2DX = (point.x + 1) * canvas2DWidth / 2;
+
+  // Convert y-coordinate from WebGL to Canvas2D
+  const canvas2DY = (1 - point.y) * canvas2DHeight / 2;
+  return new Point(canvas2DX,canvas2DY);
+  
+}

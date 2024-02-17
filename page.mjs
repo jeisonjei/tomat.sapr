@@ -2,6 +2,7 @@ import { fromEvent } from "rxjs";
 import { a, deleteShapes, drawShapes, drawSingle } from "./main.js";
 import { checkFunction } from "./shared/common.mjs";
 import { generateDXFContent } from "./shared/export/dxf.mjs";
+import { t } from "./main.js";
 
 export const mode_elem = document.getElementById('mode');
 setMode(mode_elem, 'select');
@@ -67,6 +68,27 @@ export function boundaryModeObserver(mouse) {
 const keyDown$ = fromEvent(document, 'keydown');
 const keyUp$ = fromEvent(document, 'keyup');
 keyDown$.subscribe(event => {
+    if (gm()=== 'text' && event.key!=='Escape') {
+        return;
+    }
+    canvasText.style.cursor = 'crosshair';
+    console.log(event.altKey);
+    if (event.altKey) {
+        switch (event.key) {
+            case 'l':
+            case 'д':
+                setMode(mode_elem, 'symline');
+                break;
+            case 'r':
+            case 'к':
+                setMode(mode_elem, 'rotatecopy');
+                break;
+            default:
+                break;
+        }
+        return;
+    }
+
     // Handle key down events
     switch (event.key) {
         case 's':
@@ -110,6 +132,10 @@ keyDown$.subscribe(event => {
         case 'ш':
             setMode(mode_elem, 'mirror');
             break;
+        case 't':
+        case 'е':
+            setMode(mode_elem, 'text');
+            
         case 'Escape':
             a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                 shape.isSelected = false;
@@ -136,19 +162,14 @@ keyUp$.subscribe(event => {
     }
 });
 
-const canvas = document.querySelector('canvas.text');
+const canvasText = document.querySelector('canvas.text');
 const canvasBody = document.querySelector('body');
 
 fromEvent(canvasBody, 'keydown').subscribe(event => {
-    if (event.key !== 't' && event.key !== 'е') {
-        canvas.style.cursor = 'crosshair';
-    }
-});
-
-fromEvent(canvasBody, 'keydown').subscribe(event => {
-    if (event.key === 't' || event.key === 'е') {
+    if (event.key === 't' && gm()!=='text') {
         setMode(mode_elem, 'text');
-        canvas.style.cursor = 'text';
+        canvasText.style.cursor = 'text';
+        t.textPosition = null;
     }
 });
 
