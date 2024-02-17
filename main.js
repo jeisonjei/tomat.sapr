@@ -484,9 +484,6 @@ function handleMouseMove(mouse) {
             if (!a.pan) {
                 // disabling magnets for currently edited shape
                 observeMagnet(a.shapes.filter(shape => shape.edit === null), mouse).subscribe();
-                // --- text
-                
-                observeMagnet(t.text, mouse).subscribe();
             }
         }
 
@@ -725,7 +722,6 @@ function handleMouseUp(mouse) {
             t.text.forEach(text => {
                 if (text.isinSelectFrame(a.selectFrame)) {
                     text.isSelected = !text.isSelected;
-                    console.log(text.isSelected);
                 }
             });
             drawText();
@@ -944,7 +940,10 @@ export function drawSingle(shape) {
      * В то же время трансформации происходят также через функцию handleMouseMove
      * @param {Line, Grip, Projection, Circle, Rectangle} shape - фигура, которую нужно отрисовать.
      * В качестве фигуры также могут выступать и магниты
-     */
+    */
+    if (shape.type==='text') {
+        return;
+    }
     const vertices = shape.getVertices();
     const size = vertices.length;
     const [a, b, c, d] = shape.color;
@@ -1019,6 +1018,7 @@ function handleMouseDownText(mouse) {
 
     const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
     t.text.push(textLine);
+    a.shapes.push(...t.text);
 }
 
 function handleKeyPress(key) {

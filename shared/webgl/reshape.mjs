@@ -8,7 +8,7 @@ export function deconstruct(vertices, shapes) {
 
 export function getNewVertices(shapes) {
     let result = [];
-    for (const shape of shapes) {
+    for (const shape of shapes.filter(shape=>shape.type!=='text')) {
         const vertices = shape.getVerticesArray();
         for (const v of vertices) {
             result.push(v);
