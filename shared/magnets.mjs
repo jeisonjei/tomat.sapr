@@ -1,8 +1,8 @@
 import { filter, from, map, switchMap, tap, of, Subject, AsyncSubject, ReplaySubject } from "rxjs";
 import { scan } from "rxjs";
-import { canvasGetClientX, canvasGetClientY, canvasGetMouse, checkFunction } from "./common.mjs";
+import { canvasGetClientX, canvasGetClientY, canvasGetMouse, canvasGetWebglCoordinates, checkFunction, convertCanvas2DToWebGLPoint, convertWebGLToCanvas2DPoint } from "./common.mjs";
 import { s } from './settings.mjs';
-import { a } from '../main.js';
+import { a, canvasText } from '../main.js';
 import { ms } from "../models/snaps/MagnetState.mjs";
 import { Point } from "../models/Point.mjs";
 import { getRotateSnap } from "./transform.mjs";
@@ -43,7 +43,8 @@ export function observeMagnet(shapes, mouse) {
             checkFunction(shape, 'isinTripHq1', mouse) ||
             checkFunction(shape, 'isinTripHq3', mouse) ||
             checkFunction(shape, 'isinTripVq4', mouse) ||
-            checkFunction(shape, 'isinTripVq2', mouse)
+            checkFunction(shape, 'isinTripVq2', mouse) ||
+            checkFunction(shape, 'isinTripVmid', mouse)
         )),
         scan((acc, shape) => {
             switch (shape.type) {
@@ -81,6 +82,11 @@ export function observeMagnet(shapes, mouse) {
                             shape.tripV.start = shape.end;
                             acc.push(shape.tripV);
                             break;
+                        case shape.isinTripVmid(mouse):
+                            console.log(mouse);
+                            shape.tripV.mouse = mouse;
+                            shape.tripV.start = shape.mid;
+                            acc.push(shape.tripV);
                         default:
                             break;
 
@@ -145,7 +151,7 @@ export function observeMagnet(shapes, mouse) {
                             break;
                     }
                     break;
-                
+
                 case 'circle':
                     switch (true) {
                         case shape.isinGripCenter(mouse):
@@ -183,7 +189,7 @@ export function observeMagnet(shapes, mouse) {
                             shape.tripH.start = shape.quad1;
                             acc.push(shape.tripH);
                             break;
-                        
+
                         case shape.isinTripHq3(mouse):
                             shape.tripH.mouse = mouse;
                             shape.tripH.start = shape.quad3;
@@ -197,6 +203,22 @@ export function observeMagnet(shapes, mouse) {
                         case shape.isinTripVq2(mouse):
                             shape.tripV.mouse = mouse;
                             shape.tripV.start = shape.quad2;
+                            acc.push(shape.tripV);
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case 'text':
+                    switch (true) {
+                        case shape.isinTripHstart(mouse):
+                            shape.tripH.mouse = mouse;
+                            shape.tripH.start = canvasGetWebglCoordinates(shape.start,canvasText);
+                            acc.push(shape.tripH);
+                            break;
+                        case shape.isinTripVstart(mouse):
+                            shape.tripV.mouse = mouse;
+                            shape.tripV.start = canvasGetWebglCoordinates(shape.start,canvasText);
                             acc.push(shape.tripV);
                             break;
                         default:

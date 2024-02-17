@@ -52,12 +52,9 @@ export function generateDXFContent() {
     const scaleY = 1 / canvas.height;
     
     t.text.forEach((textInput, index) => {
-        const { position, text } = textInput;
-        const textString = text.join('');
-        const size = (parseInt(t.fontSize));
-        const x = (position.x);
-        const y = (position.y);
-        const webglCoord = canvasGetWebglCoordinates(new Point(x, y), canvas);
+        const textString = textInput.text;
+        const size = t.fontSize;
+        const webglCoord = canvasGetWebglCoordinates(textInput.start, canvas);
 
         const a = scalePoint(webglCoord, canvasHeight, canvasWidth);
 

@@ -87,7 +87,7 @@ export function canvasGetMouse(event, canvas) {
 }
 
 export function canvasGetWebglCoordinates(position, canvas) {
-  return new Point((position.x - canvas.offsetLeft) / canvas.width * 2 -1,(-position.y - canvas.offsetTop) / canvas.height * 2 +1);
+  return new Point((position.x) / canvas.width * 2 - 1, (-position.y) / canvas.height * 2 + 1);
 }
 
 export function canvasGetClientY(event, canvas) {
@@ -109,27 +109,27 @@ export function convertVerticesToPoints(vertices) {
 
 export function isPointInsideFrame(frame, x, y) {
   const { point1, point2, point3 } = frame;
-  if (x > point1.x && x < point2.x && y > point3.y && y < point2.y) {
-      return true;
+  if (x > point1.x && x < point2.x && ((y > point3.y && y < point2.y) || (y > point2.y && y < point3.y))) {
+    return true;
   }
   return false;
 }
 
 export function resizeCanvasToDisplaySize(canvas) {
   // Lookup the size the browser is displaying the canvas in CSS pixels.
-  const displayWidth  = canvas.clientWidth;
+  const displayWidth = canvas.clientWidth;
   const displayHeight = canvas.clientHeight;
- 
+
   // Check if the canvas is not the same size.
-  const needResize = canvas.width  !== displayWidth ||
-                     canvas.height !== displayHeight;
- 
+  const needResize = canvas.width !== displayWidth ||
+    canvas.height !== displayHeight;
+
   if (needResize) {
     // Make the canvas the same size
-    canvas.width  = displayWidth;
+    canvas.width = displayWidth;
     canvas.height = displayHeight;
   }
- 
+
   return needResize;
 }
 
@@ -143,6 +143,16 @@ export function convertWebGLToCanvas2DPoint(point, canvas2DWidth, canvas2DHeight
 
   // Convert y-coordinate from WebGL to Canvas2D
   const canvas2DY = (1 - point.y) * canvas2DHeight / 2;
-  return new Point(canvas2DX,canvas2DY);
-  
+  return new Point(canvas2DX, canvas2DY);
+
 }
+
+export function convertCanvas2DToWebGLPoint(point, canvas2DWidth, canvas2DHeight) {
+  // Convert x-coordinate from Canvas2D to WebGL
+  const webGLX = (point.x - canvas2DWidth / 2) / (canvas2DWidth / 2) - 1;
+
+  // Convert y-coordinate from Canvas2D to WebGL
+  const webGLY = (canvas2DHeight / 2 - point.y) / (canvas2DHeight / 2) - 1;
+  return new Point(webGLX, webGLY);
+}
+

@@ -1,5 +1,5 @@
 import { fromEvent } from "rxjs";
-import { a, deleteShapes, drawShapes, drawSingle } from "./main.js";
+import { a, deleteShapes, deleteText, drawShapes, drawSingle, drawText } from "./main.js";
 import { checkFunction } from "./shared/common.mjs";
 import { generateDXFContent } from "./shared/export/dxf.mjs";
 import { t } from "./main.js";
@@ -143,10 +143,20 @@ keyDown$.subscribe(event => {
             reset();
             setMode(mode_elem, 'select');
             drawShapes();
+
+            // --- text
+            t.text.filter(text => text.isSelected).forEach(text => {
+                text.isSelected = false;
+            })
             break;
         case 'Delete':
             deleteShapes();
             drawShapes();
+            
+            // --- text
+            deleteText();
+            drawText();
+
             break;
         
         case 'Shift':
@@ -166,7 +176,7 @@ const canvasText = document.querySelector('canvas.text');
 const canvasBody = document.querySelector('body');
 
 fromEvent(canvasBody, 'keydown').subscribe(event => {
-    if (event.key === 't' && gm()!=='text') {
+    if ((event.key === 't' || event.key === 'е') && gm()!=='text') {
         setMode(mode_elem, 'text');
         canvasText.style.cursor = 'text';
         t.textPosition = null;

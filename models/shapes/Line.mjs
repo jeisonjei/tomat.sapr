@@ -27,7 +27,7 @@ export class Line extends BasicShape {
 
     constructor(aspectRatio, start, end, color) {
         super(aspectRatio);
-            this.type = 'line';
+        this.type = 'line';
         this._start = { ...start };
         this._end = { ...end };
         this.mid = this.getMid(start, end);
@@ -132,8 +132,10 @@ export class Line extends BasicShape {
     isinGripEnd = (mouse) => this.grip.isin(this.end, mouse);
     isinGripMid = (mouse) => this.grip.isin(this.mid, mouse);
     isinTripHstart = (mouse) => this.tripH.isin(this.start, mouse);
+    isinTripHmid = (mouse) => this.tripH.isin(this.mid, mouse);
     isinTripHend = (mouse) => this.tripH.isin(this.end, mouse);
     isinTripVstart = (mouse) => this.tripV.isin(this.start, mouse);
+    isinTripVmid = (mouse) => this.tripV.isin(this.mid, mouse);
     isinTripVend = (mouse) => this.tripV.isin(this.end, mouse);
     // --------- MAGENTS ---------
 

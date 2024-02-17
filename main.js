@@ -18,6 +18,7 @@ import { Rectangle } from "./models/shapes/Rectangle.mjs";
 import { Circle } from "./models/shapes/Circle.mjs";
 import { SymLine } from "./models/shapes/SymLine.mjs";
 import { filterText } from "./services/textFilter";
+import { Text } from "./models/shapes/Text.mjs";
 
 /**
  * В этой версии программы попробуем осущещствлять вызовы к webgl только из текущего файла.
@@ -118,7 +119,11 @@ export const t = {
     mouseClick: false,
 
     isPanning: false,
-    panStartPoint: new Point(0, 0)
+    panStartPoint: new Point(0, 0),
+
+    fontSize: 36,
+    // fontName: 'Courier New'
+    fontName: 'Arial'
 }
 
 // --------- GLOBALS ---------
@@ -129,8 +134,6 @@ export const t = {
 // --------- INIT ---------
 function init() {
     s.tolerance = 0.02;
-
-    t.text.push({ position: new Point(0, 0), text: [] });
 }
 init();
 // --------- INIT ---------
@@ -394,10 +397,12 @@ magnetState$.pipe(
      * Переменная a.gripPosition назначается только здесь
      */
     map(state => {
+        
         const mouse = state.filter(object => object.hasOwnProperty('mouse'))[0].mouse;
         const grips = state.filter(magnet => magnet.type === 'm_grip');
         const tripsH = state.filter(magnet => magnet.type === 'm_triph');
         const tripsV = state.filter(magnet => magnet.type === 'm_tripv');
+
         if (grips.length > 0) {
             return { mouse: mouse, magnet: grips[0] };
         }
@@ -479,6 +484,9 @@ function handleMouseMove(mouse) {
             if (!a.pan) {
                 // disabling magnets for currently edited shape
                 observeMagnet(a.shapes.filter(shape => shape.edit === null), mouse).subscribe();
+                // --- text
+                
+                observeMagnet(t.text, mouse).subscribe();
             }
         }
 
@@ -509,7 +517,7 @@ function handleMouseMove(mouse) {
             context.setTransform(matrix);
             drawText();
 
-            
+
         }
 
         // enable edit mode
@@ -711,6 +719,17 @@ function handleMouseUp(mouse) {
                     shape.isSelected = !shape.isSelected;
                 }
             });
+
+            // --- text
+            a.selectFrame.convertToCanvas2d(canvasText.width,canvasText.height);
+            t.text.forEach(text => {
+                if (text.isinSelectFrame(a.selectFrame)) {
+                    text.isSelected = !text.isSelected;
+                    console.log(text.isSelected);
+                }
+            });
+            drawText();
+            
             break;
         case 'line':
             a.line.end = a.end;
@@ -785,11 +804,11 @@ function handleMouseWheel(ev) {
     const transformationMatrix = mat3.multiply(mat3.create(), translationMatrix, scalingMatrix);
 
     t.text.forEach(line => {
-        line.position = applyTransformationToPoint(line.position.x, line.position.y, transformationMatrix);
+        line.start = applyTransformationToPoint(line.start.x, line.start.y, transformationMatrix);
     });
 
     t.fontSize = t.fontSize * a.zl;
-    context.font = `${t.fontSize}px sans-serif`;
+    context.font = `${t.fontSize}px ${t.fontName}`;
 
     drawText();
 
@@ -810,20 +829,18 @@ function handleSpacebarUp() {
     const tx = a.pan_tx / scalex / 2;
     const ty = a.pan_ty / scaley / 2;
 
-    t.text.forEach(line => {
-        line.position.x = line.position.x + tx;
-        line.position.y = line.position.y - ty;
+    t.text.forEach(textLine => {
+        textLine.start.x = textLine.start.x + tx;
+        textLine.start.y = textLine.start.y - ty;
 
     });
+    context.setTransform(new DOMMatrix([1, 0, 0, 1, 0, 0]));
+    drawText();
+
+    // --- text
 
     a.pan_tx = 0;
     a.pan_ty = 0;
-
-    context.setTransform(new DOMMatrix([1,0,0,1,0,0]));
-
-    drawText();
-
-
     drawShapes();
 }
 
@@ -895,6 +912,10 @@ export function deleteShapes(shapes) {
     a.shapes$.next(a.shapes);
 }
 
+export function deleteText(text) {
+    t.text = t.text.filter(text => !text.isSelected);
+}
+
 
 export function drawShapes() {
     gl.uniformMatrix3fv(u_move, false, mat3.create());
@@ -905,6 +926,11 @@ export function drawShapes() {
     // gl.uniform4f(u_color, 1, 0, 0, 1);
     // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a.vertices), gl.DYNAMIC_DRAW);
     // gl.drawArrays(gl.LINES, 0, a.vertices.length / 2);
+
+    if (a.shapes.length === 0) {
+        gl.clearColor(1, 1, 1, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+    }
 
     a.shapes.forEach(shape => {
         drawSingle(shape);
@@ -972,11 +998,11 @@ export function drawSingle(shape) {
 
 
 // --------- NEW ---------
-const canvasText = document.querySelector('canvas.text');
+export const canvasText = document.querySelector('canvas.text');
 resizeCanvasToDisplaySize(canvasText);
 const context = canvasText.getContext('2d');
 t.fontSize = 36;
-context.font = `${t.fontSize}px sans-serif`;
+context.font = `${t.fontSize}px ${t.fontName}`;
 
 function handleMouseDownText(mouse) {
 
@@ -984,12 +1010,15 @@ function handleMouseDownText(mouse) {
         return;
     }
 
-    t.textPosition = { ...mouse };
-    const line = {
-        position: t.textPosition,
-        text: []
-    };
-    t.text.push(line);
+    if (a.magnetPosition) {
+        t.textPosition = { ...convertWebGLToCanvas2DPoint(a.magnetPosition,canvasText.width,canvasText.height) };
+    }
+    else {
+        t.textPosition = {...mouse}
+    }
+
+    const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
+    t.text.push(textLine);
 }
 
 function handleKeyPress(key) {
@@ -1002,14 +1031,12 @@ function handleKeyPress(key) {
     }
 
     else if (key === 'Backspace') {
-        const currentTextInput = t.text[t.text.length - 1];
-        currentTextInput.text.pop();
-        drawText();
+        t.text[t.text.length - 1].delete();
     } else if (key) {
-        const currentTextInput = t.text[t.text.length - 1];
-        currentTextInput.text.push(key);
-        drawText();
+        t.text[t.text.length - 1].add(key);
     }
+
+    drawText();
 }
 
 
@@ -1028,19 +1055,18 @@ keyPress$.subscribe(handleKeyPress);
 
 // --------- TEXT ---------
 
-function drawText() {
+export function drawText() {
     context.clearRect(0, 0, canvasText.width, canvasText.height);
     context.save();
 
-    t.text.forEach(line => {
-        const { position, text } = line;
-
-        const textString = text.join('');
-
-        const x = position.x;
-        const y = position.y;
-
-        context.fillText(textString, x, y);
+    t.text.forEach(textLine => {
+        if (textLine.isSelected) {
+            context.fillStyle = '#7B7272';
+        }
+        else {
+            context.fillStyle = '#000000';
+        }
+        context.fillText(textLine.text, textLine.start.x, textLine.start.y);
     });
 
     context.restore();

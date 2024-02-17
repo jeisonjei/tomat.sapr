@@ -1,3 +1,4 @@
+import { convertCanvas2DToWebGLPoint, convertWebGLToCanvas2DPoint } from "../../shared/common.mjs";
 import { Point } from "../Point.mjs";
 
 export class AbstractFrame {
@@ -57,6 +58,21 @@ export class AbstractFrame {
             this.point4 = new Point(this.start.x + width, this.start.y + height);
         }
 
+
+    }
+
+    convertToCanvas2d(canvasWidth, canvasHeight) {
+        this.point1 = convertWebGLToCanvas2DPoint(this.point1, canvasWidth, canvasHeight);
+        this.point2 = convertWebGLToCanvas2DPoint(this.point2, canvasWidth, canvasHeight);
+        this.point3 = convertWebGLToCanvas2DPoint(this.point3, canvasWidth, canvasHeight);
+        this.point4 = convertWebGLToCanvas2DPoint(this.point4, canvasWidth, canvasHeight);
+    }
+
+    deconvert(canvasWidth, canvasHeight) {
+        this.point1 = convertCanvas2DToWebGLPoint(this.point1, canvasWidth, canvasHeight);
+        this.point2 = convertCanvas2DToWebGLPoint(this.point2, canvasWidth, canvasHeight);
+        this.point3 = convertCanvas2DToWebGLPoint(this.point3, canvasWidth, canvasHeight);
+        this.point4 = convertCanvas2DToWebGLPoint(this.point4,canvasWidth,canvasHeight);
     }
 
     getVertices() {
