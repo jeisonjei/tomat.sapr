@@ -137,10 +137,11 @@ keyDown$.subscribe(event => {
         case 'ш':
             setMode(mode_elem, 'mirror');
             break;
-        case 't':
-        case 'е':
-            setMode(mode_elem, 'text');
-
+        case 'o':
+        case 'щ':
+            setMode(mode_elem, 'output');
+            
+            break;
         case 'Escape':
             a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                 shape.isSelected = false;
@@ -254,24 +255,68 @@ saveDxfButton.addEventListener('click', function () {
     generateDXFContent();
 });
 
+const context = canvasText.getContext('2d');
+
 savePdfButton.addEventListener('click', function () {
-    let width = canvas.width;
-    let height = canvas.height;
-    //set the orientation
-    let pdf;
-    pdf = new jsPDF({
-        unit: 'px',
+    const pdf = new jsPDF({
+        unit: 'mm',
         format: 'a4',
         orientation: "l",
         userUnit: 300
     });
-    //then we get the dimensions from the 'pdf' file itself
-    width = pdf.internal.pageSize.getWidth();
-    height = pdf.internal.pageSize.getHeight();
-    pdf.addImage(canvas, 'PNG', 0, 0, width, height);
-    pdf.addImage(canvasText, 'PNG', 0, 0, width, height);
+
+    // Get the dimensions of the PDF page
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+
+    // Get the dimensions of the canvases
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+    const canvasTextWidth = canvasText.width;
+    const canvasTextHeight = canvasText.height;
+
+    // Calculate the scaling factors for both canvases
+    const scale = Math.min(pdfWidth / canvasWidth, pdfHeight / canvasHeight);
+    const scaleText = Math.min(pdfWidth / canvasTextWidth, pdfHeight / canvasTextHeight);
+
+    // Calculate the scaled dimensions of the canvases
+    const scaledWidth = canvasWidth * scale;
+    const scaledHeight = canvasHeight * scale;
+    const scaledTextWidth = canvasTextWidth * scaleText;
+    const scaledTextHeight = canvasTextHeight * scaleText;
+
+    // Add the scaled images to the PDF
+    
+    // drawBordersGost(canvasTextWidth,canvasTextHeight);
+    
+    pdf.addImage(canvas, 'PNG', 0, 0, scaledWidth, scaledHeight);
+    pdf.addImage(canvasText, 'PNG', 0, 0, scaledTextWidth, scaledTextHeight);
+
+
+    // --- border
+    pdf.setDrawColor(0, 0, 0);
+    pdf.setLineWidth(2);
+    pdf.rect(0, 0, pdfWidth, pdfHeight, 'S');
+    pdf.rect(20, 5, pdfWidth - 25, pdfHeight - 10, 'S');
+    pdf.rect(pdfWidth-190,pdfHeight-60,185,55);
+
+
+    // Save the PDF file
     pdf.save("download.pdf");
 }, false);
+
+function drawBordersGost(pdfWidth, pdfHeight) {
+    const pxmm = 3.78;
+    context.lineWidth = 2;
+    context.strokeStyle = 'black';
+    const smallb = 5 * pxmm;
+    const bigb = 20 * pxmm;
+    const descw = 185*pxmm;
+    const desch = 55*pxmm;
+    context.strokeRect(0, 0, pdfWidth, pdfHeight);
+    context.strokeRect(bigb, smallb, pdfWidth - bigb-smallb, pdfHeight - 2*smallb);
+    context.strokeRect(pdfWidth-descw-smallb,pdfHeight-desch-smallb,descw,desch);
+}
 
 // --------- BUTTONS ---------
 

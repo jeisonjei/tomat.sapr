@@ -123,7 +123,7 @@ export const t = {
 
     fontSize: 36,
     // fontName: 'Courier New'
-    fontName: 'Arial'
+    fontName: 'Consolas'
 }
 
 // --------- GLOBALS ---------
@@ -430,7 +430,6 @@ magnetState$.pipe(
 ).subscribe(magnet => {
 
     if (magnet && a.start) {
-        console.log('here');
         if (magnet.magnet instanceof Array) {
             a.magnetPosition = getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
             magnet.magnet.forEach(magnet => drawSingle(magnet));
@@ -439,9 +438,6 @@ magnetState$.pipe(
             a.magnetPosition = magnet.magnet.center ?? getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
             drawSingle(magnet.magnet);
         }
-    }
-    else {
-        console.log('nothing');
     }
 });
 
@@ -1043,9 +1039,8 @@ function handleMouseDownText(mouse) {
         t.textPosition = { ...convertWebGLToCanvas2DPoint(a.magnetPosition, canvasText.width, canvasText.height) };
     }
     else {
-        t.textPosition = new Point(mouse.x,mouse.y-canvasText.offsetTop);
+        t.textPosition = new Point(mouse.x,mouse.y);
     }
-    console.log(mouse);
 
 
     if (a.magnetPosition) {
@@ -1054,14 +1049,23 @@ function handleMouseDownText(mouse) {
     else {
         context.strokeStyle = 'gray';
     }
+    
+    const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
+    t.text.push(textLine);
+    // только для magnetsObserver
+    a.shapes.push(...t.text);
+
     context.beginPath();
     context.moveTo(t.textPosition.x, t.textPosition.y);
     context.lineTo(t.textPosition.x + 100, t.textPosition.y);
+    context.moveTo(t.textPosition.x, t.textPosition.y - context.measureText(textLine.text).fontBoundingBoxAscent);
+    context.lineTo(t.textPosition.x+100,t.textPosition.y-context.measureText(textLine.text).fontBoundingBoxAscent);
     context.stroke();
+}
 
-    const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
-    t.text.push(textLine);
-    a.shapes.push(...t.text);
+function handleMouseMoveText(mouse) {
+    
+
 }
 
 function handleKeyPress(key) {
@@ -1086,12 +1090,14 @@ function handleKeyPress(key) {
 
 
 const mouseDownText$ = fromEvent(canvasText, 'mousedown').pipe(map(ev => getPoint(ev)));
+const mouseMoveText$ = fromEvent(canvasText, 'mousemove').pipe(map(ev=>getPoint(ev)));
 const keyPress$ = fromEvent(document, 'keydown').pipe(
     filter(ev => filterText(ev)),
     map(ev => ev.key)
 );
 
 mouseDownText$.subscribe(handleMouseDownText);
+mouseMoveText$.subscribe(handleMouseMoveText);
 keyPress$.subscribe(handleKeyPress);
 
 // --------- EVENTS ---------
@@ -1127,7 +1133,7 @@ function applyTransformationToPoint(x, y, matrix) {
 
 // --------- HELPERS ---------
 function getPoint(mouseEvent) {
-    return new Point(mouseEvent.clientX - 7, mouseEvent.clientY - 2);
+    return new Point(mouseEvent.clientX - 7, mouseEvent.clientY - 8);
 }
 // --------- HELPERS ---------
 
