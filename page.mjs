@@ -184,7 +184,7 @@ const canvasBody = document.querySelector('body');
 fromEvent(canvasBody, 'keydown').subscribe(event => {
     if ((event.key === 't' || event.key === 'е') && gm() !== 'text') {
         setMode(mode_elem, 'text');
-        canvasText.style.cursor = 'text';
+        canvasText.style.cursor = 'default';
         t.textPosition = null;
     }
 });

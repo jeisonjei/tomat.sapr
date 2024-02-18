@@ -157,8 +157,9 @@ function handleMouseDown(mouse) {
         a.start = { ...a.magnetPosition };
     }
     else {
-        a.start = mouse
+        a.start = {...mouse};
     }
+
 
     switch (gm()) {
         case 'select':
@@ -235,11 +236,6 @@ function handleMouseDown(mouse) {
                 a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isSelected).forEach(shape => {
                     addShapes(shape.getClone());
                 });
-
-                // --- text
-                t.text.filter(text => text.isSelected).forEach(text => {
-                    t.text.push(text.getClone());
-                });
             }
             else if (a.clickCopyStart) {
                 const move_mat = getMoveMatrix(a.clickCopyStart, a.start);
@@ -265,13 +261,6 @@ function handleMouseDown(mouse) {
                             break;
                     }
                 });
-
-                // --- text
-                t.text.filter(t => t.isSelected).forEach(text => {
-                    text.start = convertWebGLToCanvas2DPoint(a.start, canvasText.width, canvasText.height);
-                })
-                drawText();
-
 
                 a.clickCopyStart = null;
                 gl.uniformMatrix3fv(u_move, false, mat3.create());
@@ -680,6 +669,7 @@ function handleMouseMove(mouse) {
                         a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                             drawSingle(shape);
                         });
+
                     }
                     break;
                 case 'rotate':
@@ -1048,24 +1038,26 @@ function handleMouseDownText(mouse) {
         return;
     }
 
+    
     if (a.magnetPosition) {
         t.textPosition = { ...convertWebGLToCanvas2DPoint(a.magnetPosition, canvasText.width, canvasText.height) };
     }
     else {
-        t.textPosition = { ...mouse }
+        t.textPosition = new Point(mouse.x,mouse.y-canvasText.offsetTop);
     }
+    console.log(mouse);
 
 
-    const rectWidth = 12;
-    const rectHeight = 12;
-    
     if (a.magnetPosition) {
         context.strokeStyle = 'orange';
     }
     else {
-        context.strokeStyle = 'gray'    ;
+        context.strokeStyle = 'gray';
     }
-    context.strokeRect(t.textPosition.x - rectWidth / 2, t.textPosition.y - rectHeight / 2, rectWidth, rectHeight);
+    context.beginPath();
+    context.moveTo(t.textPosition.x, t.textPosition.y);
+    context.lineTo(t.textPosition.x + 100, t.textPosition.y);
+    context.stroke();
 
     const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
     t.text.push(textLine);
@@ -1081,7 +1073,7 @@ function handleKeyPress(key) {
         return;
     }
 
-    else if (key === 'Backspace') {
+    if (key === 'Backspace') {
         t.text[t.text.length - 1].delete();
     } else if (key) {
         t.text[t.text.length - 1].add(key);
@@ -1094,7 +1086,7 @@ function handleKeyPress(key) {
 
 
 const mouseDownText$ = fromEvent(canvasText, 'mousedown').pipe(map(ev => getPoint(ev)));
-const keyPress$ = fromEvent(document, 'keyup').pipe(
+const keyPress$ = fromEvent(document, 'keydown').pipe(
     filter(ev => filterText(ev)),
     map(ev => ev.key)
 );

@@ -1,4 +1,5 @@
-export function filterText(keyupEvent) {
+export function filterText(keydownEvent) {
+
     const acceptable = [
         // ... continue english alphabet
         'a',
@@ -85,6 +86,10 @@ export function filterText(keyupEvent) {
         ":",
         " ",
         ",",
+        "°",
+        "³",
+        "²",
+        
 
         // ... special keys
         'Enter',
@@ -122,7 +127,7 @@ export function filterText(keyupEvent) {
 
     acceptable.push(...letters);
 
-    const key = keyupEvent.key;
+    const key = keydownEvent.key;
     if (acceptable.includes(key)) {
         return true;
     }

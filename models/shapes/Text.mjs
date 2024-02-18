@@ -85,6 +85,8 @@ export class Text extends BasicShape {
     }
 
     getClone() {
-        return new Text(this.aspectRatio, this.start, this.textArray, this.context);
+        const text = new Text(this.aspectRatio, this.start, this.textArray, this.context);
+        text.isSelected = false;
+        return text;
     }
 }
