@@ -121,7 +121,7 @@ export const t = {
     isPanning: false,
     panStartPoint: new Point(0, 0),
 
-    fontSize: 36,
+    fontSize: null,
     // fontName: 'Courier New'
     fontName: 'Consolas'
 }
@@ -134,6 +134,10 @@ export const t = {
 // --------- INIT ---------
 function init() {
     s.tolerance = 0.02;
+
+    const fontSize=document.getElementById('fontSize').value;
+    t.fontSize = fontSize;
+
 }
 init();
 // --------- INIT ---------
@@ -1025,7 +1029,7 @@ export function drawSingle(shape) {
 export const canvasText = document.querySelector('canvas.text');
 resizeCanvasToDisplaySize(canvasText);
 const context = canvasText.getContext('2d');
-t.fontSize = 36;
+
 context.font = `${t.fontSize}px ${t.fontName}`;
 
 function handleMouseDownText(mouse) {

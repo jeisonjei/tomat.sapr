@@ -181,6 +181,7 @@ keyUp$.subscribe(event => {
 
 const canvasText = document.querySelector('canvas.text');
 const canvasBody = document.querySelector('body');
+const context = canvasText.getContext('2d');
 
 fromEvent(canvasBody, 'keydown').subscribe(event => {
     if ((event.key === 't' || event.key === 'е') && gm() !== 'text') {
@@ -194,6 +195,8 @@ fromEvent(canvasBody, 'keydown').subscribe(event => {
 
 
 // --------- BUTTONS ---------
+const textButton = document.getElementById('text');
+const fontSelect = document.getElementById('fontSize');
 const lineButton = document.getElementById('line');
 const rectangleButton = document.getElementById('rectangle');
 const circleButton = document.getElementById('circle');
@@ -205,6 +208,7 @@ const rotateButton = document.getElementById('rotate');
 const mirrorButton = document.getElementById('mirror');
 const saveDxfButton = document.getElementById('saveDxf');
 const savePdfButton = document.getElementById('savePdf');
+const formatSelect = document.getElementById('format');
 
 const buttons = [lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, saveDxfButton, savePdfButton];
 buttons.forEach(button => {
@@ -255,12 +259,24 @@ saveDxfButton.addEventListener('click', function () {
     generateDXFContent();
 });
 
-const context = canvasText.getContext('2d');
+
+
+// --- select
+fontSelect.addEventListener("change", (event) => {
+    t.fontSize = event.target.value;
+    context.font = `${t.fontSize}px ${t.fontName}`;
+    drawText();
+  });
+
+let format = 'a4';
+formatSelect.addEventListener('change', (event) => {
+    format = event.target.value.toLowerCase();
+  })
 
 savePdfButton.addEventListener('click', function () {
     const pdf = new jsPDF({
         unit: 'mm',
-        format: 'a4',
+        format: format,
         orientation: "l",
         userUnit: 300
     });
@@ -295,7 +311,7 @@ savePdfButton.addEventListener('click', function () {
 
     // --- border
     pdf.setDrawColor(0, 0, 0);
-    pdf.setLineWidth(2);
+    pdf.setLineWidth(1);
     pdf.rect(0, 0, pdfWidth, pdfHeight, 'S');
     pdf.rect(20, 5, pdfWidth - 25, pdfHeight - 10, 'S');
     pdf.rect(pdfWidth-190,pdfHeight-60,185,55);
