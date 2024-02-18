@@ -140,7 +140,7 @@ keyDown$.subscribe(event => {
         case 'o':
         case 'щ':
             setMode(mode_elem, 'output');
-            
+
             break;
         case 'Escape':
             a.shapes.filter(shape => shape.isSelected).forEach(shape => {
@@ -266,12 +266,12 @@ fontSelect.addEventListener("change", (event) => {
     t.fontSize = event.target.value;
     context.font = `${t.fontSize}px ${t.fontName}`;
     drawText();
-  });
+});
 
 let format = 'a4';
 formatSelect.addEventListener('change', (event) => {
     format = event.target.value.toLowerCase();
-  })
+})
 
 savePdfButton.addEventListener('click', function () {
     const pdf = new jsPDF({
@@ -302,37 +302,107 @@ savePdfButton.addEventListener('click', function () {
     const scaledTextHeight = canvasTextHeight * scaleText;
 
     // Add the scaled images to the PDF
-    
+
     // drawBordersGost(canvasTextWidth,canvasTextHeight);
-    
+
     pdf.addImage(canvas, 'PNG', 0, 0, scaledWidth, scaledHeight);
     pdf.addImage(canvasText, 'PNG', 0, 0, scaledTextWidth, scaledTextHeight);
 
 
     // --- border
+    const topX = pdfWidth - 190;
+    const topY = pdfHeight - 60;
+    const b = 5;
     pdf.setDrawColor(0, 0, 0);
     pdf.setLineWidth(1);
     pdf.rect(0, 0, pdfWidth, pdfHeight, 'S');
     pdf.rect(20, 5, pdfWidth - 25, pdfHeight - 10, 'S');
-    pdf.rect(pdfWidth-190,pdfHeight-60,185,55);
+    pdf.rect(topX, topY, 185, 55);
+    // ---
+    pdf.rect(topX, topY, 10, 5);
+    pdf.rect(topX, topY + b, 10, 5);
+    pdf.rect(topX, topY + b * 2, 10, 5);
+    pdf.rect(topX, topY + b * 3, 10, 5);
+    pdf.rect(topX, topY + b * 4, 10, 5);
+    // ---
+    pdf.rect(topX + b * 2, topY, 10, 5);
+    pdf.rect(topX + b * 2, topY + b, 10, 5);
+    pdf.rect(topX + b * 2, topY + b * 2, 10, 5);
+    pdf.rect(topX + b * 2, topY + b * 3, 10, 5);
+    pdf.rect(topX + b * 2, topY + b * 4, 10, 5);
+
+    pdf.rect(topX + b * 4, topY, 10, 5);
+    pdf.rect(topX + b * 4, topY + b, 10, 5);
+    pdf.rect(topX + b * 4, topY + b * 2, 10, 5);
+    pdf.rect(topX + b * 4, topY + b * 3, 10, 5);
+    pdf.rect(topX + b * 4, topY + b * 4, 10, 5);
+
+    pdf.rect(topX + b * 6, topY, 10, 5);
+    pdf.rect(topX + b * 6, topY + b, 10, 5);
+    pdf.rect(topX + b * 6, topY + b * 2, 10, 5);
+    pdf.rect(topX + b * 6, topY + b * 3, 10, 5);
+    pdf.rect(topX + b * 6, topY + b * 4, 10, 5);
+    // --- 
+    pdf.rect(topX, topY + b * 5, 20, 5);
+    pdf.rect(topX, topY + b * 6, 20, 5);
+    pdf.rect(topX, topY + b * 7, 20, 5);
+    pdf.rect(topX, topY + b * 8, 20, 5);
+    pdf.rect(topX, topY + b * 9, 20, 5);
+    pdf.rect(topX, topY + b * 10, 20, 5);
+    // ---
+    pdf.rect(topX + b * 4, topY + b * 5, 20, 5);
+    pdf.rect(topX + b * 4, topY + b * 6, 20, 5);
+    pdf.rect(topX + b * 4, topY + b * 7, 20, 5);
+    pdf.rect(topX + b * 4, topY + b * 8, 20, 5);
+    pdf.rect(topX + b * 4, topY + b * 9, 20, 5);
+    pdf.rect(topX + b * 4, topY + b * 10, 20, 5);
+    // ---
+    pdf.rect(topX + b * 8, topY, 15, 5);
+    pdf.rect(topX + b * 8, topY + b, 15, 5);
+    pdf.rect(topX + b * 8, topY + b * 2, 15, 5);
+    pdf.rect(topX + b * 8, topY + b * 3, 15, 5);
+    pdf.rect(topX + b * 8, topY + b * 4, 15, 5);
+    pdf.rect(topX + b * 8, topY + b * 5, 15, 5);
+    pdf.rect(topX + b * 8, topY + b * 6, 15, 5);
+    pdf.rect(topX + b * 8, topY + b * 7, 15, 5);
+    pdf.rect(topX + b * 8, topY + b * 8, 15, 5);
+    pdf.rect(topX + b * 8, topY + b * 9, 15, 5);
+    pdf.rect(topX + b * 8, topY + b * 10, 15, 5);
+    // ---
+    pdf.rect(topX + b * 11, topY, 10, 5);
+    pdf.rect(topX + b * 11, topY + b, 10, 5);
+    pdf.rect(topX + b * 11, topY + b * 2, 10, 5);
+    pdf.rect(topX + b * 11, topY + b * 3, 10, 5);
+    pdf.rect(topX + b * 11, topY + b * 4, 10, 5);
+    pdf.rect(topX + b * 11, topY + b * 5, 10, 5);
+    pdf.rect(topX + b * 11, topY + b * 6, 10, 5);
+    pdf.rect(topX + b * 11, topY + b * 7, 10, 5);
+    pdf.rect(topX + b * 11, topY + b * 8, 10, 5);
+    pdf.rect(topX + b * 11, topY + b * 9, 10, 5);
+    pdf.rect(topX + b * 11, topY + b * 10, 10, 5);
+    // ---
+    pdf.rect(topX + b * 13, topY, 120, 10);
+    pdf.rect(topX + b * 13, topY + b * 2, 120, 15);
+    pdf.rect(topX + b * 13, topY + b * 5, 70, 15);
+    pdf.rect(topX + b * 13, topY + b * 8, 70, 15);
+    // ---
+    pdf.rect(topX + b * 27, topY + b * 5, 15, 5);
+    pdf.rect(topX + b * 27, topY + b * 6, 15, 10);
+    // --- 
+    pdf.rect(topX + b * 30, topY + b * 5, 15, 5);
+    pdf.rect(topX + b * 30, topY + b * 6, 15, 10);
+    // ---
+    pdf.rect(topX + b * 33, topY + b * 5, 20, 5);
+    pdf.rect(topX + b * 33, topY + b * 6, 20, 10);
+
+
 
 
     // Save the PDF file
     pdf.save("download.pdf");
 }, false);
 
-function drawBordersGost(pdfWidth, pdfHeight) {
-    const pxmm = 3.78;
-    context.lineWidth = 2;
-    context.strokeStyle = 'black';
-    const smallb = 5 * pxmm;
-    const bigb = 20 * pxmm;
-    const descw = 185*pxmm;
-    const desch = 55*pxmm;
-    context.strokeRect(0, 0, pdfWidth, pdfHeight);
-    context.strokeRect(bigb, smallb, pdfWidth - bigb-smallb, pdfHeight - 2*smallb);
-    context.strokeRect(pdfWidth-descw-smallb,pdfHeight-desch-smallb,descw,desch);
-}
+
 
 // --------- BUTTONS ---------
 
