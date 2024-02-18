@@ -215,6 +215,11 @@ export function observeMagnet(shapes, mouse) {
                     break;
                 case 'text':
                     switch (true) {
+                        case shape.isinGripStart(mouse):
+                            shape.grip.center = canvasGetWebglCoordinates(shape.start,canvasText);
+                            acc.push(shape.grip);
+                            return acc;
+
                         case shape.isinTripHstart(mouse):
                             shape.tripH.mouse = mouse;
                             shape.tripH.start = canvasGetWebglCoordinates(shape.start,canvasText);

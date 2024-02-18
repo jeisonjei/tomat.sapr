@@ -74,7 +74,6 @@ keyDown$.subscribe(event => {
         return;
     }
     canvasText.style.cursor = 'crosshair';
-    console.log(event.altKey);
     if (event.altKey) {
         switch (event.key) {
             case 'l':
@@ -260,12 +259,12 @@ savePdfButton.addEventListener('click', function () {
     let height = canvas.height;
     //set the orientation
     let pdf;
-    if (width > height) {
-        pdf = new jsPDF('l', 'px', [width, height]);
-    }
-    else {
-        pdf = new jsPDF('p', 'px', [height, width]);
-    }
+    pdf = new jsPDF({
+        unit: 'px',
+        format: 'a4',
+        orientation: "l",
+        userUnit: 300
+    });
     //then we get the dimensions from the 'pdf' file itself
     width = pdf.internal.pageSize.getWidth();
     height = pdf.internal.pageSize.getHeight();

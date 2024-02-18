@@ -91,6 +91,37 @@ export function filterText(keyupEvent) {
         'Backspace'
     ];
 
+    const letters = [...acceptable.filter(char => ![
+
+        '0',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        // ... also +,-,=,/,* signs
+        '+',
+        '-',
+        '=',
+        '/',
+        '*',
+        "\"",
+        "\'",
+        ":",
+        " ",
+        ",",
+
+        // ... special keys
+        'Enter',
+        'Backspace'
+    ].includes(char)).map(char=>char.toUpperCase())];
+
+    acceptable.push(...letters);
+
     const key = keyupEvent.key;
     if (acceptable.includes(key)) {
         return true;

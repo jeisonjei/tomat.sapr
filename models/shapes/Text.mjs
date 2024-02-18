@@ -1,17 +1,17 @@
 import { canvasGetWebglCoordinates, isPointInsideFrame } from "../../shared/common.mjs";
 import { BasicShape } from "../BasicShape.mjs";
-import { canvasText } from "../../main.js";
+import { canvas, canvasText } from "../../main.js";
 
-export class Text extends BasicShape{
+export class Text extends BasicShape {
 
     get start() {
         return this._start;
     }
 
     set start(point) {
-        this._start = {...point};
+        this._start = { ...point };
     }
-    
+
     constructor(aspectRatio, start, textArray, context) {
         super(aspectRatio);
         this.type = 'text';
@@ -31,7 +31,9 @@ export class Text extends BasicShape{
         const metrics = this.context.measureText(this.text);
         this.width = metrics.width;
         this.height = metrics.fontBoundingBoxAscent;
+        this.startInit = this.start;
     }
+
 
     isinSelectFrame(frame) {
         this.update(this.textArray);
@@ -46,16 +48,27 @@ export class Text extends BasicShape{
 
         return false;
     }
-    
-    isinTripHstart = (mouse) => this.tripH.isin(canvasGetWebglCoordinates(this.start, canvasText), mouse);
-    isinTripVstart = (mouse) => this.tripV.isin(canvasGetWebglCoordinates(this.start,canvasText), mouse);
 
+    isinGripStart(mouse) {
+        const s = canvasGetWebglCoordinates(this.start, this.context.canvas);
+        return this.grip.isin(s,mouse);
+    }
+
+    isinTripHstart(mouse) {
+        const s = canvasGetWebglCoordinates(this.start, this.context.canvas)
+        return this.tripH.isin(s, mouse);
+    }
+
+    isinTripVstart(mouse) {
+        const s = canvasGetWebglCoordinates(this.start, this.context.canvas);
+        return this.tripV.isin(s, mouse);
+    }
 
     pan(tx, ty) {
-        
+
     }
     zoom(z) {
-        
+
     }
 
     add(char) {
@@ -69,5 +82,9 @@ export class Text extends BasicShape{
 
     getText(textArray) {
         return textArray?.join('');
+    }
+
+    getClone() {
+        return new Text(this.aspectRatio, this.start, this.textArray, this.context);
     }
 }

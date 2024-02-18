@@ -165,7 +165,7 @@ function handleMouseDown(mouse) {
             a.selectFrame.start = a.start;
             break;
         case 'boundary':
-            const isinSelectBoundary = a.shapes.filter(shape => shape.isinSelectBoundary(mouse));
+            const isinSelectBoundary = a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isinSelectBoundary(mouse));
             if (isinSelectBoundary.length > 0) {
                 isinSelectBoundary.forEach(shape => {
                     shape.isSelected = !shape.isSelected;
@@ -193,7 +193,7 @@ function handleMouseDown(mouse) {
             }
             else if (a.clickMoveStart) {
                 const move_mat = getMoveMatrix(a.clickMoveStart, a.start);
-                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isSelected).forEach(shape => {
                     switch (shape.type) {
                         case 'line':
                             shape.start = transformPointByMatrix3(move_mat, shape.start);
@@ -217,6 +217,14 @@ function handleMouseDown(mouse) {
                     }
                     shape.isSelected = false;
                 });
+
+                // --- text
+                t.text.filter(t => t.isSelected).forEach(text => {
+                    text.start = convertWebGLToCanvas2DPoint(a.start, canvasText.width, canvasText.height);
+                    text.edit = null;
+                })
+                drawText();
+
                 a.clickMoveStart = null;
                 gl.uniformMatrix3fv(u_move, false, mat3.create());
             }
@@ -224,18 +232,18 @@ function handleMouseDown(mouse) {
         case 'copy':
             if (!a.clickCopyStart) {
                 a.clickCopyStart = { ...a.start };
-                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isSelected).forEach(shape => {
                     addShapes(shape.getClone());
                 });
-                
+
                 // --- text
                 t.text.filter(text => text.isSelected).forEach(text => {
-                    t.text.push(text);
+                    t.text.push(text.getClone());
                 });
             }
             else if (a.clickCopyStart) {
                 const move_mat = getMoveMatrix(a.clickCopyStart, a.start);
-                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isSelected).forEach(shape => {
                     switch (shape.type) {
                         case 'line':
                             shape.start = transformPointByMatrix3(move_mat, shape.start);
@@ -257,6 +265,13 @@ function handleMouseDown(mouse) {
                             break;
                     }
                 });
+
+                // --- text
+                t.text.filter(t => t.isSelected).forEach(text => {
+                    text.start = convertWebGLToCanvas2DPoint(a.start, canvasText.width, canvasText.height);
+                })
+                drawText();
+
 
                 a.clickCopyStart = null;
                 gl.uniformMatrix3fv(u_move, false, mat3.create());
@@ -403,7 +418,7 @@ magnetState$.pipe(
      * Переменная a.gripPosition назначается только здесь
      */
     map(state => {
-        
+
         const mouse = state.filter(object => object.hasOwnProperty('mouse'))[0].mouse;
         const grips = state.filter(magnet => magnet.type === 'm_grip');
         const tripsH = state.filter(magnet => magnet.type === 'm_triph');
@@ -424,7 +439,9 @@ magnetState$.pipe(
 
     })
 ).subscribe(magnet => {
+
     if (magnet && a.start) {
+        console.log('here');
         if (magnet.magnet instanceof Array) {
             a.magnetPosition = getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
             magnet.magnet.forEach(magnet => drawSingle(magnet));
@@ -433,6 +450,9 @@ magnetState$.pipe(
             a.magnetPosition = magnet.magnet.center ?? getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
             drawSingle(magnet.magnet);
         }
+    }
+    else {
+        console.log('nothing');
     }
 });
 
@@ -620,7 +640,7 @@ function handleMouseMove(mouse) {
                     break;
 
                 case 'circle':
-                    a.circle.radius = Math.hypot((mouse.x - a.start.x) / s.aspectRatio, mouse.y - a.start.y);;
+                    a.circle.radius = Math.hypot((mouse.x - a.start.x) / s.aspectRatio, mouse.y - a.start.y);
                     drawSingle(a.circle);
                     break;
 
@@ -636,6 +656,21 @@ function handleMouseMove(mouse) {
                         a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                             drawSingle(shape);
                         });
+
+                        // --- text
+
+                        const tx = move_mat[2] * canvasText.width / 2;
+                        const ty = move_mat[5] * canvasText.height / 2;
+
+                        const ms = convertWebGLToCanvas2DPoint(a.clickMoveStart, canvasText.width, canvasText.height);
+
+                        t.text.filter(t => t.isSelected).forEach(t => {
+                            t.edit = 1;
+                            t.start.x = ms.x + tx;
+                            t.start.y = ms.y - ty;
+                        });
+
+                        drawText();
                     }
                     break;
                 case 'copy':
@@ -724,14 +759,14 @@ function handleMouseUp(mouse) {
             });
 
             // --- text
-            a.selectFrame.convertToCanvas2d(canvasText.width,canvasText.height);
+            a.selectFrame.convertToCanvas2d(canvasText.width, canvasText.height);
             t.text.forEach(text => {
                 if (text.isinSelectFrame(a.selectFrame)) {
                     text.isSelected = !text.isSelected;
                 }
             });
             drawText();
-            
+
             break;
         case 'line':
             a.line.end = a.end;
@@ -945,7 +980,7 @@ export function drawSingle(shape) {
      * @param {Line, Grip, Projection, Circle, Rectangle} shape - фигура, которую нужно отрисовать.
      * В качестве фигуры также могут выступать и магниты
     */
-    if (shape.type==='text') {
+    if (shape.type === 'text') {
         return;
     }
     const vertices = shape.getVertices();
@@ -1014,11 +1049,23 @@ function handleMouseDownText(mouse) {
     }
 
     if (a.magnetPosition) {
-        t.textPosition = { ...convertWebGLToCanvas2DPoint(a.magnetPosition,canvasText.width,canvasText.height) };
+        t.textPosition = { ...convertWebGLToCanvas2DPoint(a.magnetPosition, canvasText.width, canvasText.height) };
     }
     else {
-        t.textPosition = {...mouse}
+        t.textPosition = { ...mouse }
     }
+
+
+    const rectWidth = 12;
+    const rectHeight = 12;
+    
+    if (a.magnetPosition) {
+        context.strokeStyle = 'orange';
+    }
+    else {
+        context.strokeStyle = 'gray'    ;
+    }
+    context.strokeRect(t.textPosition.x - rectWidth / 2, t.textPosition.y - rectHeight / 2, rectWidth, rectHeight);
 
     const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
     t.text.push(textLine);
