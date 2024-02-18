@@ -1,13 +1,11 @@
-
-
-canvas.drawing{
-    width: 99vw;
-    height: 97.5vh;
-    display: block;
-    border: 1px solid black;
+canvas.drawing {
+  width: 99vw;
+  height: 97.5vh;
+  display: block;
+  border: 1px solid black;
 }
 
-canvas.text{
+canvas.text {
   position: absolute;
   left: 7px;
   top: 8px;
@@ -19,73 +17,80 @@ canvas.text{
 
 
 
-  
-  .tools {
-    position: absolute;
-    left: 25%;
-  }
-  
-  .mx-1{
-    margin-left: 0.25rem;
-    margin-right: 0.25rem;
-  }
-  
-  .grid {
-    display: grid;
-    grid-template-columns: 8fr 1fr;
-  }
-  .grid2{
-    display: flex;
-    flex-flow: row;
-    justify-content: space-between;
-  }
-  
-  .flex-column {
-    display: flex;
-    flex-flow: column;
-  }
-  
-  .flex-row {
-    display: flex;
-    flex-flow: row;
-  }
-  
-  .cont {
-    justify-content: center;
-    /* width: 80%; */
-  }
-  
-  .row {
-    display: flex;
-    justify-content: center;
-  }
-  
-  .text-center {
-    text-align: center;
-  }
-  
-  .w-60 {
-    width: 60%;
-  
-  }
-  
-  .w-80 {
-    width: 80%;
-  }
-  
-  .absolute-div {
-      position: absolute;
-      left: 1rem;
-      user-select: none;
-      font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
-  }
-  td:first-child{
-    padding-right: 10px;
-    color: rgb(0, 85, 134);
-    font-weight: bold;
-    
-  }
-  table{
-    font-size:small;
-  }
-  
+
+.tools {
+  position: absolute;
+  left: 25%;
+  user-select: none;
+}
+
+.info {
+  user-select: none;
+}
+
+.mx-1 {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 8fr 1fr;
+}
+
+.grid2 {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+}
+
+.flex-column {
+  display: flex;
+  flex-flow: column;
+}
+
+.flex-row {
+  display: flex;
+  flex-flow: row;
+}
+
+.cont {
+  justify-content: center;
+  /* width: 80%; */
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.w-60 {
+  width: 60%;
+
+}
+
+.w-80 {
+  width: 80%;
+}
+
+.absolute-div {
+  position: absolute;
+  left: 1rem;
+  user-select: none;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
+}
+
+td:first-child {
+  padding-right: 10px;
+  color: rgb(0, 85, 134);
+  font-weight: bold;
+
+}
+
+table {
+  font-size: small;
+}

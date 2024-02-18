@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack --config webpack.dev.js",
-    "build":"webpack --config webpack.prod.js"
+    "build": "webpack --config webpack.prod.js"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "gl-matrix": "^3.4.3",
+    "jspdf": "^2.5.1",
     "rxjs": "^7.8.1"
   }
 }

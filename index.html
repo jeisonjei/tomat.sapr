@@ -14,17 +14,20 @@
       <div>
         <div class="tools" style="z-index: 100;">
           <div class="flex-row">
-            <div><button id="selectLine">Линия</button></div>
-            <div><button id="selectRectangle">Прямоуг.</button></div>
-            <div><button id="selectCircle">Круг</button></div>
+            <div><button id="line">Линия</button></div>
+            <div><button id="rectangle">Прямоуг.</button></div>
+            <div><button id="circle">Круг</button></div>
             <span class="mx-1">|</span>
-            <div><button id="setSelectMode">Выбор</button></div>
-            <div><button id="moveShape">Перемест.</button></div>
-            <div><button id="copyShape">Копир.</button></div>
-            <div><button id="rotateShape">Поворот</button></div>
-            <div><button id="deleteShape">Удал.</button></div>
+            <div><button id="select">Выбор</button></div>
+            <div><button id="delete">Удал.</button></div>
             <span class="mx-1">|</span>
-            <span><button id="save">DXF</button></span>
+            <div><button id="move">Перемест.</button></div>
+            <div><button id="copy">Копир.</button></div>
+            <div><button id="rotate">Поворот</button></div>
+            <div><button id="mirror">Зеркально</button></div>
+            <span class="mx-1">|</span>
+            <span><button id="saveDxf">DXF</button></span>
+            <span><button id="savePdf">PDF</button></span>
             <span class="mx-1">|</span>
 
             <div class="flex-row">
@@ -62,6 +65,10 @@
                 <tr>
                   <td>L</td>
                   <td>Линия</td>
+                </tr>
+                <tr>
+                  <td>T</td>
+                  <td>Текст</td>
                 </tr>
                 <tr>
                   <td>ALT+L</td>
@@ -126,7 +133,7 @@
       </div>
     </div>
   </div>
-  <script src="https://greggman.github.io/webgl-lint/webgl-lint.js"></script>
+  <!-- <script src="https://Hoggman.github.io/webgl-lint/webgl-lint.js"></script> -->
   <script src="dist/bundle.js"></script>
 
 </body>

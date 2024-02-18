@@ -1,8 +1,10 @@
 import { fromEvent } from "rxjs";
-import { a, deleteShapes, deleteText, drawShapes, drawSingle, drawText } from "./main.js";
+import { a, canvas, deleteShapes, deleteText, drawShapes, drawSingle, drawText, gl } from "./main.js";
 import { checkFunction } from "./shared/common.mjs";
 import { generateDXFContent } from "./shared/export/dxf.mjs";
 import { t } from "./main.js";
+import jsPDF from "jspdf";
+
 
 export const mode_elem = document.getElementById('mode');
 setMode(mode_elem, 'select');
@@ -50,7 +52,7 @@ export function boundaryModeObserver(mouse) {
     }
     if (gm() === 'select' || gm() === 'boundary') {
         const isinSelectBoundary = a.shapes.filter(shape => checkFunction(shape, 'isinSelectBoundary', mouse));
-        if (isinSelectBoundary.length>0) {
+        if (isinSelectBoundary.length > 0) {
             setMode(mode_elem, 'boundary');
             isinSelectBoundary.forEach(shape => {
                 shape.setSelectBoundary();
@@ -68,7 +70,7 @@ export function boundaryModeObserver(mouse) {
 const keyDown$ = fromEvent(document, 'keydown');
 const keyUp$ = fromEvent(document, 'keyup');
 keyDown$.subscribe(event => {
-    if (gm()=== 'text' && event.key!=='Escape') {
+    if (gm() === 'text' && event.key !== 'Escape') {
         return;
     }
     canvasText.style.cursor = 'crosshair';
@@ -99,6 +101,10 @@ keyDown$.subscribe(event => {
             reset();
             setMode(mode_elem, 'select');
             drawShapes();
+            t.text.forEach(text => {
+                text.isSelected = false;
+            });
+            drawText();
             break;
         case 'l':
         case 'д':
@@ -135,7 +141,7 @@ keyDown$.subscribe(event => {
         case 't':
         case 'е':
             setMode(mode_elem, 'text');
-            
+
         case 'Escape':
             a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                 shape.isSelected = false;
@@ -148,17 +154,18 @@ keyDown$.subscribe(event => {
             t.text.filter(text => text.isSelected).forEach(text => {
                 text.isSelected = false;
             })
+            drawText();
             break;
         case 'Delete':
             deleteShapes();
             drawShapes();
-            
+
             // --- text
             deleteText();
             drawText();
 
             break;
-        
+
         case 'Shift':
             a.angle_snap = true;
             break;
@@ -176,19 +183,97 @@ const canvasText = document.querySelector('canvas.text');
 const canvasBody = document.querySelector('body');
 
 fromEvent(canvasBody, 'keydown').subscribe(event => {
-    if ((event.key === 't' || event.key === 'е') && gm()!=='text') {
+    if ((event.key === 't' || event.key === 'е') && gm() !== 'text') {
         setMode(mode_elem, 'text');
         canvasText.style.cursor = 'text';
         t.textPosition = null;
     }
 });
+// --------- KEY EVENTS ---------
+
 
 
 // --------- BUTTONS ---------
-const saveButton = document.getElementById('save');
-saveButton.addEventListener('click', (ev) => {
-    generateDXFContent();
+const lineButton = document.getElementById('line');
+const rectangleButton = document.getElementById('rectangle');
+const circleButton = document.getElementById('circle');
+const selectButton = document.getElementById('select');
+const deleteButton = document.getElementById('delete');
+const moveButton = document.getElementById('move');
+const copyButton = document.getElementById('copy');
+const rotateButton = document.getElementById('rotate');
+const mirrorButton = document.getElementById('mirror');
+const saveDxfButton = document.getElementById('saveDxf');
+const savePdfButton = document.getElementById('savePdf');
+
+const buttons = [lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, saveDxfButton, savePdfButton];
+buttons.forEach(button => {
+    button.addEventListener('mouseover', function () {
+        setMode(mode_elem, 'none');
+    });
+    button.setAttribute('tabindex', '-1');
+    button.addEventListener('mouseleave', function () {
+        button.blur();
+    })
 })
+
+lineButton.addEventListener('click', function () {
+    setMode(mode_elem, 'line');
+});
+rectangleButton.addEventListener('click', function () {
+    setMode(mode_elem, 'rectangle');
+});
+circleButton.addEventListener('click', function () {
+    setMode(mode_elem, 'circle');
+});
+selectButton.addEventListener('click', function () {
+    setMode(mode_elem, 'select');
+});
+deleteButton.addEventListener('click', function () {
+    deleteShapes();
+    drawShapes();
+
+    // --- text
+    deleteText();
+    drawText();
+
+});
+moveButton.addEventListener('click', function () {
+    setMode(mode_elem, 'move');
+});
+copyButton.addEventListener('click', function () {
+    setMode(mode_elem, 'copy');
+});
+rotateButton.addEventListener('click', function () {
+    setMode(mode_elem, 'rotate');
+});
+mirrorButton.addEventListener('click', function () {
+    setMode(mode_elem, 'mirror');
+});
+
+saveDxfButton.addEventListener('click', function () {
+    generateDXFContent();
+});
+
+savePdfButton.addEventListener('click', function () {
+    let width = canvas.width;
+    let height = canvas.height;
+    //set the orientation
+    let pdf;
+    if (width > height) {
+        pdf = new jsPDF('l', 'px', [width, height]);
+    }
+    else {
+        pdf = new jsPDF('p', 'px', [height, width]);
+    }
+    //then we get the dimensions from the 'pdf' file itself
+    width = pdf.internal.pageSize.getWidth();
+    height = pdf.internal.pageSize.getHeight();
+    pdf.addImage(canvas, 'PNG', 0, 0, width, height);
+    pdf.addImage(canvasText, 'PNG', 0, 0, width, height);
+    pdf.save("download.pdf");
+}, false);
+
 // --------- BUTTONS ---------
 
 function reset() {
@@ -199,3 +284,6 @@ function reset() {
     a.magnetPosition = null;
     a.anglePosition = null;
 }
+
+
+

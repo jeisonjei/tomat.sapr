@@ -33,7 +33,7 @@ import { Text } from "./models/shapes/Text.mjs";
 // --------- WEBGL ---------
 export const canvas = document.querySelector('canvas.drawing');
 resizeCanvasToDisplaySize(canvas);
-const gl = canvas.getContext('webgl2');
+export const gl = canvas.getContext('webgl2');
 const program = createProgram(gl, getVertexshaderSource(), getFragmentShaderSource());
 gl.useProgram(program);
 gl.viewport(0, 0, canvas.width, canvas.height);
@@ -227,6 +227,11 @@ function handleMouseDown(mouse) {
                 a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                     addShapes(shape.getClone());
                 });
+                
+                // --- text
+                t.text.filter(text => text.isSelected).forEach(text => {
+                    t.text.push(text);
+                });
             }
             else if (a.clickCopyStart) {
                 const move_mat = getMoveMatrix(a.clickCopyStart, a.start);
@@ -252,6 +257,7 @@ function handleMouseDown(mouse) {
                             break;
                     }
                 });
+
                 a.clickCopyStart = null;
                 gl.uniformMatrix3fv(u_move, false, mat3.create());
             }
