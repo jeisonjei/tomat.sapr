@@ -929,10 +929,8 @@ export function drawShapes() {
     // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a.vertices), gl.DYNAMIC_DRAW);
     // gl.drawArrays(gl.LINES, 0, a.vertices.length / 2);
 
-    if (a.shapes.length === 0) {
-        gl.clearColor(1, 1, 1, 1);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-    }
+    gl.clearColor(1, 1, 1, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
     a.shapes.forEach(shape => {
         drawSingle(shape);
