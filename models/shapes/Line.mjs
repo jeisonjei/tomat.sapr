@@ -1,10 +1,11 @@
 import { Observable, filter, of } from "rxjs";
-import { isPointInsideFrame, transformPointByMatrix3 } from "../../shared/common.mjs";
+import { convertWebGLToCanvas2DPoint, isPointInsideFrame, transformPointByMatrix3 } from "../../shared/common.mjs";
 import { getMoveMatrix } from "../../shared/transform.mjs";
 import { BasicShape } from "../BasicShape.mjs";
 import { Point } from "../Point.mjs";
 import { mat3 } from "gl-matrix";
 import { BasicMagnet } from "../BasicMagnet.mjs";
+import { canvas } from "../../main.js";
 
 import { s } from "../../shared/settings.mjs";
 
@@ -52,6 +53,18 @@ export class Line extends BasicShape {
             this.start.x, this.start.y,
             this.end.x, this.end.y,
         ];
+    }
+    getVerticesPixels(scale) {
+        const cw = canvas.width;
+        const ch = canvas.height;
+
+        const startPixels = convertWebGLToCanvas2DPoint(this.start, cw, ch);
+        const endPixels = convertWebGLToCanvas2DPoint(this.end, cw, ch);
+
+        return [
+            startPixels.x/scale, startPixels.y/scale,
+            endPixels.x/scale,endPixels.y/scale
+        ]
     }
 
     getClone() {

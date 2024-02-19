@@ -1,8 +1,9 @@
 import { BasicShape } from "../BasicShape.mjs";
-import { getMid, isPointInsideFrame } from "../../shared/common.mjs";
+import { convertWebGLToCanvas2DPoint, getMid, isPointInsideFrame } from "../../shared/common.mjs";
 import { Point } from "../Point.mjs";
 import { mat3 } from "gl-matrix";
 import { transformPointByMatrix3 } from "../../shared/common.mjs";
+import { canvas } from "../../main.js";
 
 export class Rectangle extends BasicShape {
     /**
@@ -88,6 +89,20 @@ export class Rectangle extends BasicShape {
             this.p3.x, this.p3.y,
             this.p4.x, this.p4.y,
         ];
+    }
+
+    getVerticesPixels(scale) {
+        const p1 = convertWebGLToCanvas2DPoint(this.p1, canvas.width, canvas.height);
+        const p2 = convertWebGLToCanvas2DPoint(this.p2, canvas.width, canvas.height);
+        const p3 = convertWebGLToCanvas2DPoint(this.p3, canvas.width, canvas.height);
+        const p4 = convertWebGLToCanvas2DPoint(this.p4, canvas.width, canvas.height);
+        return [
+            p1.x/scale, p1.y/scale,
+            p2.x/scale, p2.y/scale,
+            p3.x/scale, p3.y/scale,
+            p4.x/scale, p4.y/scale,
+        ];
+
     }
 
     getClone() {

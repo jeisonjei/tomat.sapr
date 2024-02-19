@@ -1,9 +1,10 @@
 import { fromEvent } from "rxjs";
 import { a, canvas, deleteShapes, deleteText, drawShapes, drawSingle, drawText, gl } from "./main.js";
-import { checkFunction } from "./shared/common.mjs";
+import { checkFunction, convertWebGLToCanvas2DPoint } from "./shared/common.mjs";
 import { generateDXFContent } from "./shared/export/dxf.mjs";
 import { t } from "./main.js";
 import jsPDF from "jspdf";
+import { s } from "./shared/settings.mjs";
 
 
 export const mode_elem = document.getElementById('mode');
@@ -211,6 +212,7 @@ const savePdfButton = document.getElementById('savePdf');
 const formatSelect = document.getElementById('format');
 
 const buttons = [lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, saveDxfButton, savePdfButton];
+
 buttons.forEach(button => {
     button.addEventListener('mouseover', function () {
         setMode(mode_elem, 'none');
@@ -219,6 +221,10 @@ buttons.forEach(button => {
     button.addEventListener('mouseleave', function () {
         button.blur();
     })
+})
+
+textButton.addEventListener('click', function () {
+    setMode(mode_elem,'text');
 })
 
 lineButton.addEventListener('click', function () {
@@ -281,32 +287,60 @@ savePdfButton.addEventListener('click', function () {
         userUnit: 300
     });
 
-    // Get the dimensions of the PDF page
+    // draw shapes from a.shapes to canvas2d
+    pdf.setDrawColor(0,0,0);
+    pdf.setLineWidth(0.75);
+
+
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
+    console.log(canvas.width);
+    console.log(pdfWidth);
+    const scale = canvas.width / pdfWidth;
 
-    // Get the dimensions of the canvases
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
-    const canvasTextWidth = canvasText.width;
-    const canvasTextHeight = canvasText.height;
+    const filteredShapes = a.shapes.filter(shape => shape.type !== 'text');
+    if (filteredShapes.length>0) {
+        filteredShapes.forEach(shape => {
+            
+            const verticesPixels = shape.getVerticesPixels(scale);
+            switch (shape.type) {
+                case 'line':
+                    /**
+                     * к линиям относится то же самое, что и к прямоугольникам
+                     */
+                    pdf.line(verticesPixels[0], verticesPixels[1], verticesPixels[2], verticesPixels[3]);
+                    break;
+                case 'rectangle':
+                    /**
+                     * при операциях поворота и зеркального отображения прямоугольника нужно переназначать точки p1,p2,p3,p4
+                     * чтобы точка p1 была всегда в верхнем левом углу
+                     */
+                    const width = shape.width / (1 / canvas.width * 2) / scale;
+                    const height = shape.height / (1 / canvas.height * 2) / scale;
+                    pdf.rect(verticesPixels[6], verticesPixels[7], width, height);
+                    break;
+                case 'circle':
+                    const center = convertWebGLToCanvas2DPoint(shape.center, canvas.width, canvas.height);
+                    const x = center.x / scale;
+                    const y = center.y / scale;
+                    const radius = shape.radius*s.aspectRatio / (1 / canvas.width * 2) / scale;
+                    pdf.circle(x,y,radius);
+                    break;
+                default:
+                    break;
+            }
+        });
+        
+    }
 
-    // Calculate the scaling factors for both canvases
-    const scale = Math.min(pdfWidth / canvasWidth, pdfHeight / canvasHeight);
-    const scaleText = Math.min(pdfWidth / canvasTextWidth, pdfHeight / canvasTextHeight);
+    t.text.forEach(t => {
+        pdf.setFont("helvetica");
+        pdf.setFontSize(fontSelect.value/1.75);
+        pdf.text(t.text,t.start.x/scale,t.start.y/scale);
+    })
 
-    // Calculate the scaled dimensions of the canvases
-    const scaledWidth = canvasWidth * scale;
-    const scaledHeight = canvasHeight * scale;
-    const scaledTextWidth = canvasTextWidth * scaleText;
-    const scaledTextHeight = canvasTextHeight * scaleText;
 
-    // Add the scaled images to the PDF
 
-    // drawBordersGost(canvasTextWidth,canvasTextHeight);
-
-    pdf.addImage(canvas, 'PNG', 0, 0, scaledWidth, scaledHeight);
-    pdf.addImage(canvasText, 'PNG', 0, 0, scaledTextWidth, scaledTextHeight);
 
 
     // --- border

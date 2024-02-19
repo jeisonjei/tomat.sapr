@@ -53,6 +53,9 @@ export class Circle extends BasicShape {
         }
         return circleVertices;
     }
+    getVerticesPixels(scale) {
+        
+    }
 
     getClone() {
         return new Circle(this.aspectRatio, this.center, this.radius, this.color);
