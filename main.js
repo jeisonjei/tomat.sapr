@@ -204,6 +204,18 @@ function handleMouseDown(mouse) {
         case 'move':
             if (!a.clickMoveStart) {
                 a.clickMoveStart = { ...a.start };
+
+                // --- text
+                /**
+                 * так как в отличие от фигур, для которых используется uniformMatrix3fv,
+                 * в операции с текстом меняется позиция самих точек, 
+                 * нужно при первом клике запомнить для каждой строки текста расстояние 
+                 * от позиции текста до щелчка мыши
+                 */
+                t.text.filter(t => t.isSelected).forEach(t => {
+                    t.moveXclick = t.start.x;
+                    t.moveYclick = t.start.y;
+                })
             }
             else if (a.clickMoveStart) {
                 const move_mat = getMoveMatrix(a.clickMoveStart, a.start);
@@ -234,7 +246,12 @@ function handleMouseDown(mouse) {
 
                 // --- text
                 t.text.filter(t => t.isSelected).forEach(text => {
-                    text.start = convertWebGLToCanvas2DPoint(a.start, canvasText.width, canvasText.height);
+                    const astart = convertWebGLToCanvas2DPoint(a.start, canvasText.width, canvasText.height);
+                    const aclickMoveStart = convertWebGLToCanvas2DPoint(a.clickMoveStart, canvasText.width, canvasText.height);
+                    const deltaX = aclickMoveStart.x-astart.x;
+                    const deltaY = aclickMoveStart.y-astart.y;
+                    text.start.x = text.moveXclick - deltaX;
+                    text.start.y = text.moveYclick - deltaY;
                     text.edit = null;
                 })
                 drawText();
@@ -674,8 +691,8 @@ function handleMouseMove(mouse) {
 
                         t.text.filter(t => t.isSelected).forEach(t => {
                             t.edit = 1;
-                            t.start.x = ms.x + tx;
-                            t.start.y = ms.y - ty;
+                            t.start.x = t.moveXclick + tx;
+                            t.start.y = t.moveYclick - ty;
                         });
 
                         drawText();
