@@ -281,7 +281,7 @@ saveDxfButton.addEventListener('click', function () {
 fontSelect.addEventListener("change", (event) => {
     t.fontSize = event.target.value;
     context.font = `${t.fontSize}px ${t.fontName}`;
-    drawText();
+    drawText();  
 });
 
 let format = 'a4';
