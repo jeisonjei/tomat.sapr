@@ -20,5 +20,8 @@ module.exports = {
             }
         ]
     },
-    mode: 'production'
+    mode: 'production',
+    optimization: {
+        minimize: true
+    }
 }
