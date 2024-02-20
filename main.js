@@ -1,6 +1,5 @@
 /**
  * TODO
- * русский текст
  * разрыв линий
  * масштабирование текста при печати - должно использоваться действительное текущее значение
  * заполнение основной надписи, нужно сделать красиво и удобно
@@ -889,7 +888,7 @@ function handleMouseUp(mouse) {
 }
 
 function handleMouseWheel(ev) {
-    a.zl = ev.deltaY > 0 ? 0.9 : 1.1;
+    a.zl = ev.deltaY > 0 ? 0.95 : 1.05;
     a.zlc *= a.zl;
     updateShapes('zoom');
     drawShapes();
