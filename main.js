@@ -12,7 +12,7 @@
 import { Point } from "./models/Point.mjs"
 import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
-import { canvasGetClientX, canvasGetClientY, canvasGetMouse, checkFunction, convertCanvas2DToWebGLPoint, convertWebGLToCanvas2DPoint, getAngleDegrees, getAngleRadians, resizeCanvasToDisplaySize, transformPointByMatrix3, transformPointByMatrix4 } from "./shared/common.mjs";
+import { applyTransformationToPoint, canvasGetClientX, canvasGetClientY, canvasGetMouse, checkFunction, convertCanvas2DToWebGLPoint, convertWebGLToCanvas2DPoint, getAngleDegrees, getAngleRadians, resizeCanvasToDisplaySize, transformPointByMatrix3, transformPointByMatrix4 } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
 import { boundaryModeObserver, editModeObserver, gm, magnetsCheckbox, mode_elem, setMode } from "./page.mjs";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
@@ -1099,7 +1099,7 @@ export function drawSingle(shape) {
 
 
 
-// --------- NEW ---------
+// --------- TEXT ---------
 export const canvasText = document.querySelector('canvas.text');
 resizeCanvasToDisplaySize(canvasText);
 const context = canvasText.getContext('2d');
@@ -1141,10 +1141,6 @@ function handleMouseDownText(mouse) {
     context.stroke();
 }
 
-function handleMouseMoveText(mouse) {
-
-
-}
 
 function handleKeyPress(key) {
 
@@ -1168,19 +1164,15 @@ function handleKeyPress(key) {
 
 
 const mouseDownText$ = fromEvent(canvasText, 'mousedown').pipe(map(ev => getPoint(ev)));
-const mouseMoveText$ = fromEvent(canvasText, 'mousemove').pipe(map(ev => getPoint(ev)));
 const keyPress$ = fromEvent(document, 'keydown').pipe(
     filter(ev => filterText(ev)),
     map(ev => ev.key)
 );
 
 mouseDownText$.subscribe(handleMouseDownText);
-mouseMoveText$.subscribe(handleMouseMoveText);
 keyPress$.subscribe(handleKeyPress);
 
-// --------- EVENTS ---------
 
-// --------- TEXT ---------
 
 export function drawText() {
     context.clearRect(0, 0, canvasText.width, canvasText.height);
@@ -1205,12 +1197,6 @@ function drawTextSingle(text, point) {
     const newText = new Text(s.aspectRatio, canvasPoint, textArray, context);
     t.text.push(newText);
     drawText();
-}
-
-function applyTransformationToPoint(x, y, matrix) {
-    const newX = matrix[0] * x + matrix[3] * y + matrix[6];
-    const newY = matrix[1] * x + matrix[4] * y + matrix[7];
-    return new Point(newX, newY);
 }
 
 // --------- TEXT ---------

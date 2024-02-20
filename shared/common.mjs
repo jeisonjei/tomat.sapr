@@ -138,22 +138,20 @@ export function checkFunction(shape, functionName, mouse) {
 }
 
 export function convertWebGLToCanvas2DPoint(point, canvas2DWidth, canvas2DHeight) {
-  // Convert x-coordinate from WebGL to Canvas2D
   const canvas2DX = (point.x + 1) * canvas2DWidth / 2;
-
-  // Convert y-coordinate from WebGL to Canvas2D
   const canvas2DY = (1 - point.y) * canvas2DHeight / 2;
   return new Point(canvas2DX, canvas2DY);
 
 }
 
 export function convertCanvas2DToWebGLPoint(point, canvas2DWidth, canvas2DHeight) {
-  // Convert x-coordinate from Canvas2D to WebGL
   const webGLX = (point.x - canvas2DWidth / 2) / (canvas2DWidth / 2) - 1;
-
-  // Convert y-coordinate from Canvas2D to WebGL
   const webGLY = (canvas2DHeight / 2 - point.y) / (canvas2DHeight / 2) - 1;
   return new Point(webGLX, webGLY);
 }
 
-  
+export function applyTransformationToPoint(x, y, matrix) {
+  const newX = matrix[0] * x + matrix[3] * y + matrix[6];
+  const newY = matrix[1] * x + matrix[4] * y + matrix[7];
+  return new Point(newX, newY);
+}

@@ -64,6 +64,18 @@ export function boundaryModeObserver(mouse) {
         else {
             setMode(mode_elem, 'select');
         }
+
+        // --- text
+        const mouse_ = convertWebGLToCanvas2DPoint(mouse, canvasText.width,canvasText.height);
+        const isinSelectBoundaryText = t.text.filter(t => isinSelectBoundary(mouse_));
+        if (isinSelectBoundary.length > 0) {
+            setMode(mode_elem, 'boundary');
+            isinSelectBoundaryText.forEach(t => {
+                t.setSelectBoundary();
+                t.selectBoundary.convertToPixels();
+                drawSingle(t.selectBoundary);
+            })
+        }
     }
 }
 

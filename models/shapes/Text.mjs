@@ -1,6 +1,7 @@
 import { canvasGetWebglCoordinates, isPointInsideFrame } from "../../shared/common.mjs";
 import { BasicShape } from "../BasicShape.mjs";
 import { canvas, canvasText } from "../../main.js";
+import { Point } from "../Point.mjs";
 
 export class Text extends BasicShape {
 
@@ -31,17 +32,21 @@ export class Text extends BasicShape {
         const metrics = this.context.measureText(this.text);
         this.width = metrics.width;
         this.height = metrics.fontBoundingBoxAscent;
-        this.startInit = this.start;
+
+        this.p1 = new Point(this.start.x, this.start.y);
+        this.p2 = new Point(this.start.x + this.width, this.start.y);
+        this.p3 = new Point(this.start.x + this.width, this.start.y - this.height);
+        this.p4 = new Point(this.start.x, this.start.y - this.height);
     }
 
 
     isinSelectFrame(frame) {
         this.update(this.textArray);
         if (
-            isPointInsideFrame(frame, this.start.x, this.start.y) &&
-            isPointInsideFrame(frame, this.start.x + this.width, this.start.y) &&
-            isPointInsideFrame(frame, this.start.x + this.width, this.start.y - this.height) &&
-            isPointInsideFrame(frame, this.start.x, this.start.y - this.height)
+            isPointInsideFrame(frame, this.p1.x, this.p1.y) &&
+            isPointInsideFrame(frame, this.p2.x, this.p2.y) &&
+            isPointInsideFrame(frame, this.p3.x, this.p3.y) &&
+            isPointInsideFrame(frame, this.p4.x, this.p4.y)
         ) {
             return true;
         }
@@ -49,9 +54,17 @@ export class Text extends BasicShape {
         return false;
     }
 
+    isinSelectBoundary() {
+
+    }
+
+    setSelectBoundary() {
+
+    }
+
     isinGripStart(mouse) {
         const s = canvasGetWebglCoordinates(this.start, this.context.canvas);
-        return this.grip.isin(s,mouse);
+        return this.grip.isin(s, mouse);
     }
 
     isinTripHstart(mouse) {
@@ -85,7 +98,7 @@ export class Text extends BasicShape {
     }
 
     getClone() {
-        const text = new Text(this.aspectRatio, {...this.start}, this.textArray, this.context);
+        const text = new Text(this.aspectRatio, { ...this.start }, this.textArray, this.context);
         return text;
     }
 }
