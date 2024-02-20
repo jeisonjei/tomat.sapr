@@ -67,6 +67,8 @@ export function boundaryModeObserver(mouse) {
 }
 
 // --------- KEY EVENTS ---------
+export const magnetsCheckbox = document.getElementById('magnets');
+const angleSnapCheckbox = document.getElementById('angleSnap');
 
 const keyDown$ = fromEvent(document, 'keydown');
 const keyUp$ = fromEvent(document, 'keyup');
@@ -76,6 +78,7 @@ keyDown$.subscribe(event => {
     }
     canvasText.style.cursor = 'crosshair';
     if (event.altKey) {
+        event.preventDefault();
         switch (event.key) {
             case 'l':
             case 'д':
@@ -85,6 +88,9 @@ keyDown$.subscribe(event => {
             case 'к':
                 setMode(mode_elem, 'rotatecopy');
                 break;
+            case 'z':
+            case 'я':
+                magnetsCheckbox.checked = !magnetsCheckbox.checked;
             default:
                 break;
         }
@@ -169,6 +175,8 @@ keyDown$.subscribe(event => {
 
         case 'Shift':
             a.angle_snap = true;
+            angleSnapCheckbox.checked = true
+
             break;
     }
 });
@@ -177,6 +185,7 @@ keyUp$.subscribe(event => {
     // Handle key up events
     if (!event.shiftKey) {
         a.angle_snap = false;
+        angleSnapCheckbox.checked = false;
     }
 });
 
@@ -305,6 +314,7 @@ savePdfButton.addEventListener('click', function () {
             const verticesPixels = shape.getVerticesPixels(scale);
             switch (shape.type) {
                 case 'line':
+                    // TODO
                     /**
                      * к линиям относится то же самое, что и к прямоугольникам
                      */
@@ -315,8 +325,8 @@ savePdfButton.addEventListener('click', function () {
                      * при операциях поворота и зеркального отображения прямоугольника нужно переназначать точки p1,p2,p3,p4
                      * чтобы точка p1 была всегда в верхнем левом углу
                      */
-                    const width = shape.width / (1 / canvas.width * 2) / scale;
-                    const height = shape.height / (1 / canvas.height * 2) / scale;
+                    const width = (shape.p2.x - shape.p1.x) / (1 / canvas.width * 2) / scale;
+                    const height = (shape.p3.y - shape.p2.y) / (1 / canvas.height * 2) / scale;
                     pdf.rect(verticesPixels[6], verticesPixels[7], width, height);
                     break;
                 case 'circle':
@@ -334,6 +344,7 @@ savePdfButton.addEventListener('click', function () {
     }
 
     t.text.forEach(t => {
+        // TODO текст не масштабируется, нужно брать текущее значение из mouseWheel
         pdf.setFont("helvetica");
         pdf.setFontSize(fontSelect.value/1.75);
         pdf.text(t.text,t.start.x/scale,t.start.y/scale);

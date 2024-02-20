@@ -156,3 +156,4 @@ export function convertCanvas2DToWebGLPoint(point, canvas2DWidth, canvas2DHeight
   return new Point(webGLX, webGLY);
 }
 
+  

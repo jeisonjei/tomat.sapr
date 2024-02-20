@@ -4,6 +4,7 @@ import { Point } from "../Point.mjs";
 import { mat3 } from "gl-matrix";
 import { transformPointByMatrix3 } from "../../shared/common.mjs";
 import { canvas } from "../../main.js";
+import { min } from "rxjs";
 
 export class Rectangle extends BasicShape {
     /**
@@ -103,6 +104,33 @@ export class Rectangle extends BasicShape {
             p4.x/scale, p4.y/scale,
         ];
 
+    }
+
+    updatePoints() {
+        /**
+         * Эта функция нужна для того, чтобы точка p1 оставалась всегда в верхнем-левом углу.
+         * Соответственно обновляются и остальные точки.
+         * Функцию нужно выполнять во всех операциях с прямоугольником,
+         * где меняются позиции точек - это поворот и зеркальное отображение
+         */
+        const array = [this.p1, this.p2, this.p3, this.p4];
+    
+        const minX = Math.min(...array.map(p=>p.x));
+    
+        const minY = Math.min(...array.map(p => p.y));
+
+        const maxX = Math.max(...array.map(p => p.x));
+        const maxY = Math.max(...array.map(p=>p.y));
+
+        const newP1 = new Point(minX, maxY);
+        const newP2 = new Point(maxX, maxY);
+        const newP3 = new Point(maxX, minY);
+        const newP4 = new Point(minX,minY);
+    
+        this.p1 = newP1;
+        this.p2 = newP2;
+        this.p3 = newP3;
+        this.p4 = newP4;
     }
 
     getClone() {

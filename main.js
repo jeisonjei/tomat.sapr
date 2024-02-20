@@ -4,7 +4,7 @@ import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
 import { canvasGetClientX, canvasGetClientY, canvasGetMouse, checkFunction, convertCanvas2DToWebGLPoint, convertWebGLToCanvas2DPoint, getAngleDegrees, getAngleRadians, resizeCanvasToDisplaySize, transformPointByMatrix3, transformPointByMatrix4 } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
-import { boundaryModeObserver, editModeObserver, gm, mode_elem, setMode } from "./page.mjs";
+import { boundaryModeObserver, editModeObserver, gm, magnetsCheckbox, mode_elem, setMode } from "./page.mjs";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
 import { getMirrorMatrix, getMoveMatrix, getRotateMatrix, getRotateSnap } from "./shared/transform.mjs";
 import { observeMagnet, magnetState$, getExtensionCoordDraw, getAnglePosition } from "./shared/magnets.mjs";
@@ -122,8 +122,8 @@ export const t = {
     panStartPoint: new Point(0, 0),
 
     fontSize: null,
-    // fontName: 'Courier New'
-    fontName: 'Consolas'
+    fontName: 'Courier New'
+    
 }
 
 // --------- GLOBALS ---------
@@ -291,6 +291,8 @@ function handleMouseDown(mouse) {
                             shape.p3 = transformPointByMatrix3(rotate_mat, shape.p3);
                             shape.p4 = transformPointByMatrix3(rotate_mat, shape.p4);
                             // TODO replaceVertices
+                            shape.updatePoints();
+
                             break;
                         case 'circle':
                             shape.center = transformPointByMatrix3(rotate_mat, shape.center);
@@ -329,6 +331,9 @@ function handleMouseDown(mouse) {
                             shape.p3 = transformPointByMatrix3(rotate_mat, shape.p3);
                             shape.p4 = transformPointByMatrix3(rotate_mat, shape.p4);
                             // TODO replaceVertices
+                            shape.updatePoints();
+
+
                             break;
                         case 'circle':
                             shape.center = transformPointByMatrix3(rotate_mat, shape.center);
@@ -366,8 +371,11 @@ function handleMouseDown(mouse) {
                             shape.p2 = transformPointByMatrix3(mirror_mat, shape.p2);
                             shape.p3 = transformPointByMatrix3(mirror_mat, shape.p3);
                             shape.p4 = transformPointByMatrix3(mirror_mat, shape.p4);
-
+                            
                             // TODO replaceVertices
+                            shape.updatePoints();
+
+
                             break;
                         case 'circle':
                             shape.center = transformPointByMatrix3(mirror_mat, shape.center);
@@ -495,10 +503,12 @@ function handleMouseMove(mouse) {
 
 
         // magnets
-        if (gm() !== 'select' && gm() !== 'boundary') {
-            if (!a.pan) {
-                // disabling magnets for currently edited shape
-                observeMagnet(a.shapes.filter(shape => shape.edit === null), mouse).subscribe();
+        if (magnetsCheckbox.checked) {
+            if (gm() !== 'select' && gm() !== 'boundary') {
+                if (!a.pan) {
+                    // disabling magnets for currently edited shape
+                    observeMagnet(a.shapes.filter(shape => shape.edit === null), mouse).subscribe();
+                }
             }
         }
 
@@ -1123,6 +1133,14 @@ export function drawText() {
     });
 
     context.restore();
+}
+
+function drawTextSingle(text, point) {
+    const textArray = [text];
+    const canvasPoint = convertWebGLToCanvas2DPoint(point, canvasText.width, canvasText.height);
+    const newText = new Text(s.aspectRatio, canvasPoint, textArray, context);
+    t.text.push(newText);
+    drawText();
 }
 
 function applyTransformationToPoint(x, y, matrix) {
