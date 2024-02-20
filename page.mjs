@@ -5,6 +5,7 @@ import { generateDXFContent } from "./shared/export/dxf.mjs";
 import { t } from "./main.js";
 import jsPDF from "jspdf";
 import { s } from "./shared/settings.mjs";
+import { font } from "./fonts/GOST type A-normal.js";
 
 
 export const mode_elem = document.getElementById('mode');
@@ -341,10 +342,14 @@ savePdfButton.addEventListener('click', function () {
         
     }
 
+
+    const f = font;
+    pdf.setFont('GOST type A');
+    pdf.setFontSize(fontSelect.value / 1.75);
+    
+    console.log(pdf.getFontList());
     t.text.forEach(t => {
         // TODO текст не масштабируется, нужно брать текущее значение из mouseWheel
-        pdf.setFont("helvetica");
-        pdf.setFontSize(fontSelect.value/1.75);
         pdf.text(t.text,t.start.x/scale,t.start.y/scale);
     })
 
