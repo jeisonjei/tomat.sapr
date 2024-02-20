@@ -1,6 +1,5 @@
 /**
  * TODO
- * при выборе рамкой дополнять объекты, даже если уже есть выбранные
  * показывать ручки редактирования
  * разрыв линий
  * заполнение основной надписи, нужно сделать красиво и удобно
@@ -819,7 +818,7 @@ function handleMouseUp(mouse) {
         case 'select':
             a.shapes.forEach(shape => {
                 if (shape.isinSelectFrame(a.selectFrame)) {
-                    shape.isSelected = !shape.isSelected;
+                    shape.isSelected = true;
                 }
             });
 
