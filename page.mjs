@@ -298,13 +298,11 @@ savePdfButton.addEventListener('click', function () {
 
     // draw shapes from a.shapes to canvas2d
     pdf.setDrawColor(0,0,0);
-    pdf.setLineWidth(0.75);
+    pdf.setLineWidth(0.5);
 
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    console.log(canvas.width);
-    console.log(pdfWidth);
     const scale = canvas.width / pdfWidth;
 
     const filteredShapes = a.shapes.filter(shape => shape.type !== 'text');
@@ -359,7 +357,7 @@ savePdfButton.addEventListener('click', function () {
     const topY = pdfHeight - 60;
     const b = 5;
     pdf.setDrawColor(0, 0, 0);
-    pdf.setLineWidth(1);
+    pdf.setLineWidth(0.75);
     pdf.rect(0, 0, pdfWidth, pdfHeight, 'S');
     pdf.rect(20, 5, pdfWidth - 25, pdfHeight - 10, 'S');
     pdf.rect(topX, topY, 185, 55);
