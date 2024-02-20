@@ -345,7 +345,7 @@ savePdfButton.addEventListener('click', function () {
 
     const f = font;
     pdf.setFont('GOST type A');
-    pdf.setFontSize(fontSelect.value / 1.75);
+    pdf.setFontSize(t.fontSize / 1.5);
     
     console.log(pdf.getFontList());
     t.text.forEach(t => {
