@@ -132,7 +132,7 @@ export const t = {
 
     fontSize: null,
     fontName: 'Courier New'
-    
+
 }
 
 // --------- GLOBALS ---------
@@ -144,7 +144,7 @@ export const t = {
 function init() {
     s.tolerance = 0.02;
 
-    const fontSize=document.getElementById('fontSize').value;
+    const fontSize = document.getElementById('fontSize').value;
     t.fontSize = fontSize;
 
 }
@@ -170,7 +170,7 @@ function handleMouseDown(mouse) {
         a.start = { ...a.magnetPosition };
     }
     else {
-        a.start = {...mouse};
+        a.start = { ...mouse };
     }
 
 
@@ -248,8 +248,8 @@ function handleMouseDown(mouse) {
                 t.text.filter(t => t.isSelected).forEach(text => {
                     const astart = convertWebGLToCanvas2DPoint(a.start, canvasText.width, canvasText.height);
                     const aclickMoveStart = convertWebGLToCanvas2DPoint(a.clickMoveStart, canvasText.width, canvasText.height);
-                    const deltaX = aclickMoveStart.x-astart.x;
-                    const deltaY = aclickMoveStart.y-astart.y;
+                    const deltaX = aclickMoveStart.x - astart.x;
+                    const deltaY = aclickMoveStart.y - astart.y;
                     text.start.x = text.moveXclick - deltaX;
                     text.start.y = text.moveYclick - deltaY;
                     text.edit = null;
@@ -266,6 +266,18 @@ function handleMouseDown(mouse) {
                 a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isSelected).forEach(shape => {
                     addShapes(shape.getClone());
                 });
+
+                // --- text
+                let array = [];
+                t.text.filter(t => t.isSelected).forEach(t => {
+                    array.push(t.getClone());
+                    t.copyClick = { ...t.start };
+                });
+
+                array.forEach(item => {
+                    t.text.push(item);
+                });
+                console.log(t.text);
             }
             else if (a.clickCopyStart) {
                 const move_mat = getMoveMatrix(a.clickCopyStart, a.start);
@@ -291,6 +303,19 @@ function handleMouseDown(mouse) {
                             break;
                     }
                 });
+
+                // --- text
+                t.text.filter(t => t.isSelected).forEach(text => {
+                    const astart = convertWebGLToCanvas2DPoint(a.start, canvasText.width, canvasText.height);
+                    const aclickMoveStart = convertWebGLToCanvas2DPoint(a.clickCopyStart, canvasText.width, canvasText.height);
+                    const deltaX = aclickMoveStart.x - astart.x;
+                    const deltaY = aclickMoveStart.y - astart.y;
+                    text.start.x = text.copyClick.x - deltaX;
+                    text.start.y = text.copyClick.y - deltaY;
+                    text.edit = null;
+                })
+                drawText();
+
 
                 a.clickCopyStart = null;
                 gl.uniformMatrix3fv(u_move, false, mat3.create());
@@ -397,7 +422,7 @@ function handleMouseDown(mouse) {
                             shape.p2 = transformPointByMatrix3(mirror_mat, shape.p2);
                             shape.p3 = transformPointByMatrix3(mirror_mat, shape.p3);
                             shape.p4 = transformPointByMatrix3(mirror_mat, shape.p4);
-                            
+
                             // TODO replaceVertices
                             shape.updatePoints();
 
@@ -687,8 +712,6 @@ function handleMouseMove(mouse) {
                         const tx = move_mat[2] * canvasText.width / 2;
                         const ty = move_mat[5] * canvasText.height / 2;
 
-                        const ms = convertWebGLToCanvas2DPoint(a.clickMoveStart, canvasText.width, canvasText.height);
-
                         t.text.filter(t => t.isSelected).forEach(t => {
                             t.edit = 1;
                             t.start.x = t.moveXclick + tx;
@@ -705,6 +728,20 @@ function handleMouseMove(mouse) {
                         a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                             drawSingle(shape);
                         });
+
+                        // --- text
+
+                        const tx = move_mat[2] * canvasText.width / 2;
+                        const ty = move_mat[5] * canvasText.height / 2;
+                        
+                        t.text.filter(t => t.isSelected).forEach(t => {
+                            t.edit = 1;
+                            t.start.x = t.copyClick.x + tx;
+                            t.start.y = t.copyClick.y - ty;
+                        });
+
+                        drawText();
+
 
                     }
                     break;
@@ -1074,12 +1111,12 @@ function handleMouseDownText(mouse) {
         return;
     }
 
-    
+
     if (a.magnetPosition) {
         t.textPosition = { ...convertWebGLToCanvas2DPoint(a.magnetPosition, canvasText.width, canvasText.height) };
     }
     else {
-        t.textPosition = new Point(mouse.x,mouse.y);
+        t.textPosition = new Point(mouse.x, mouse.y);
     }
 
 
@@ -1089,7 +1126,7 @@ function handleMouseDownText(mouse) {
     else {
         context.strokeStyle = 'gray';
     }
-    
+
     const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
     t.text.push(textLine);
     // только для magnetsObserver
@@ -1099,12 +1136,12 @@ function handleMouseDownText(mouse) {
     context.moveTo(t.textPosition.x, t.textPosition.y);
     context.lineTo(t.textPosition.x + 100, t.textPosition.y);
     context.moveTo(t.textPosition.x, t.textPosition.y - context.measureText(textLine.text).fontBoundingBoxAscent);
-    context.lineTo(t.textPosition.x+100,t.textPosition.y-context.measureText(textLine.text).fontBoundingBoxAscent);
+    context.lineTo(t.textPosition.x + 100, t.textPosition.y - context.measureText(textLine.text).fontBoundingBoxAscent);
     context.stroke();
 }
 
 function handleMouseMoveText(mouse) {
-    
+
 
 }
 
@@ -1130,7 +1167,7 @@ function handleKeyPress(key) {
 
 
 const mouseDownText$ = fromEvent(canvasText, 'mousedown').pipe(map(ev => getPoint(ev)));
-const mouseMoveText$ = fromEvent(canvasText, 'mousemove').pipe(map(ev=>getPoint(ev)));
+const mouseMoveText$ = fromEvent(canvasText, 'mousemove').pipe(map(ev => getPoint(ev)));
 const keyPress$ = fromEvent(document, 'keydown').pipe(
     filter(ev => filterText(ev)),
     map(ev => ev.key)
