@@ -94,3 +94,8 @@ td:first-child {
 table {
   font-size: small;
 }
+
+@font-face {
+  font-family: 'gost_type_a';
+  src: url('./fonts/GOST\ type\ A.ttf');
+}
