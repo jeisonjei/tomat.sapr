@@ -159,7 +159,7 @@ context.font = `${t.fontSize}px ${t.fontName}`;
 
 // --------- INIT ---------
 function init() {
-    s.tolerance = 0.04;
+    s.tolerance = 0.02;
 
 
     const fontSize = document.getElementById('fontSize').value;
