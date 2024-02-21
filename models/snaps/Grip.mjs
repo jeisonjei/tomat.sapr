@@ -14,8 +14,8 @@ export class Grip extends BasicMagnet {
         super(aspectRatio);
 
         this._center = { ...center };
-        this.width = s.tolerance*2 * this.aspectRatio;
-        this.height = s.tolerance*2;
+        this.width = s.tolerance * this.aspectRatio;
+        this.height = s.tolerance;
 
         this.type = 'm_grip';
 

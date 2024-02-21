@@ -159,7 +159,7 @@ context.font = `${t.fontSize}px ${t.fontName}`;
 
 // --------- INIT ---------
 function init() {
-    s.tolerance = 0.02;
+    s.tolerance = 0.04;
 
 
     const fontSize = document.getElementById('fontSize').value;
@@ -485,7 +485,34 @@ function handleMouseDown(mouse) {
                             shape.edit = 'end';
                         }
                         break;
-
+                    case 'rectangle':
+                        if (shape.isinGripP1(mouse)) {
+                            shape.edit = 'p1';
+                        }
+                        else if (shape.isinGripP2(mouse)) {
+                            shape.edit = 'p2';
+                        }
+                        else if (shape.isinGripP3(mouse)) {
+                            shape.edit = 'p3';
+                        }
+                        else if (shape.isinGripP4(mouse)) {
+                            shape.edit = 'p4';
+                        }
+                        break;
+                    case 'circle':
+                        if (shape.isinGripQ1(mouse)) {
+                            shape.edit = 'q1';
+                        }
+                        else if (shape.isinGripQ2(mouse)) {
+                            shape.edit = 'q2';
+                        }
+                        else if (shape.isinGripQ3(mouse)) {
+                            shape.edit = 'q3';
+                        }
+                        else if (shape.isinGripQ4(mouse)) {
+                            shape.edit = 'q4';
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -525,7 +552,6 @@ magnetState$.pipe(
 
     })
 ).subscribe(magnet => {
-
     if (magnet && a.start) {
         if (magnet.magnet instanceof Array) {
             a.magnetPosition = getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
@@ -639,24 +665,59 @@ function handleMouseMove(mouse) {
                     const editShapes = a.shapes.filter(shape => shape.edit !== null);
                     if (editShapes.length > 0) {
                         editShapes.forEach(shape => {
-                            if (shape.edit === 'start') {
-                                if (a.angle_snap) {
-                                    shape.start.x = a.anglePosition.x;
-                                    shape.start.y = a.anglePosition.y;
-                                }
-                                else {
-
-                                    shape.start = mouse;
-                                }
-                            } else if (shape.edit === 'end') {
-                                if (a.angle_snap) {
-                                    shape.end.x = a.anglePosition.x;
-                                    shape.end.y = a.anglePosition.y;
-                                }
-                                else {
-                                    shape.end = mouse;
-
-                                }
+                            switch (shape.type) {
+                                case 'line':
+                                    if (shape.edit === 'start') {
+                                        if (a.angle_snap) {
+                                            shape.start.x = a.anglePosition.x;
+                                            shape.start.y = a.anglePosition.y;
+                                        }
+                                        else {
+        
+                                            shape.start = mouse;
+                                        }
+                                    } else if (shape.edit === 'end') {
+                                        if (a.angle_snap) {
+                                            shape.end.x = a.anglePosition.x;
+                                            shape.end.y = a.anglePosition.y;
+                                        }
+                                        else {
+                                            shape.end = mouse;
+        
+                                        }
+                                    }
+        
+                                    break;
+                                case 'rectangle':
+                                    if (shape.edit === 'p1') {
+                                        shape.p1 = mouse;
+                                        shape.p2.y = mouse.y;
+                                        shape.p4.x = mouse.x;
+                                        
+                                    }
+                                    else if (shape.edit === 'p2') {
+                                        shape.p2 = mouse;
+                                        shape.p1.y = mouse.y;
+                                        shape.p3.x = mouse.x;
+                                    }
+                                    else if (shape.edit === 'p3') {
+                                        shape.p3 = mouse;
+                                        shape.p4.y = mouse.y;
+                                        shape.p2.x = mouse.x;
+                                    }
+                                    else if (shape.edit === 'p4') {
+                                        shape.p4 = mouse;
+                                        shape.p3.y = mouse.y;
+                                        shape.p1.x = mouse.x;
+                                    }
+                                    break;
+                                case 'circle':
+                                    if (['q1','q2','q3','q4'].includes(shape.edit)) {
+                                        const newRadius = Math.hypot((mouse.x-shape.center.x)/s.aspectRatio,mouse.y-shape.center.y);
+                                        shape.radius = newRadius;
+                                    }
+                                default:
+                                    break;
                             }
                         });
                     }

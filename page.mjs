@@ -42,11 +42,21 @@ export function editModeObserver(mouse) {
                     break;
                 case 'rectangle':
                     if (shape.isinGripP1(mouse) || shape.isinGripP2(mouse) || shape.isinGripP3(mouse) || shape.isinGripP4(mouse)) {
-                        setMode(mode_elem,'edit');
+                        setMode(mode_elem, 'edit');
                     }
                     else {
                         if (!a.isMouseDown) {
                             setMode(mode_elem, 'select');
+                        }
+                    }
+                    break;
+                case 'circle':
+                    if (shape.isinGripQ1(mouse) || shape.isinGripQ2(mouse) || shape.isinGripQ3(mouse) || shape.isinGripQ4(mouse)) {
+                        setMode(mode_elem,'edit');
+                    }
+                    else {
+                        if (!a.isMouseDown) {
+                            setMode(mode_elem,'select');
                         }
                     }
                     break;
