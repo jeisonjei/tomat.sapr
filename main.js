@@ -186,6 +186,16 @@ function handleMouseDown(mouse) {
                     shape.isSelected = !shape.isSelected;
                 })
             }
+
+            // --- text
+            const isinSelectBoundaryText = t.text.filter(t => t.isinSelectBoundary(mouse));
+            if (isinSelectBoundaryText.length > 0) {
+                isinSelectBoundaryText.forEach(t => {
+                    t.isSelected = !t.isSelected;
+                })
+            }
+
+            drawText();
             break;
         case 'line':
             a.line.start = a.start;
