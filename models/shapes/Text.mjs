@@ -1,6 +1,5 @@
 import { canvasGetWebglCoordinates, isPointInsideFrame } from "../../shared/common.mjs";
 import { BasicShape } from "../BasicShape.mjs";
-import { canvas, canvasText } from "../../main.js";
 import { Point } from "../Point.mjs";
 
 export class Text extends BasicShape {
@@ -54,11 +53,44 @@ export class Text extends BasicShape {
         return false;
     }
 
-    isinSelectBoundary() {
+    isinSelectBoundary(mouse) {
+        /**
+         * Функция проверяет, находится ли мышь внутри selectBoundary.
+         * Так как отрисовка selectBoundary выполняется через webgl,
+         * и соответственно эта функция используется только в связи с отрисовкой selectBoundary,
+         * то переведём координаты webgl в pixels прямо здесь
+         */
+        this.update(this.textArray);
 
+
+        const p1 = canvasGetWebglCoordinates(this.p1,this.context.canvas);
+        const p2 = canvasGetWebglCoordinates(this.p2, this.context.canvas);
+        const p4 = canvasGetWebglCoordinates(this.p3, this.context.canvas);
+
+
+        
+        if (mouse.x > p1.x && mouse.x < p2.x) {
+            if (mouse.y > p1.y && mouse.y < p4.y) {
+                return true;
+            }
+        }
+        return false;
     }
 
     setSelectBoundary() {
+        /**
+         * Функция устанавливает точки для selectBoundary.
+         * Так как selectBoundary отрисовывается в webgl, то сразу переведём координаты в webgl
+         */
+        const p1 = canvasGetWebglCoordinates(this.p1,this.context.canvas);
+        const p2 = canvasGetWebglCoordinates(this.p2, this.context.canvas);
+        const p3 = canvasGetWebglCoordinates(this.p3, this.context.canvas);
+        const p4 = canvasGetWebglCoordinates(this.p4, this.context.canvas);
+        
+        this.selectBoundary.p1 = p1;
+        this.selectBoundary.p2 = p2;
+        this.selectBoundary.p3 = p3;
+        this.selectBoundary.p4 = p4;
 
     }
 

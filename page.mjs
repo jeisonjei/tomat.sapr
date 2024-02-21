@@ -66,13 +66,11 @@ export function boundaryModeObserver(mouse) {
         }
 
         // --- text
-        const mouse_ = convertWebGLToCanvas2DPoint(mouse, canvasText.width,canvasText.height);
-        const isinSelectBoundaryText = t.text.filter(t => isinSelectBoundary(mouse_));
+        const isinSelectBoundaryText = t.text.filter(t => t.isinSelectBoundary(mouse));
         if (isinSelectBoundary.length > 0) {
             setMode(mode_elem, 'boundary');
             isinSelectBoundaryText.forEach(t => {
                 t.setSelectBoundary();
-                t.selectBoundary.convertToPixels();
                 drawSingle(t.selectBoundary);
             })
         }
