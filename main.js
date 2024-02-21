@@ -46,9 +46,9 @@ import { Text } from "./models/shapes/Text.mjs";
  */
 
 // --------- WEBGL ---------
-export const canvas = document.querySelector('canvas.drawing');
+const canvas = document.querySelector('canvas.drawing');
 resizeCanvasToDisplaySize(canvas);
-export const gl = canvas.getContext('webgl2');
+const gl = canvas.getContext('webgl2');
 const program = createProgram(gl, getVertexshaderSource(), getFragmentShaderSource());
 gl.useProgram(program);
 gl.viewport(0, 0, canvas.width, canvas.height);
@@ -74,6 +74,9 @@ gl.uniformMatrix3fv(u_rotate, false, mat3.create());
 // --------- WEBGL ---------
 
 s.setAspectRatio(canvas.width, canvas.height);
+
+
+
 
 
 
@@ -136,7 +139,7 @@ export const t = {
     isPanning: false,
     panStartPoint: new Point(0, 0),
 
-    fontSize: null,
+    fontSize: 36,
     fontName: 'gost_type_a'
 
 }
@@ -144,18 +147,33 @@ export const t = {
 // --------- GLOBALS ---------
 
 
+// --------- TEXT CONTEXT ---------
+const canvasText = document.querySelector('canvas.text');
+resizeCanvasToDisplaySize(canvasText);
+const context = canvasText.getContext('2d');
+
+context.font = `${t.fontSize}px ${t.fontName}`;
+
+// --------- TEXT CONTEXT ---------
 
 
 // --------- INIT ---------
 function init() {
     s.tolerance = 0.02;
 
+
     const fontSize = document.getElementById('fontSize').value;
     t.fontSize = fontSize;
+
+    // --- назначение параметров, которые будут использоваться в других модулях
+    s.setCanvasSize(canvas.width, canvas.height);
+    s.setWebglContext(gl);
+    s.setTextContext(context);
 
 }
 init();
 // --------- INIT ---------
+
 
 
 
@@ -1115,11 +1133,6 @@ export function drawSingle(shape) {
 
 
 // --------- TEXT ---------
-export const canvasText = document.querySelector('canvas.text');
-resizeCanvasToDisplaySize(canvasText);
-const context = canvasText.getContext('2d');
-
-context.font = `${t.fontSize}px ${t.fontName}`;
 
 function handleMouseDownText(mouse) {
 

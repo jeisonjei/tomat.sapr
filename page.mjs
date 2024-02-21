@@ -40,7 +40,16 @@ export function editModeObserver(mouse) {
                         }
                     }
                     break;
-
+                case 'rectangle':
+                    if (shape.isinGripP1(mouse) || shape.isinGripP2(mouse) || shape.isinGripP3(mouse) || shape.isinGripP4(mouse)) {
+                        setMode(mode_elem,'edit');
+                    }
+                    else {
+                        if (!a.isMouseDown) {
+                            setMode(mode_elem, 'select');
+                        }
+                    }
+                    break;
                 default:
                     break;
             }
@@ -87,7 +96,7 @@ keyDown$.subscribe(event => {
     if (gm() === 'text' && event.key !== 'Escape') {
         return;
     }
-    canvasText.style.cursor = 'crosshair';
+    s.textContext.canvas.style.cursor = 'crosshair';
     if (event.altKey) {
         event.preventDefault();
         switch (event.key) {
@@ -200,14 +209,11 @@ keyUp$.subscribe(event => {
     }
 });
 
-const canvasText = document.querySelector('canvas.text');
-const canvasBody = document.querySelector('body');
-const context = canvasText.getContext('2d');
 
-fromEvent(canvasBody, 'keydown').subscribe(event => {
+fromEvent(document, 'keydown').subscribe(event => {
     if ((event.key === 't' || event.key === 'е') && gm() !== 'text') {
         setMode(mode_elem, 'text');
-        canvasText.style.cursor = 'default';
+        s.textContext.canvas.style.cursor = 'default';
         t.textPosition = null;
     }
 });
@@ -244,7 +250,7 @@ buttons.forEach(button => {
 })
 
 textButton.addEventListener('click', function () {
-    setMode(mode_elem,'text');
+    setMode(mode_elem, 'text');
 })
 
 lineButton.addEventListener('click', function () {
@@ -290,8 +296,8 @@ saveDxfButton.addEventListener('click', function () {
 // --- select
 fontSelect.addEventListener("change", (event) => {
     t.fontSize = event.target.value;
-    context.font = `${t.fontSize}px ${t.fontName}`;
-    drawText();  
+    s.textContext.font = `${t.fontSize}px ${t.fontName}`;
+    drawText();
 });
 
 let format = 'a4';
@@ -308,18 +314,18 @@ savePdfButton.addEventListener('click', function () {
     });
 
     // draw shapes from a.shapes to canvas2d
-    pdf.setDrawColor(0,0,0);
+    pdf.setDrawColor(0, 0, 0);
     pdf.setLineWidth(0.5);
 
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    const scale = canvas.width / pdfWidth;
+    const scale = s.canvasWidth / pdfWidth;
 
     const filteredShapes = a.shapes.filter(shape => shape.type !== 'text');
-    if (filteredShapes.length>0) {
+    if (filteredShapes.length > 0) {
         filteredShapes.forEach(shape => {
-            
+
             const verticesPixels = shape.getVerticesPixels(scale);
             switch (shape.type) {
                 case 'line':
@@ -334,33 +340,33 @@ savePdfButton.addEventListener('click', function () {
                      * при операциях поворота и зеркального отображения прямоугольника нужно переназначать точки p1,p2,p3,p4
                      * чтобы точка p1 была всегда в верхнем левом углу
                      */
-                    const width = (shape.p2.x - shape.p1.x) / (1 / canvas.width * 2) / scale;
-                    const height = (shape.p3.y - shape.p2.y) / (1 / canvas.height * 2) / scale;
+                    const width = (shape.p2.x - shape.p1.x) / (1 / s.canvasWidth * 2) / scale;
+                    const height = (shape.p3.y - shape.p2.y) / (1 / s.canvasHeight * 2) / scale;
                     pdf.rect(verticesPixels[6], verticesPixels[7], width, height);
                     break;
                 case 'circle':
-                    const center = convertWebGLToCanvas2DPoint(shape.center, canvas.width, canvas.height);
+                    const center = convertWebGLToCanvas2DPoint(shape.center, s.canvasWidth, s.canvasHeight);
                     const x = center.x / scale;
                     const y = center.y / scale;
-                    const radius = shape.radius*s.aspectRatio / (1 / canvas.width * 2) / scale;
-                    pdf.circle(x,y,radius);
+                    const radius = shape.radius * s.aspectRatio / (1 / s.canvasWidth * 2) / scale;
+                    pdf.circle(x, y, radius);
                     break;
                 default:
                     break;
             }
         });
-        
+
     }
 
 
     const f = font;
     pdf.setFont('GOST type A');
     pdf.setFontSize(t.fontSize / 1.5);
-    
+
     console.log(pdf.getFontList());
     t.text.forEach(t => {
         // TODO текст не масштабируется, нужно брать текущее значение из mouseWheel
-        pdf.text(t.text,t.start.x/scale,t.start.y/scale);
+        pdf.text(t.text, t.start.x / scale, t.start.y / scale);
     })
 
 

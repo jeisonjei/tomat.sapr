@@ -5,7 +5,6 @@ import { BasicShape } from "../BasicShape.mjs";
 import { Point } from "../Point.mjs";
 import { mat3 } from "gl-matrix";
 import { BasicMagnet } from "../BasicMagnet.mjs";
-import { canvas } from "../../main.js";
 
 import { s } from "../../shared/settings.mjs";
 
@@ -55,11 +54,9 @@ export class Line extends BasicShape {
         ];
     }
     getVerticesPixels(scale) {
-        const cw = canvas.width;
-        const ch = canvas.height;
 
-        const startPixels = convertWebGLToCanvas2DPoint(this.start, cw, ch);
-        const endPixels = convertWebGLToCanvas2DPoint(this.end, cw, ch);
+        const startPixels = convertWebGLToCanvas2DPoint(this.start, s.canvasWidth, s.canvasHeight);
+        const endPixels = convertWebGLToCanvas2DPoint(this.end, s.canvasWidth, s.canvasHeight);
 
         return [
             startPixels.x/scale, startPixels.y/scale,

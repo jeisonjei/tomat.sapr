@@ -3,8 +3,10 @@ import { convertWebGLToCanvas2DPoint, getMid, isPointInsideFrame } from "../../s
 import { Point } from "../Point.mjs";
 import { mat3 } from "gl-matrix";
 import { transformPointByMatrix3 } from "../../shared/common.mjs";
-import { canvas } from "../../main.js";
+import {s} from '../../shared/settings.mjs';
+// --- rxjs
 import { min } from "rxjs";
+
 
 export class Rectangle extends BasicShape {
     /**
@@ -93,10 +95,10 @@ export class Rectangle extends BasicShape {
     }
 
     getVerticesPixels(scale) {
-        const p1 = convertWebGLToCanvas2DPoint(this.p1, canvas.width, canvas.height);
-        const p2 = convertWebGLToCanvas2DPoint(this.p2, canvas.width, canvas.height);
-        const p3 = convertWebGLToCanvas2DPoint(this.p3, canvas.width, canvas.height);
-        const p4 = convertWebGLToCanvas2DPoint(this.p4, canvas.width, canvas.height);
+        const p1 = convertWebGLToCanvas2DPoint(this.p1, s.canvasWidth, s.canvasHeight);
+        const p2 = convertWebGLToCanvas2DPoint(this.p2, s.canvasWidth, s.canvasHeight);
+        const p3 = convertWebGLToCanvas2DPoint(this.p3, s.canvasWidth, s.canvasHeight);
+        const p4 = convertWebGLToCanvas2DPoint(this.p4, s.canvasWidth, s.canvasHeight);
         return [
             p1.x/scale, p1.y/scale,
             p2.x/scale, p2.y/scale,

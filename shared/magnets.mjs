@@ -2,7 +2,7 @@ import { filter, from, map, switchMap, tap, of, Subject, AsyncSubject, ReplaySub
 import { scan } from "rxjs";
 import { canvasGetClientX, canvasGetClientY, canvasGetMouse, canvasGetWebglCoordinates, checkFunction, convertCanvas2DToWebGLPoint, convertWebGLToCanvas2DPoint } from "./common.mjs";
 import { s } from './settings.mjs';
-import { a, canvasText } from '../main.js';
+import { a } from '../main.js';
 import { ms } from "../models/snaps/MagnetState.mjs";
 import { Point } from "../models/Point.mjs";
 import { getRotateSnap } from "./transform.mjs";
@@ -216,13 +216,13 @@ export function observeMagnet(shapes, mouse) {
                 case 'text':
                     switch (true) {
                         case shape.isinGripStart(mouse):
-                            shape.grip.center = canvasGetWebglCoordinates(shape.start,canvasText);
+                            shape.grip.center = canvasGetWebglCoordinates(shape.start,s.textContext.canvas);
                             acc.push(shape.grip);
                             return acc;
 
                         case shape.isinTripHstart(mouse):
                             shape.tripH.mouse = mouse;
-                            shape.tripH.start = canvasGetWebglCoordinates(shape.start,canvasText);
+                            shape.tripH.start = canvasGetWebglCoordinates(shape.start,s.textContext.canvas);
                             acc.push(shape.tripH);
                             break;
                         case shape.isinTripVstart(mouse):
