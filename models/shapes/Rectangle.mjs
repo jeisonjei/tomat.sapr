@@ -67,6 +67,7 @@ export class Rectangle extends BasicShape {
         this.color = [...color];
 
         this.updateMid();
+        this.updateCenter();
     }
 
     updateMid() {
@@ -74,6 +75,14 @@ export class Rectangle extends BasicShape {
         this.m2 = getMid(this.p2, this.p3);
         this.m3 = getMid(this.p3, this.p4);
         this.m4 = getMid(this.p4, this.p1);
+    }
+
+    updateCenter() {
+        const dx = (this.p2.x - this.p1.x)/2;
+        const dy = (this.p3.y - this.p2.y)/2;
+        const x = this.p1.x + dx;
+        const y = this.p1.y + dy;
+        this.center = new Point(x,y);
     }
 
     getVertices() {
@@ -192,6 +201,7 @@ export class Rectangle extends BasicShape {
         this.p4 = transformPointByMatrix3(zoom_mat, this.p4);
         this.width = this.width * zl;
         this.height = this.height * zl;
+        this.updateCenter();
     }
 
     pan(tx, ty) {
@@ -201,6 +211,7 @@ export class Rectangle extends BasicShape {
         this.p2 = transformPointByMatrix3(pan_mat, this.p2);
         this.p3 = transformPointByMatrix3(pan_mat, this.p3);
         this.p4 = transformPointByMatrix3(pan_mat, this.p4);
+        this.updateCenter();
     }
 
 

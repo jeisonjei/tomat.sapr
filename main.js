@@ -689,27 +689,27 @@ function handleMouseMove(mouse) {
         
                                     break;
                                 case 'rectangle':
-                                    if (shape.edit === 'p1') {
-                                        shape.p1 = mouse;
-                                        shape.p2.y = mouse.y;
-                                        shape.p4.x = mouse.x;
+                                    if (['p1', 'p2', 'p3', 'p4'].includes(shape.edit)) {
+                                        
+                                        const dx = mouse.x - shape.center.x;
+                                        const dy = mouse.y - shape.center.y;
+
+                                        shape.p1.x = shape.center.x-dx;
+                                        shape.p1.y = shape.center.y-dy;
+
+                                        shape.p2.x = shape.center.x + dx;
+                                        shape.p2.y = shape.center.y-dy;
+
+                                        shape.p3.x = shape.center.x + dx;
+                                        shape.p3.y = shape.center.y + dy;
+
+                                        shape.p4.x = shape.center.x-dx;
+                                        shape.p4.y = shape.center.y + dy;
+                                        
+                                        shape.updateMid();
                                         
                                     }
-                                    else if (shape.edit === 'p2') {
-                                        shape.p2 = mouse;
-                                        shape.p1.y = mouse.y;
-                                        shape.p3.x = mouse.x;
-                                    }
-                                    else if (shape.edit === 'p3') {
-                                        shape.p3 = mouse;
-                                        shape.p4.y = mouse.y;
-                                        shape.p2.x = mouse.x;
-                                    }
-                                    else if (shape.edit === 'p4') {
-                                        shape.p4 = mouse;
-                                        shape.p3.y = mouse.y;
-                                        shape.p1.x = mouse.x;
-                                    }
+
                                     break;
                                 case 'circle':
                                     if (['q1','q2','q3','q4'].includes(shape.edit)) {
