@@ -99,6 +99,7 @@ export function boundaryModeObserver(mouse) {
 // --------- KEY EVENTS ---------
 export const magnetsCheckbox = document.getElementById('magnets');
 const angleSnapCheckbox = document.getElementById('angleSnap');
+const ctrlCheckbox = document.getElementById('ctrl');
 
 const keyDown$ = fromEvent(document, 'keydown');
 const keyUp$ = fromEvent(document, 'keyup');
@@ -125,6 +126,10 @@ keyDown$.subscribe(event => {
                 break;
         }
         return;
+    }
+    else if (event.ctrlKey) {
+        a.ctrl = true;
+        ctrlCheckbox.checked = true;
     }
 
     // Handle key down events
@@ -216,6 +221,10 @@ keyUp$.subscribe(event => {
     if (!event.shiftKey) {
         a.angle_snap = false;
         angleSnapCheckbox.checked = false;
+    }
+    if (!event.ctrlKey) {
+        ctrlCheckbox.checked = false;
+        a.ctrl = false;
     }
 });
 

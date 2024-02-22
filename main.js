@@ -122,6 +122,9 @@ export const a = {
     angle_snap: false,
 
     vertices: [],
+
+    // ctrl
+    ctrl: false
 }
 
 export const t = {
@@ -671,7 +674,7 @@ function handleMouseMove(mouse) {
                                             shape.start.y = a.anglePosition.y;
                                         }
                                         else {
-        
+
                                             shape.start = mouse;
                                         }
                                     } else if (shape.edit === 'end') {
@@ -681,37 +684,64 @@ function handleMouseMove(mouse) {
                                         }
                                         else {
                                             shape.end = mouse;
-        
+
                                         }
                                     }
-        
+
                                     break;
                                 case 'rectangle':
-                                    if (['p1', 'p2', 'p3', 'p4'].includes(shape.edit)) {
+                                    if (a.ctrl) {
+                                        if (['p1', 'p2', 'p3', 'p4'].includes(shape.edit)) {
+
+                                            const dx = mouse.x - shape.center.x;
+                                            const dy = mouse.y - shape.center.y;
+
+                                            shape.p1.x = shape.center.x - dx;
+                                            shape.p1.y = shape.center.y - dy;
+
+                                            shape.p2.x = shape.center.x + dx;
+                                            shape.p2.y = shape.center.y - dy;
+
+                                            shape.p3.x = shape.center.x + dx;
+                                            shape.p3.y = shape.center.y + dy;
+
+                                            shape.p4.x = shape.center.x - dx;
+                                            shape.p4.y = shape.center.y + dy;
+
+                                            shape.updateMid();
+
+                                        }
+                                    }
+                                    else {
                                         
-                                        const dx = mouse.x - shape.center.x;
-                                        const dy = mouse.y - shape.center.y;
 
-                                        shape.p1.x = shape.center.x-dx;
-                                        shape.p1.y = shape.center.y-dy;
+                                        if (shape.edit === 'p1') {
+                                            shape.p1 = { ...mouse };
+                                            shape.p4.x = mouse.x;
+                                            shape.p2.y = mouse.y;
+                                        }
+                                        else if (shape.edit === 'p2') {
+                                            shape.p2 = { ...mouse };
+                                            shape.p3.x = mouse.x;
+                                            shape.p1.y = mouse.y;
+                                        }
+                                        else if (shape.edit === 'p3') {
+                                            shape.p3 = {...mouse};
+                                            shape.p2.x = mouse.x;
+                                            shape.p4.y = mouse.y;
+                                        }
+                                        else if (shape.edit === 'p4') {
+                                            shape.p4 = {...mouse};
+                                            shape.p1.x = mouse.x;
+                                            shape.p3.y = mouse.y;
+                                        }
 
-                                        shape.p2.x = shape.center.x + dx;
-                                        shape.p2.y = shape.center.y-dy;
-
-                                        shape.p3.x = shape.center.x + dx;
-                                        shape.p3.y = shape.center.y + dy;
-
-                                        shape.p4.x = shape.center.x-dx;
-                                        shape.p4.y = shape.center.y + dy;
-                                        
-                                        shape.updateMid();
-                                        
                                     }
 
                                     break;
                                 case 'circle':
-                                    if (['q1','q2','q3','q4'].includes(shape.edit)) {
-                                        const newRadius = Math.hypot((mouse.x-shape.center.x)/s.aspectRatio,mouse.y-shape.center.y);
+                                    if (['q1', 'q2', 'q3', 'q4'].includes(shape.edit)) {
+                                        const newRadius = Math.hypot((mouse.x - shape.center.x) / s.aspectRatio, mouse.y - shape.center.y);
                                         shape.radius = newRadius;
                                     }
                                 default:
@@ -826,7 +856,7 @@ function handleMouseMove(mouse) {
 
                         const tx = move_mat[2] * canvasText.width / 2;
                         const ty = move_mat[5] * canvasText.height / 2;
-                        
+
                         t.text.filter(t => t.isSelected).forEach(t => {
                             t.edit = 1;
                             t.start.x = t.copyClick.x + tx;
