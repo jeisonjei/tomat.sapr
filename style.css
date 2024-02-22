@@ -2,7 +2,6 @@ canvas.drawing {
   width: 99vw;
   height: 97.5vh;
   display: block;
-  border: 1px solid black;
 }
 
 canvas.text {
@@ -11,7 +10,6 @@ canvas.text {
   top: 8px;
   width: 99vw;
   height: 97.5vh;
-  border: 1px solid black;
   z-index: 10;
 }
 

@@ -1173,7 +1173,7 @@ export function drawSingle(shape) {
     const size = vertices.length;
     const [a, b, c, d] = shape.color;
     if (shape.isSelected) {
-        gl.uniform4f(u_color, 0.1, 0.1, 0.1, 1);
+        gl.uniform4f(u_color, 0.5, 0.5, 0.5, 1);
     }
     else {
         gl.uniform4f(u_color, a, b, c, d);
