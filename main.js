@@ -140,7 +140,9 @@ export const t = {
     panStartPoint: new Point(0, 0),
 
     fontSize: 36,
-    fontName: 'gost_type_a'
+    fontName: 'gost_type_a',
+
+    offset:6
 
 }
 
@@ -1317,6 +1319,8 @@ function handleMouseDownText(mouse) {
     else {
         t.textPosition = new Point(mouse.x, mouse.y);
     }
+
+    t.textPosition.y = t.textPosition.y - t.offset;
 
 
     if (a.magnetPosition) {
