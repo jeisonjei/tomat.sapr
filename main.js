@@ -14,18 +14,18 @@
 import { Point } from "./models/Point.mjs"
 import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
-import { applyTransformationToPoint, canvasGetClientX, canvasGetClientY, canvasGetMouse, checkFunction, convertCanvas2DToWebGLPoint, convertWebGLToCanvas2DPoint, getAngleDegrees, getAngleRadians, resizeCanvasToDisplaySize, transformPointByMatrix3, transformPointByMatrix4 } from "./shared/common.mjs";
+import { applyTransformationToPoint, canvasGetMouse, convertWebGLToCanvas2DPoint, resizeCanvasToDisplaySize, transformPointByMatrix3 } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
-import { boundaryModeObserver, editModeObserver, gm, magnetsCheckbox, mode_elem, setMode } from "./page.mjs";
+import { boundaryModeObserver, editModeObserver, gm, magnetsCheckbox } from "./page.mjs";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
-import { getMirrorMatrix, getMoveMatrix, getRotateMatrix, getRotateSnap } from "./shared/transform.mjs";
+import { getMirrorMatrix, getMoveMatrix, getRotateMatrix } from "./shared/transform.mjs";
 import { observeMagnet, magnetState$, getExtensionCoordDraw, getAnglePosition } from "./shared/magnets.mjs";
 import { mat3 } from 'gl-matrix';
 import { getNewVertices, pushVertices, replaceVertices } from "./shared/webgl/reshape.mjs";
 import { s } from './shared/settings.mjs';
 
 // rxjs
-import { Subject, filter, fromEvent, map, takeUntil } from "rxjs";
+import { Subject, filter, fromEvent, map } from "rxjs";
 import { Rectangle } from "./models/shapes/Rectangle.mjs";
 import { Circle } from "./models/shapes/Circle.mjs";
 import { SymLine } from "./models/shapes/SymLine.mjs";
@@ -954,6 +954,8 @@ function handleMouseUp(mouse) {
                                     shape.p4.y = shape.center.y + dy;
 
                                     shape.updateMid();
+                                    shape.updateCenter();
+                                    shape.setSelectBoundary();
 
                                 }
                             }
@@ -979,6 +981,8 @@ function handleMouseUp(mouse) {
                                     shape.p3.y = a.end.y;
                                 }
                                 shape.updateMid();
+                                shape.updateCenter();
+                                shape.setSelectBoundary();
                             }
                             break;
                         default:
@@ -1219,6 +1223,7 @@ export function drawSingle(shape) {
      * @param {Line, Grip, Projection, Circle, Rectangle} shape - фигура, которую нужно отрисовать.
      * В качестве фигуры также могут выступать и магниты
     */
+
     if (shape.type === 'text') {
         return;
     }

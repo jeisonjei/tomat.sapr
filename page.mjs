@@ -13,7 +13,21 @@ setMode(mode_elem, 'select');
 
 
 export function setMode(mode_elem, mode) {
+    if (!s.textContext) {
+        return;
+    }
+
     mode_elem.innerHTML = 'mode: ' + mode;
+    if (mode === 'select' || mode === 'boundary') {
+        s.textContext.canvas.style.cursor = 'pointer';
+    }
+    else if (mode==='text') {
+        s.textContext.canvas.style.cursor = 'default';
+    }
+    else {
+        s.textContext.canvas.style.cursor = 'crosshair';
+    }
+
 }
 
 export function gm() {
@@ -29,14 +43,21 @@ export function editModeObserver(mouse) {
             switch (shape.type) {
                 case 'line':
                     if (shape.isinGripStart(mouse)) {
+                        shape.grip.color = [0, 0, 1, 1];
+                        drawSingle(shape.grip);
                         setMode(mode_elem, 'edit');
                     }
                     else if (shape.isinGripEnd(mouse)) {
+                        shape.grip.color = [0,0,1,1];
+                        drawSingle(shape.grip);
                         setMode(mode_elem, 'edit');
                     }
                     else {
+                        shape.grip.color = [0,1,0,1];
+                        drawSingle(shape.grip);
                         if (!a.isMouseDown) {
                             setMode(mode_elem, 'select');
+
                         }
                     }
                     break;
@@ -148,8 +169,6 @@ keyDown$.subscribe(event => {
                 text.isSelected = false;
             });
             drawText();
-
-            s.textContext.canvas.style.cursor = 'pointer';
             break;
         case 'l':
         case 'д':
@@ -231,22 +250,12 @@ keyUp$.subscribe(event => {
         a.ctrl = false;
     }
 
-    if (gm()==='select') {
-        s.textContext.canvas.style.cursor = 'pointer';
-    }
-    else if (gm()==='text') {
-        s.textContext.canvas.style.cursor = 'default';
-    }
-    else {
-        s.textContext.canvas.style.cursor = 'crosshair';
-    }
 });
 
 
 fromEvent(document, 'keydown').subscribe(event => {
     if ((event.key === 't' || event.key === 'е') && gm() !== 'text') {
         setMode(mode_elem, 'text');
-        s.textContext.canvas.style.cursor = 'default';
         t.textPosition = null;
     }
 });
