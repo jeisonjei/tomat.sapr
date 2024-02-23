@@ -3,7 +3,7 @@ import { convertWebGLToCanvas2DPoint, getMid, isPointInsideFrame } from "../../s
 import { Point } from "../Point.mjs";
 import { mat3 } from "gl-matrix";
 import { transformPointByMatrix3 } from "../../shared/common.mjs";
-import {s} from '../../shared/settings.mjs';
+import { s } from '../../shared/settings.mjs';
 // --- rxjs
 import { min } from "rxjs";
 
@@ -78,11 +78,11 @@ export class Rectangle extends BasicShape {
     }
 
     updateCenter() {
-        const dx = (this.p2.x - this.p1.x)/2;
-        const dy = (this.p3.y - this.p2.y)/2;
+        const dx = (this.p2.x - this.p1.x) / 2;
+        const dy = (this.p3.y - this.p2.y) / 2;
         const x = this.p1.x + dx;
         const y = this.p1.y + dy;
-        this.center = new Point(x,y);
+        this.center = new Point(x, y);
     }
 
     getVertices() {
@@ -109,10 +109,10 @@ export class Rectangle extends BasicShape {
         const p3 = convertWebGLToCanvas2DPoint(this.p3, s.canvasWidth, s.canvasHeight);
         const p4 = convertWebGLToCanvas2DPoint(this.p4, s.canvasWidth, s.canvasHeight);
         return [
-            p1.x/scale, p1.y/scale,
-            p2.x/scale, p2.y/scale,
-            p3.x/scale, p3.y/scale,
-            p4.x/scale, p4.y/scale,
+            p1.x / scale, p1.y / scale,
+            p2.x / scale, p2.y / scale,
+            p3.x / scale, p3.y / scale,
+            p4.x / scale, p4.y / scale,
         ];
 
     }
@@ -125,19 +125,19 @@ export class Rectangle extends BasicShape {
          * где меняются позиции точек - это поворот и зеркальное отображение
          */
         const array = [this.p1, this.p2, this.p3, this.p4];
-    
-        const minX = Math.min(...array.map(p=>p.x));
-    
+
+        const minX = Math.min(...array.map(p => p.x));
+
         const minY = Math.min(...array.map(p => p.y));
 
         const maxX = Math.max(...array.map(p => p.x));
-        const maxY = Math.max(...array.map(p=>p.y));
+        const maxY = Math.max(...array.map(p => p.y));
 
         const newP1 = new Point(minX, maxY);
         const newP2 = new Point(maxX, maxY);
         const newP3 = new Point(maxX, minY);
-        const newP4 = new Point(minX,minY);
-    
+        const newP4 = new Point(minX, minY);
+
         this.p1 = newP1;
         this.p2 = newP2;
         this.p3 = newP3;
@@ -171,11 +171,68 @@ export class Rectangle extends BasicShape {
         return false;
     }
 
-    isinSelectBoundary() {
+    isinSelectBoundary(mouse) {
+        const width = s.tolerance / 2;
+        const angle = Math.atan2(this.p2.y - this.p1.y, this.p2.x - this.p1.x);
+        const offsetX = width * Math.sin(angle);
+        const offsetY = width * Math.cos(angle);
+
+        // top horizontal line
+        const point1 = new Point(this.p1.x - offsetX + width * Math.cos(angle), this.p1.y + offsetY + width * Math.sin(angle));
+        const point2 = new Point(this.p2.x - offsetX - width * Math.cos(angle), this.p2.y + offsetY - width * Math.sin(angle));
+        const point3 = new Point(this.p2.x + offsetX - width * Math.cos(angle), this.p2.y - offsetY - width * Math.sin(angle));
+        const point4 = new Point(this.p1.x + offsetX + width * Math.cos(angle), this.p1.y - offsetY + width * Math.sin(angle));
+
+        // right vertical line
+
+        // bottom horizontal line 
+        const point9 = new Point(this.p3.x - offsetX + width * Math.cos(angle), this.p3.y + offsetY + width * Math.sin(angle));
+        const point10 = new Point(this.p4.x - offsetX - width * Math.cos(angle), this.p4.y + offsetY - width * Math.sin(angle));
+        const point11 = new Point(this.p4.x + offsetX - width * Math.cos(angle), this.p4.y - offsetY - width * Math.sin(angle));
+        const point12 = new Point(this.p3.x + offsetX + width * Math.cos(angle), this.p3.y - offsetY + width * Math.sin(angle));
+
+        // left vertical line
+
+        const vertices = [
+            point1.x, point1.y,
+            point2.x, point2.y,
+            point3.x, point3.y,
+            point4.x, point4.y,
+            point9.x, point9.y,
+            point10.x, point10.y,
+            point11.x, point11.y,
+            point12.x, point12.y,
+        ];
+
+        let isInside = false;
+        let j = vertices.length - 2;
         
+        for (let i = 0; i < vertices.length; i += 2) {
+            const vertexX1 = vertices[i];
+            const vertexY1 = vertices[i + 1];
+            const vertexX2 = vertices[j];
+            const vertexY2 = vertices[j + 1];
+        
+            if ((vertexY1 > mouse.y) !== (vertexY2 > mouse.y) &&
+                mouse.x < ((vertexX2 - vertexX1) * (mouse.y - vertexY1)) / (vertexY2 - vertexY1) + vertexX1) {
+                isInside = !isInside;
+            }
+        
+            j = i;
+        }
+        return isInside;
     }
+
     setSelectBoundary() {
-        
+        const width = s.tolerance / 2;
+        const angle = Math.atan2(this.p2.y - this.p1.y, this.p2.x - this.p1.x);
+        const offsetX = width * Math.sin(angle) * this.aspectRatio;
+        const offsetY = width * Math.cos(angle);
+
+        this.selectBoundary.p1 = new Point(this.p1.x - offsetX + width * Math.cos(angle), this.p1.y + offsetY + width * Math.sin(angle));
+        this.selectBoundary.p2 = new Point(this.p2.x - offsetX - width * Math.cos(angle), this.p2.y + offsetY - width * Math.sin(angle));
+        this.selectBoundary.p3 = new Point(this.p3.x + offsetX - width * Math.cos(angle), this.p3.y - offsetY - width * Math.sin(angle));
+        this.selectBoundary.p4 = new Point(this.p4.x + offsetX + width * Math.cos(angle), this.p4.y - offsetY + width * Math.sin(angle));
     }
 
     // --------- MAGNETS ---------
