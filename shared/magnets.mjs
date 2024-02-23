@@ -227,7 +227,7 @@ export function observeMagnet(shapes, mouse) {
                             break;
                         case shape.isinTripVstart(mouse):
                             shape.tripV.mouse = mouse;
-                            shape.tripV.start = canvasGetWebglCoordinates(shape.start,canvasText);
+                            shape.tripV.start = canvasGetWebglCoordinates(shape.start,s.textContext.canvas);
                             acc.push(shape.tripV);
                             break;
                         default:

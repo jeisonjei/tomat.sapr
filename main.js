@@ -1331,11 +1331,14 @@ function handleMouseDownText(mouse) {
     // только для magnetsObserver
     a.shapes.push(...t.utext);
 
+    const textHeight = context.measureText(textLine.text).fontBoundingBoxAscent;
     context.beginPath();
     context.moveTo(t.textPosition.x, t.textPosition.y);
     context.lineTo(t.textPosition.x + 100, t.textPosition.y);
-    context.moveTo(t.textPosition.x, t.textPosition.y - context.measureText(textLine.text).fontBoundingBoxAscent);
-    context.lineTo(t.textPosition.x + 100, t.textPosition.y - context.measureText(textLine.text).fontBoundingBoxAscent);
+    context.moveTo(t.textPosition.x, t.textPosition.y - textHeight);
+    context.lineTo(t.textPosition.x + 100, t.textPosition.y - textHeight);
+    context.moveTo(t.textPosition.x, t.textPosition.y);
+    context.lineTo(t.textPosition.x,t.textPosition.y-textHeight);
     context.stroke();
 }
 
