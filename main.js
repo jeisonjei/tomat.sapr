@@ -4,8 +4,6 @@
  * разрыв линий
  * заполнение основной надписи, нужно сделать красиво и удобно
  * области печати до вывода в PDF
- * выбор круга щелчком
- * выбор прямоугольника щелчком
  * редактирование текста
  * специальные символы в тексте
  * операция scale
@@ -717,7 +715,7 @@ function handleMouseMove(mouse) {
                                         }
                                     }
                                     else {
-                                        
+
 
                                         if (shape.edit === 'p1') {
                                             shape.p1 = { ...mouse };
@@ -730,12 +728,12 @@ function handleMouseMove(mouse) {
                                             shape.p1.y = mouse.y;
                                         }
                                         else if (shape.edit === 'p3') {
-                                            shape.p3 = {...mouse};
+                                            shape.p3 = { ...mouse };
                                             shape.p2.x = mouse.x;
                                             shape.p4.y = mouse.y;
                                         }
                                         else if (shape.edit === 'p4') {
-                                            shape.p4 = {...mouse};
+                                            shape.p4 = { ...mouse };
                                             shape.p1.x = mouse.x;
                                             shape.p3.y = mouse.y;
                                         }
@@ -1225,6 +1223,36 @@ export function drawSingle(shape) {
     const size = vertices.length;
     const [a, b, c, d] = shape.color;
     if (shape.isSelected) {
+        switch (shape.type) {
+            case 'line':
+                shape.grip.center = shape.start;
+                drawSingle(shape.grip);
+                shape.grip.center = shape.end;
+                drawSingle(shape.grip);
+                break;
+            case 'rectangle':
+                shape.grip.center = shape.p1;
+                drawSingle(shape.grip);
+                shape.grip.center = shape.p2;
+                drawSingle(shape.grip);
+                shape.grip.center = shape.p3;
+                drawSingle(shape.grip);
+                shape.grip.center = shape.p4;
+                drawSingle(shape.grip);
+                break;
+            case 'circle':
+                shape.grip.center = shape.quad1;
+                drawSingle(shape.grip);
+                shape.grip.center = shape.quad2;
+                drawSingle(shape.grip);
+                shape.grip.center = shape.quad3;
+                drawSingle(shape.grip);
+                shape.grip.center = shape.quad4;
+                drawSingle(shape.grip);
+                break;
+            default:
+                break;
+        }
         gl.uniform4f(u_color, 0.5, 0.5, 0.5, 1);
     }
     else {
