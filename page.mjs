@@ -119,9 +119,6 @@ keyDown$.subscribe(event => {
             case 'к':
                 setMode(mode_elem, 'rotatecopy');
                 break;
-            case 'z':
-            case 'я':
-                magnetsCheckbox.checked = !magnetsCheckbox.checked;
             default:
                 break;
         }
@@ -134,6 +131,11 @@ keyDown$.subscribe(event => {
 
     // Handle key down events
     switch (event.key) {
+        case 'F3':
+            event.preventDefault();
+            magnetsCheckbox.checked = !magnetsCheckbox.checked;
+            break;
+
         case 's':
         case 'ы':
             a.shapes.filter(shape => shape.isSelected).forEach(shape => {
