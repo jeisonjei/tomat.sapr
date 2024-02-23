@@ -336,6 +336,13 @@ formatSelect.addEventListener('change', (event) => {
     format = event.target.value.toLowerCase();
 })
 
+
+
+
+
+
+// --------- PDF ---------
+
 savePdfButton.addEventListener('click', function () {
     const pdf = new jsPDF({
         unit: 'mm',
@@ -351,13 +358,14 @@ savePdfButton.addEventListener('click', function () {
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    const scale = s.canvasWidth / pdfWidth;
+    const scaleX = s.canvasWidth / pdfWidth;
+    const scaleY = s.canvasHeight / pdfHeight;
 
     const filteredShapes = a.shapes.filter(shape => shape.type !== 'text');
     if (filteredShapes.length > 0) {
         filteredShapes.forEach(shape => {
 
-            const verticesPixels = shape.getVerticesPixels(scale);
+            const verticesPixels = shape.getVerticesPixels(scaleX);
             switch (shape.type) {
                 case 'line':
                     // TODO
@@ -371,15 +379,15 @@ savePdfButton.addEventListener('click', function () {
                      * при операциях поворота и зеркального отображения прямоугольника нужно переназначать точки p1,p2,p3,p4
                      * чтобы точка p1 была всегда в верхнем левом углу
                      */
-                    const width = (shape.p2.x - shape.p1.x) / (1 / s.canvasWidth * 2) / scale;
-                    const height = (shape.p3.y - shape.p2.y) / (1 / s.canvasHeight * 2) / scale;
+                    const width = (shape.p2.x - shape.p1.x) / (1 / s.canvasWidth * 2) / scaleX;
+                    const height = (shape.p3.y - shape.p2.y) / (1 / s.canvasHeight * 2) / scaleX;
                     pdf.rect(verticesPixels[6], verticesPixels[7], width, height);
                     break;
                 case 'circle':
                     const center = convertWebGLToCanvas2DPoint(shape.center, s.canvasWidth, s.canvasHeight);
-                    const x = center.x / scale;
-                    const y = center.y / scale;
-                    const radius = shape.radius * s.aspectRatio / (1 / s.canvasWidth * 2) / scale;
+                    const x = center.x / scaleX;
+                    const y = center.y / scaleX;
+                    const radius = shape.radius * s.aspectRatio / (1 / s.canvasWidth * 2) / scaleX;
                     pdf.circle(x, y, radius);
                     break;
                 default:
@@ -391,13 +399,18 @@ savePdfButton.addEventListener('click', function () {
 
 
     const f = font;
-    pdf.setFont('GOST type A');
-    pdf.setFontSize(t.fontSize / 1.5);
 
-    console.log(pdf.getFontList());
+
+    pdf.setFont('GOST type A');
+
+    const scaleYmm = (scaleY / 3.78)*0.75;
+    console.log(scaleYmm);
+    pdf.setFontSize(t.fontSize * 0.75 * scaleYmm);
+
+    
     t.utext.forEach(t => {
         // TODO текст не масштабируется, нужно брать текущее значение из mouseWheel
-        pdf.text(t.text, t.start.x / scale, t.start.y / scale);
+        pdf.text(t.text, t.start.x / scaleX, t.start.y / scaleX);
     })
 
 
