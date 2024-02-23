@@ -13,15 +13,16 @@ setMode(mode_elem, 'select');
 
 
 export function setMode(mode_elem, mode) {
+
+
+    mode_elem.innerHTML = 'mode: ' + mode;
     if (!s.textContext) {
         return;
     }
-
-    mode_elem.innerHTML = 'mode: ' + mode;
     if (mode === 'select' || mode === 'boundary') {
         s.textContext.canvas.style.cursor = 'pointer';
     }
-    else if (mode==='text') {
+    else if (mode === 'text') {
         s.textContext.canvas.style.cursor = 'default';
     }
     else {
@@ -42,19 +43,13 @@ export function editModeObserver(mouse) {
         a.shapes.filter(shape => shape.isSelected).forEach(shape => {
             switch (shape.type) {
                 case 'line':
-                    if (shape.isinGripStart(mouse)) {
+                    if (shape.isinGripStart(mouse) || shape.isinGripEnd(mouse)) {
                         shape.grip.color = [0, 0, 1, 1];
                         drawSingle(shape.grip);
-                        setMode(mode_elem, 'edit');
-                    }
-                    else if (shape.isinGripEnd(mouse)) {
-                        shape.grip.color = [0,0,1,1];
-                        drawSingle(shape.grip);
+                        shape.grip.color = [0, 1, 0, 1];
                         setMode(mode_elem, 'edit');
                     }
                     else {
-                        shape.grip.color = [0,1,0,1];
-                        drawSingle(shape.grip);
                         if (!a.isMouseDown) {
                             setMode(mode_elem, 'select');
 
@@ -62,7 +57,10 @@ export function editModeObserver(mouse) {
                     }
                     break;
                 case 'rectangle':
-                    if (shape.isinGripP1(mouse) || shape.isinGripP2(mouse) || shape.isinGripP3(mouse) || shape.isinGripP4(mouse)) {
+                    if (shape.isinGripP1(mouse) || shape.isinGripP2(mouse) || shape.isinGripP3(mouse) || shape.isinGripP4(mouse)){
+                        shape.grip.color = [0, 0,1, 1];
+                        drawSingle(shape.grip);
+                        shape.grip.color = [0,1,0,1];
                         setMode(mode_elem, 'edit');
                     }
                     else {
@@ -72,12 +70,16 @@ export function editModeObserver(mouse) {
                     }
                     break;
                 case 'circle':
-                    if (shape.isinGripQ1(mouse) || shape.isinGripQ2(mouse) || shape.isinGripQ3(mouse) || shape.isinGripQ4(mouse)) {
-                        setMode(mode_elem,'edit');
+                    if (shape.isinGripQ1(mouse) || shape.isinGripQ2(mouse) || shape.isinGripQ3(mouse) || shape.isinGripQ4(mouse)){ 
+                        shape.grip.color = [0, 0,1, 1];
+                        drawSingle(shape.grip);
+                        shape.grip.color = [0,1,0,1];
+
+                        setMode(mode_elem, 'edit');
                     }
                     else {
                         if (!a.isMouseDown) {
-                            setMode(mode_elem,'select');
+                            setMode(mode_elem, 'select');
                         }
                     }
                     break;
@@ -414,11 +416,11 @@ savePdfButton.addEventListener('click', function () {
 
     pdf.setFont('GOST type A');
 
-    const scaleYmm = (scaleY / 3.78)*0.75;
+    const scaleYmm = (scaleY / 3.78) * 0.75;
     console.log(scaleYmm);
     pdf.setFontSize(t.fontSize * 0.75 * scaleYmm);
 
-    
+
     t.utext.forEach(t => {
         // TODO текст не масштабируется, нужно брать текущее значение из mouseWheel
         pdf.text(t.text, t.start.x / scaleX, t.start.y / scaleX);
