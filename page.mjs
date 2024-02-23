@@ -107,7 +107,7 @@ keyDown$.subscribe(event => {
     if (gm() === 'text' && event.key !== 'Escape') {
         return;
     }
-    s.textContext.canvas.style.cursor = 'crosshair';
+
     if (event.altKey) {
         event.preventDefault();
         switch (event.key) {
@@ -146,6 +146,8 @@ keyDown$.subscribe(event => {
                 text.isSelected = false;
             });
             drawText();
+
+            s.textContext.canvas.style.cursor = 'pointer';
             break;
         case 'l':
         case 'д':
@@ -225,6 +227,16 @@ keyUp$.subscribe(event => {
     if (!event.ctrlKey) {
         ctrlCheckbox.checked = false;
         a.ctrl = false;
+    }
+
+    if (gm()==='select') {
+        s.textContext.canvas.style.cursor = 'pointer';
+    }
+    else if (gm()==='text') {
+        s.textContext.canvas.style.cursor = 'default';
+    }
+    else {
+        s.textContext.canvas.style.cursor = 'crosshair';
     }
 });
 

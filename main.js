@@ -1267,7 +1267,7 @@ export function drawSingle(shape) {
 
             break;
         case 'selectBoundary':
-            gl.drawArrays(gl.LINES, 0, size / 2);
+            gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
             break;
         case 'm_grip':
             gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
@@ -1327,19 +1327,31 @@ function handleMouseDownText(mouse) {
     }
 
     const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
+    
+    t.utext = t.utext.filter(t=>t.text!=='');
     t.utext.push(textLine);
-    // только для magnetsObserver
-    a.shapes.push(...t.utext);
 
     const textHeight = context.measureText(textLine.text).fontBoundingBoxAscent;
+
+    context.clearRect(0, 0, canvasText.width, canvasText.height);
+    context.save();
+
     context.beginPath();
     context.moveTo(t.textPosition.x, t.textPosition.y);
     context.lineTo(t.textPosition.x + 100, t.textPosition.y);
     context.moveTo(t.textPosition.x, t.textPosition.y - textHeight);
     context.lineTo(t.textPosition.x + 100, t.textPosition.y - textHeight);
     context.moveTo(t.textPosition.x, t.textPosition.y);
-    context.lineTo(t.textPosition.x,t.textPosition.y-textHeight);
+    context.lineTo(t.textPosition.x, t.textPosition.y - textHeight);
     context.stroke();
+
+    drawText(false);
+
+    a.shapes = a.shapes.filter(t => (t.type !== 'text' || t.text !== ''));
+    // только для magnetsObserver
+    a.shapes.push(...t.utext);
+
+
 }
 
 
@@ -1375,9 +1387,11 @@ keyPress$.subscribe(handleKeyPress);
 
 
 
-export function drawText() {
-    context.clearRect(0, 0, canvasText.width, canvasText.height);
-    context.save();
+export function drawText(clear = true) {
+
+    if (clear) {
+        context.clearRect(0, 0, canvasText.width, canvasText.height);
+    }
 
     t.utext.forEach(textLine => {
         if (textLine.isSelected) {
@@ -1388,8 +1402,6 @@ export function drawText() {
         }
         context.fillText(textLine.text, textLine.start.x, textLine.start.y);
     });
-
-    context.restore();
 }
 
 function drawTextSingle(text, point) {

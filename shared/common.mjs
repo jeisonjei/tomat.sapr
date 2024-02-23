@@ -180,10 +180,12 @@ export function getSelectBoundaryRectangle(p1, p2, p3, p4) {
   const bottom = getLineSelectBoundary(p4, p3);
   const left = getLineSelectBoundary(p1, p4);
 
-  const boundaryP1 = top.p1;
-  const boundaryP2 = top.p2;
-  const boundaryP3 = bottom.p3;
-  const boundaryP4 = bottom.p4;
+  const width = s.tolerance;
+
+  const boundaryP1 = new Point(top.p1.x - width, top.p1.y);
+  const boundaryP2 = new Point(top.p2.x + width, top.p2.y);
+  const boundaryP3 = new Point(bottom.p3.x + width, bottom.p3.y);
+  const boundaryP4 = new Point(bottom.p4.x - width, bottom.p4.y);
 
   return new SelectBoundary(s.aspectRatio, boundaryP1, boundaryP2, boundaryP3, boundaryP4);
 }
