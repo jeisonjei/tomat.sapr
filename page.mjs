@@ -85,7 +85,7 @@ export function boundaryModeObserver(mouse) {
         }
 
         // --- text
-        const isinSelectBoundaryText = t.text.filter(t => t.isinSelectBoundary(mouse));
+        const isinSelectBoundaryText = t.utext.filter(t => t.isinSelectBoundary(mouse));
         if (isinSelectBoundary.length > 0) {
             setMode(mode_elem, 'boundary');
             isinSelectBoundaryText.forEach(t => {
@@ -142,7 +142,7 @@ keyDown$.subscribe(event => {
             reset();
             setMode(mode_elem, 'select');
             drawShapes();
-            t.text.forEach(text => {
+            t.utext.forEach(text => {
                 text.isSelected = false;
             });
             drawText();
@@ -193,7 +193,7 @@ keyDown$.subscribe(event => {
             drawShapes();
 
             // --- text
-            t.text.filter(text => text.isSelected).forEach(text => {
+            t.utext.filter(text => text.isSelected).forEach(text => {
                 text.isSelected = false;
             })
             drawText();
@@ -383,7 +383,7 @@ savePdfButton.addEventListener('click', function () {
     pdf.setFontSize(t.fontSize / 1.5);
 
     console.log(pdf.getFontList());
-    t.text.forEach(t => {
+    t.utext.forEach(t => {
         // TODO текст не масштабируется, нужно брать текущее значение из mouseWheel
         pdf.text(t.text, t.start.x / scale, t.start.y / scale);
     })

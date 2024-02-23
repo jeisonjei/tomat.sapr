@@ -6,6 +6,8 @@
  * редактирование текста
  * специальные символы в тексте
  * операция scale
+ * отступ текста
+ * текст печатается неправильно, разобраться с позицией и масштабом
  */
 
 'use strict'
@@ -125,7 +127,7 @@ export const a = {
 }
 
 export const t = {
-    text: [],
+    utext: [],
     textPosition: new Point(0, 0),
 
     translateX: 0,
@@ -145,14 +147,14 @@ export const t = {
 // --------- GLOBALS ---------
 
 
-// --------- TEXT CONTEXT ---------
+// --------- UTEXT CONTEXT ---------
 const canvasText = document.querySelector('canvas.text');
 resizeCanvasToDisplaySize(canvasText);
 const context = canvasText.getContext('2d');
 
 context.font = `${t.fontSize}px ${t.fontName}`;
 
-// --------- TEXT CONTEXT ---------
+// --------- UTEXT CONTEXT ---------
 
 
 // --------- INIT ---------
@@ -209,7 +211,7 @@ function handleMouseDown(mouse) {
             }
 
             // --- text
-            const isinSelectBoundaryText = t.text.filter(t => t.isinSelectBoundary(mouse));
+            const isinSelectBoundaryText = t.utext.filter(t => t.isinSelectBoundary(mouse));
             if (isinSelectBoundaryText.length > 0) {
                 isinSelectBoundaryText.forEach(t => {
                     t.isSelected = !t.isSelected;
@@ -244,7 +246,7 @@ function handleMouseDown(mouse) {
                  * нужно при первом клике запомнить для каждой строки текста расстояние 
                  * от позиции текста до щелчка мыши
                  */
-                t.text.filter(t => t.isSelected).forEach(t => {
+                t.utext.filter(t => t.isSelected).forEach(t => {
                     t.moveXclick = t.start.x;
                     t.moveYclick = t.start.y;
                 })
@@ -279,7 +281,7 @@ function handleMouseDown(mouse) {
                 });
 
                 // --- text
-                t.text.filter(t => t.isSelected).forEach(text => {
+                t.utext.filter(t => t.isSelected).forEach(text => {
                     const astart = convertWebGLToCanvas2DPoint(a.start, canvasText.width, canvasText.height);
                     const aclickMoveStart = convertWebGLToCanvas2DPoint(a.clickMoveStart, canvasText.width, canvasText.height);
                     const deltaX = aclickMoveStart.x - astart.x;
@@ -303,15 +305,15 @@ function handleMouseDown(mouse) {
 
                 // --- text
                 let array = [];
-                t.text.filter(t => t.isSelected).forEach(t => {
+                t.utext.filter(t => t.isSelected).forEach(t => {
                     array.push(t.getClone());
                     t.copyClick = { ...t.start };
                 });
 
                 array.forEach(item => {
-                    t.text.push(item);
+                    t.utext.push(item);
                 });
-                console.log(t.text);
+                console.log(t.utext);
             }
             else if (a.clickCopyStart) {
                 const move_mat = getMoveMatrix(a.clickCopyStart, a.start);
@@ -341,7 +343,7 @@ function handleMouseDown(mouse) {
                 });
 
                 // --- text
-                t.text.filter(t => t.isSelected).forEach(text => {
+                t.utext.filter(t => t.isSelected).forEach(text => {
                     const astart = convertWebGLToCanvas2DPoint(a.start, canvasText.width, canvasText.height);
                     const aclickMoveStart = convertWebGLToCanvas2DPoint(a.clickCopyStart, canvasText.width, canvasText.height);
                     const deltaX = aclickMoveStart.x - astart.x;
@@ -837,7 +839,7 @@ function handleMouseMove(mouse) {
                         const tx = move_mat[2] * canvasText.width / 2;
                         const ty = move_mat[5] * canvasText.height / 2;
 
-                        t.text.filter(t => t.isSelected).forEach(t => {
+                        t.utext.filter(t => t.isSelected).forEach(t => {
                             t.edit = 1;
                             t.start.x = t.moveXclick + tx;
                             t.start.y = t.moveYclick - ty;
@@ -859,7 +861,7 @@ function handleMouseMove(mouse) {
                         const tx = move_mat[2] * canvasText.width / 2;
                         const ty = move_mat[5] * canvasText.height / 2;
 
-                        t.text.filter(t => t.isSelected).forEach(t => {
+                        t.utext.filter(t => t.isSelected).forEach(t => {
                             t.edit = 1;
                             t.start.x = t.copyClick.x + tx;
                             t.start.y = t.copyClick.y - ty;
@@ -993,7 +995,7 @@ function handleMouseUp(mouse) {
 
             // --- text
             a.selectFrame.convertToCanvas2d(canvasText.width, canvasText.height);
-            t.text.forEach(text => {
+            t.utext.forEach(text => {
                 if (text.isinSelectFrame(a.selectFrame)) {
                     text.isSelected = !text.isSelected;
                 }
@@ -1075,7 +1077,7 @@ function handleMouseWheel(ev) {
     ]);
     const transformationMatrix = mat3.multiply(mat3.create(), translationMatrix, scalingMatrix);
 
-    t.text.forEach(line => {
+    t.utext.forEach(line => {
         line.start = applyTransformationToPoint(line.start.x, line.start.y, transformationMatrix);
     });
 
@@ -1101,7 +1103,7 @@ function handleSpacebarUp() {
     const tx = a.pan_tx / scalex / 2;
     const ty = a.pan_ty / scaley / 2;
 
-    t.text.forEach(textLine => {
+    t.utext.forEach(textLine => {
         textLine.start.x = textLine.start.x + tx;
         textLine.start.y = textLine.start.y - ty;
 
@@ -1185,7 +1187,7 @@ export function deleteShapes(shapes) {
 }
 
 export function deleteText(text) {
-    t.text = t.text.filter(text => !text.isSelected);
+    t.utext = t.utext.filter(text => !text.isSelected);
 }
 
 
@@ -1300,7 +1302,7 @@ export function drawSingle(shape) {
 
 
 
-// --------- TEXT ---------
+// --------- UTEXT ---------
 
 function handleMouseDownText(mouse) {
 
@@ -1325,9 +1327,9 @@ function handleMouseDownText(mouse) {
     }
 
     const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
-    t.text.push(textLine);
+    t.utext.push(textLine);
     // только для magnetsObserver
-    a.shapes.push(...t.text);
+    a.shapes.push(...t.utext);
 
     context.beginPath();
     context.moveTo(t.textPosition.x, t.textPosition.y);
@@ -1348,9 +1350,9 @@ function handleKeyPress(key) {
     }
 
     if (key === 'Backspace') {
-        t.text[t.text.length - 1].delete();
+        t.utext[t.utext.length - 1].delete();
     } else if (key) {
-        t.text[t.text.length - 1].add(key);
+        t.utext[t.utext.length - 1].add(key);
     }
 
     drawText();
@@ -1374,7 +1376,7 @@ export function drawText() {
     context.clearRect(0, 0, canvasText.width, canvasText.height);
     context.save();
 
-    t.text.forEach(textLine => {
+    t.utext.forEach(textLine => {
         if (textLine.isSelected) {
             context.fillStyle = '#7B7272';
         }
@@ -1391,11 +1393,11 @@ function drawTextSingle(text, point) {
     const textArray = [text];
     const canvasPoint = convertWebGLToCanvas2DPoint(point, canvasText.width, canvasText.height);
     const newText = new Text(s.aspectRatio, canvasPoint, textArray, context);
-    t.text.push(newText);
+    t.utext.push(newText);
     drawText();
 }
 
-// --------- TEXT ---------
+// --------- UTEXT ---------
 
 
 
