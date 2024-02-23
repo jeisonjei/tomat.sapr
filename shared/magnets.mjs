@@ -247,6 +247,9 @@ export function observeMagnet(shapes, mouse) {
 export function getExtensionCoordDraw(magnet, start, mouse) {
     let angle = null;
     if (a.angle_snap) {
+        if (!a.anglePosition) {
+            return;
+        }
         angle = Math.atan2(a.anglePosition.y - start.y, a.anglePosition.x - start.x);
     }
     else {
@@ -277,6 +280,9 @@ export function getExtensionCoordDraw(magnet, start, mouse) {
 }
 
 export function getAnglePosition(mouse, start) {
+    if (!start) {
+        return;
+    }
     const dx = (mouse.x - start.x) / s.aspectRatio;
     const dy = mouse.y - start.y;
     const angle = -Math.atan2(dy, dx);
