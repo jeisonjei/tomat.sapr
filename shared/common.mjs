@@ -1,4 +1,6 @@
 import { Point } from "../models/Point.mjs";
+import { SelectBoundary } from "../models/frames/SelectBoundary.mjs";
+import { s } from "./settings.mjs";
 
 export function getCos(angleDeg) {
   const angleRad = (angleDeg * Math.PI) / 180;
@@ -154,4 +156,71 @@ export function applyTransformationToPoint(x, y, matrix) {
   const newX = matrix[0] * x + matrix[3] * y + matrix[6];
   const newY = matrix[1] * x + matrix[4] * y + matrix[7];
   return new Point(newX, newY);
+}
+
+export function getLineSelectBoundary(start, end) {
+  const width = s.tolerance / 2;
+  const angle = Math.atan2(end.y - start.y, end.x - start.x);
+  const offsetX = width * Math.sin(angle) * s.aspectRatio;
+  const offsetY = width * Math.cos(angle);
+
+  const selectBoundary = new SelectBoundary(s.aspectRatio, new Point(0, 0), new Point(0, 0), new Point(0, 0), new Point(0, 0));
+
+  selectBoundary.p1 = new Point(start.x - offsetX + width * Math.cos(angle), start.y + offsetY + width * Math.sin(angle));
+  selectBoundary.p2 = new Point(end.x - offsetX - width * Math.cos(angle), end.y + offsetY - width * Math.sin(angle));
+  selectBoundary.p3 = new Point(end.x + offsetX - width * Math.cos(angle), end.y - offsetY - width * Math.sin(angle));
+  selectBoundary.p4 = new Point(start.x + offsetX + width * Math.cos(angle), start.y - offsetY + width * Math.sin(angle));
+
+  return selectBoundary
+}
+
+export function getSelectBoundaryRectangle(p1, p2, p3, p4) {
+  const top = getLineSelectBoundary(p1, p2);
+  const right = getLineSelectBoundary(p2, p3);
+  const bottom = getLineSelectBoundary(p4, p3);
+  const left = getLineSelectBoundary(p1, p4);
+
+  const boundaryP1 = top.p1;
+  const boundaryP2 = top.p2;
+  const boundaryP3 = bottom.p3;
+  const boundaryP4 = bottom.p4;
+
+  return new SelectBoundary(s.aspectRatio, boundaryP1, boundaryP2, boundaryP3, boundaryP4);
+}
+
+export function isinSelectBoundaryLine(mouse, start, end) {
+  const width = s.tolerance / 2;
+  const angle = Math.atan2(end.y - start.y, end.x - start.x);
+  const offsetX = width * Math.sin(angle);
+  const offsetY = width * Math.cos(angle);
+
+  const point1 = new Point(start.x - offsetX + width * Math.cos(angle), start.y + offsetY + width * Math.sin(angle));
+  const point2 = new Point(end.x - offsetX - width * Math.cos(angle), end.y + offsetY - width * Math.sin(angle));
+  const point3 = new Point(end.x + offsetX - width * Math.cos(angle), end.y - offsetY - width * Math.sin(angle));
+  const point4 = new Point(start.x + offsetX + width * Math.cos(angle), start.y - offsetY + width * Math.sin(angle));
+
+  const vertices = [
+    point1.x, point1.y,
+    point2.x, point2.y,
+    point3.x, point3.y,
+    point4.x, point4.y
+  ];
+
+  let isInside = false;
+  let j = vertices.length - 2;
+
+  for (let i = 0; i < vertices.length; i += 2) {
+    const vertexX1 = vertices[i];
+    const vertexY1 = vertices[i + 1];
+    const vertexX2 = vertices[j];
+    const vertexY2 = vertices[j + 1];
+
+    if ((vertexY1 > mouse.y) !== (vertexY2 > mouse.y) &&
+      mouse.x < ((vertexX2 - vertexX1) * (mouse.y - vertexY1)) / (vertexY2 - vertexY1) + vertexX1) {
+      isInside = !isInside;
+    }
+
+    j = i;
+  }
+  return isInside;
 }

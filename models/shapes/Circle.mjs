@@ -3,6 +3,7 @@ import { BasicShape } from "../BasicShape.mjs";
 import { Point } from "../Point.mjs";
 import { mat3 } from "gl-matrix";
 import { transformPointByMatrix3 } from "../../shared/common.mjs";
+import { s } from "../../shared/settings.mjs";
 
 export class Circle extends BasicShape {
     set center(point) {
@@ -85,11 +86,56 @@ export class Circle extends BasicShape {
 
         return false;
     }
-    isinSelectBoundary() {
+    isinSelectBoundary(mouse) {
+        const width = s.tolerance / 2;
+
+        const topLineP1 = new Point(this.center.x - this.radius, this.center.y + this.radius);
+        const topLineP2 = new Point(this.center.x + this.radius, this.center.y + this.radius);
+        const bottomLineP1 = new Point(this.center.x + this.radius, this.center.y - this.radius);
+        const bottomLineP2 = new Point(this.center.x - this.radius, this.center.y - this.radius);
         
+
+
+        const vertices = [
+            point1.x, point1.y,
+            point2.x, point2.y,
+            point3.x, point3.y,
+            point4.x, point4.y,
+            point9.x, point9.y,
+            point10.x, point10.y,
+            point11.x, point11.y,
+            point12.x, point12.y,
+        ];
+
+        let isInside = false;
+        let j = vertices.length - 2;
+        
+        for (let i = 0; i < vertices.length; i += 2) {
+            const vertexX1 = vertices[i];
+            const vertexY1 = vertices[i + 1];
+            const vertexX2 = vertices[j];
+            const vertexY2 = vertices[j + 1];
+        
+            if ((vertexY1 > mouse.y) !== (vertexY2 > mouse.y) &&
+                mouse.x < ((vertexX2 - vertexX1) * (mouse.y - vertexY1)) / (vertexY2 - vertexY1) + vertexX1) {
+                isInside = !isInside;
+            }
+        
+            j = i;
+        }
+        return isInside;
     }
+
     setSelectBoundary() {
-        
+        const width = s.tolerance / 2;
+        const angle = Math.atan2(this.p2.y - this.p1.y, this.p2.x - this.p1.x);
+        const offsetX = width * Math.sin(angle) * this.aspectRatio;
+        const offsetY = width * Math.cos(angle);
+
+        this.selectBoundary.p1 = new Point(this.p1.x - offsetX + width * Math.cos(angle), this.p1.y + offsetY + width * Math.sin(angle));
+        this.selectBoundary.p2 = new Point(this.p2.x - offsetX - width * Math.cos(angle), this.p2.y + offsetY - width * Math.sin(angle));
+        this.selectBoundary.p3 = new Point(this.p3.x + offsetX - width * Math.cos(angle), this.p3.y - offsetY - width * Math.sin(angle));
+        this.selectBoundary.p4 = new Point(this.p4.x + offsetX + width * Math.cos(angle), this.p4.y - offsetY + width * Math.sin(angle));
     }
 
 

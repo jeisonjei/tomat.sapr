@@ -1,5 +1,5 @@
 import { Observable, filter, of } from "rxjs";
-import { convertWebGLToCanvas2DPoint, isPointInsideFrame, transformPointByMatrix3 } from "../../shared/common.mjs";
+import { convertWebGLToCanvas2DPoint, getLineSelectBoundary, isPointInsideFrame, isinSelectBoundaryLine, transformPointByMatrix3 } from "../../shared/common.mjs";
 import { getMoveMatrix } from "../../shared/transform.mjs";
 import { BasicShape } from "../BasicShape.mjs";
 import { Point } from "../Point.mjs";
@@ -90,52 +90,12 @@ export class Line extends BasicShape {
     }
 
     isinSelectBoundary(mouse) {
-        const width = s.tolerance / 2;
-        const angle = Math.atan2(this.end.y - this.start.y, this.end.x - this.start.x);
-        const offsetX = width * Math.sin(angle);
-        const offsetY = width * Math.cos(angle);
-
-        const point1 = new Point(this.start.x - offsetX + width * Math.cos(angle), this.start.y + offsetY + width * Math.sin(angle));
-        const point2 = new Point(this.end.x - offsetX - width * Math.cos(angle), this.end.y + offsetY - width * Math.sin(angle));
-        const point3 = new Point(this.end.x + offsetX - width * Math.cos(angle), this.end.y - offsetY - width * Math.sin(angle));
-        const point4 = new Point(this.start.x + offsetX + width * Math.cos(angle), this.start.y - offsetY + width * Math.sin(angle));
-
-        const vertices = [
-            point1.x, point1.y,
-            point2.x, point2.y,
-            point3.x, point3.y,
-            point4.x, point4.y
-        ];
-
-        let isInside = false;
-        let j = vertices.length - 2;
-
-        for (let i = 0; i < vertices.length; i += 2) {
-            const vertexX1 = vertices[i];
-            const vertexY1 = vertices[i + 1];
-            const vertexX2 = vertices[j];
-            const vertexY2 = vertices[j + 1];
-
-            if ((vertexY1 > mouse.y) !== (vertexY2 > mouse.y) &&
-                mouse.x < ((vertexX2 - vertexX1) * (mouse.y - vertexY1)) / (vertexY2 - vertexY1) + vertexX1) {
-                isInside = !isInside;
-            }
-
-            j = i;
-        }
-        return isInside;
+        return isinSelectBoundaryLine(mouse,this.start,this.end);
     }
 
     setSelectBoundary() {
-        const width = s.tolerance / 2;
-        const angle = Math.atan2(this.end.y - this.start.y, this.end.x - this.start.x);
-        const offsetX = width * Math.sin(angle) * this.aspectRatio;
-        const offsetY = width * Math.cos(angle);
 
-        this.selectBoundary.p1 = new Point(this.start.x - offsetX + width * Math.cos(angle), this.start.y + offsetY + width * Math.sin(angle));
-        this.selectBoundary.p2 = new Point(this.end.x - offsetX - width * Math.cos(angle), this.end.y + offsetY - width * Math.sin(angle));
-        this.selectBoundary.p3 = new Point(this.end.x + offsetX - width * Math.cos(angle), this.end.y - offsetY - width * Math.sin(angle));
-        this.selectBoundary.p4 = new Point(this.start.x + offsetX + width * Math.cos(angle), this.start.y - offsetY + width * Math.sin(angle));
+        this.selectBoundary = getLineSelectBoundary(this.start, this.end);
     }
     // --------- MAGNETS ---------
     isinGripStart = (mouse) => this.grip.isin(this.start, mouse);
