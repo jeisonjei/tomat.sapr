@@ -267,6 +267,8 @@ function handleMouseDown(mouse) {
                             shape.p2 = transformPointByMatrix3(move_mat, shape.p2);
                             shape.p3 = transformPointByMatrix3(move_mat, shape.p3);
                             shape.p4 = transformPointByMatrix3(move_mat, shape.p4);
+
+                            shape.updateCenter();
                             // TODO: replaceVertices
                             break;
                         case 'circle':
@@ -328,6 +330,8 @@ function handleMouseDown(mouse) {
                             shape.p2 = transformPointByMatrix3(move_mat, shape.p2);
                             shape.p3 = transformPointByMatrix3(move_mat, shape.p3);
                             shape.p4 = transformPointByMatrix3(move_mat, shape.p4);
+
+                            shape.updateCenter();
                             // TODO replaceVertices
                             break;
                         case 'circle':
@@ -735,6 +739,7 @@ function handleMouseMove(mouse) {
                                             shape.p1.x = mouse.x;
                                             shape.p3.y = mouse.y;
                                         }
+                                        shape.updateMid();
 
                                     }
 
@@ -927,9 +932,54 @@ function handleMouseUp(mouse) {
                             else if (shape.edit === 'end') {
                                 shape.end = a.end;
                             }
-
                             break;
+                        case 'rectangle':
+                            if (a.ctrl) {
+                                if (['p1', 'p2', 'p3', 'p4'].includes(shape.edit)) {
 
+                                    const dx = a.end.x - shape.center.x;
+                                    const dy = a.end.y - shape.center.y;
+
+                                    shape.p1.x = shape.center.x - dx;
+                                    shape.p1.y = shape.center.y - dy;
+
+                                    shape.p2.x = shape.center.x + dx;
+                                    shape.p2.y = shape.center.y - dy;
+
+                                    shape.p3.x = shape.center.x + dx;
+                                    shape.p3.y = shape.center.y + dy;
+
+                                    shape.p4.x = shape.center.x - dx;
+                                    shape.p4.y = shape.center.y + dy;
+
+                                    shape.updateMid();
+
+                                }
+                            }
+                            else {
+                                if (shape.edit === 'p1') {
+                                    shape.p1 = a.end;
+                                    shape.p4.x = a.end.x;
+                                    shape.p2.y = a.end.y;
+                                }
+                                else if (shape.edit === 'p2') {
+                                    shape.p2 = a.end;
+                                    shape.p3.x = a.end.x;
+                                    shape.p1.y = a.end.y;
+                                }
+                                else if (shape.edit === 'p3') {
+                                    shape.p3 = a.end;
+                                    shape.p2.x = a.end.x;
+                                    shape.p4.y = a.end.y;
+                                }
+                                else if (shape.edit === 'p4') {
+                                    shape.p4 = a.end;
+                                    shape.p1.x = a.end.x;
+                                    shape.p3.y = a.end.y;
+                                }
+                                shape.updateMid();
+                            }
+                            break;
                         default:
                             break;
                     }
@@ -972,6 +1022,8 @@ function handleMouseUp(mouse) {
             a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
             a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
             a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
+
+            a.rectangle.updateCenter();
 
             addShapes(a.rectangle.getClone());
 
