@@ -16,7 +16,7 @@ import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
 import { applyTransformationToPoint, canvasGetMouse, convertWebGLToCanvas2DPoint, resizeCanvasToDisplaySize, transformPointByMatrix3 } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
-import { boundaryModeObserver, editModeObserver, gm, magnetsCheckbox } from "./page.mjs";
+import { boundaryModeObserver, copyModeObserver, editModeObserver, gm, magnetsCheckbox, mode_elem, setMode } from "./page.mjs";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
 import { getMirrorMatrix, getMoveMatrix, getRotateMatrix } from "./shared/transform.mjs";
 import { observeMagnet, magnetState$, getExtensionCoordDraw, getAnglePosition } from "./shared/magnets.mjs";
@@ -143,21 +143,25 @@ export const t = {
     fontSize: 36,
     fontName: 'gost_type_a',
 
-    offset: 6
+    offset: 6,
+
+    editId: null,
+    editBoundary: false /**эта переменная нужна чтобы отключить магниты
+                            если указатель наведён на текст в режиме text */
 
 }
 
 // --------- GLOBALS ---------
 
 
-// --------- UTEXT CONTEXT ---------
+// --------- TEXTCONTEXT ---------
 const canvasText = document.querySelector('canvas.text');
 resizeCanvasToDisplaySize(canvasText);
 const context = canvasText.getContext('2d');
 
 context.font = `${t.fontSize}px ${t.fontName}`;
 
-// --------- UTEXT CONTEXT ---------
+// --------- TEXTCONTEXT ---------
 
 
 // --------- INIT ---------
@@ -202,6 +206,7 @@ function handleMouseDown(mouse) {
 
 
     switch (gm()) {
+
         case 'select':
             a.selectFrame.start = a.start;
             break;
@@ -314,9 +319,9 @@ function handleMouseDown(mouse) {
                 });
 
                 array.forEach(item => {
-                    t.utext.push(item);
+                    addText(item);
                 });
-                console.log(t.utext);
+                
             }
             else if (a.clickCopyStart) {
                 const move_mat = getMoveMatrix(a.clickCopyStart, a.start);
@@ -624,8 +629,10 @@ function handleMouseMove(mouse) {
         if (magnetsCheckbox.checked) {
             if (!['select', 'boundary', 'textEdit'].includes(gm())) {
                 if (!a.pan) {
-                    // disabling magnets for currently edited shape
-                    observeMagnet(a.shapes.filter(shape => shape.edit === null), mouse).subscribe();
+                    if (!t.editBoundary) {
+                        // disabling magnets for currently edited shape
+                        observeMagnet(a.shapes.filter(shape => (shape.edit === null)), mouse).subscribe();                        
+                    }
                 }
             }
         }
@@ -662,6 +669,8 @@ function handleMouseMove(mouse) {
 
         // enable edit mode
         editModeObserver(mouse);
+        // color grips on move and copy mode
+        copyModeObserver(mouse);
         // enable boundary mode
         boundaryModeObserver(mouse);
 
@@ -1311,29 +1320,45 @@ export function drawSingle(shape) {
 
 
 // --------- UTEXT ---------
-let index;
-let textId = 0;
-
-t.utext$.subscribe(text => {
-    t.utext = text;
-});
+let currentLetterIndex;
+let editId = 1;
 
 function addText(textLine) {
-    textId =textId + 1;
-    textLine.id = textId;
+    textLine.id = editId++;
+
     t.utext.push(textLine);
-    // t.utext$.next(t.utext);
 }
 
 function removeText() {
-    
+
 }
 
 function handleMouseDownText(mouse) {
-    index = 0;
 
-    if (gm() !== 'text') {
+    console.log(t.utext.map(t=>t.id));
+
+    currentLetterIndex = 0;
+
+
+
+
+    if (!['text'].includes(gm())) {
         return;
+    }
+
+
+    for (const textLine of t.utext) {
+        if (textLine.isinSelectBoundary(mouse, true)) {
+            t.editId = textLine.id;
+            t.textPosition = { ...textLine.start };
+            drawCursor(0, t.editId);
+            drawText(false);
+            t.utext = t.utext.filter(t => t.text !== '');
+
+            return;
+        }
+        t.editId = null;
+
     }
 
 
@@ -1357,9 +1382,9 @@ function handleMouseDownText(mouse) {
     const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
 
     t.utext = t.utext.filter(t => t.text !== '');
+
     addText(textLine);
 
-    console.log(t.utext.map(t => t.id));
 
     const textHeight = context.measureText(textLine.text).fontBoundingBoxAscent;
 
@@ -1378,7 +1403,8 @@ function handleMouseDownText(mouse) {
     drawText(false);
 
     a.shapes = a.shapes.filter(t => (t.type !== 'text' || t.text !== ''));
-    // только для magnetsObserver
+
+    // только для magnetsObserver, также используется в boundaryModeObserver для отрисовки рамки
     a.shapes.push(...t.utext);
 
 
@@ -1387,58 +1413,69 @@ function handleMouseDownText(mouse) {
 
 function handleKeyPress(key) {
 
-    if (gm() !== 'text') {
+    if (!['text'].includes(gm())) {
         return;
     }
     if (!t.textPosition) {
         return;
     }
 
+    const edit = t.utext.filter(textLine => textLine.id === t.editId);
+    let current;
+    if (edit.length > 0) {
+        current = edit[0];
+    }
+    else {
+        current = getCurrentTextObject();
+    }
+
+
+
 
     if (['ArrowLeft', 'ArrowRight'].includes(key)) {
         if (key === 'ArrowLeft') {
-            if (index === getCurrentTextObject().text.length) {
-                index = index - 2;
+            if (currentLetterIndex === current.text.length) {
+                currentLetterIndex = currentLetterIndex - 2;
             }
-            else if (index < getCurrentTextObject().text.length) {
-                index = index - 1;
+            else if (currentLetterIndex < current.text.length) {
+                currentLetterIndex = currentLetterIndex - 1;
             }
-            else if (index < -1) {
-                index = -1;
+            else if (currentLetterIndex < -1) {
+                currentLetterIndex = -1;
             }
         }
         else if (key === 'ArrowRight') {
-            index = index + 1;
-            if (index > getCurrentTextObject().text.length - 1) {
-                index = getCurrentTextObject().text.length - 1;
+            currentLetterIndex = currentLetterIndex + 1;
+            if (currentLetterIndex > current.text.length - 1) {
+                currentLetterIndex = current.text.length - 1;
             }
         }
     }
-    else if (['End','Home'].includes(key)) {
+    else if (['End', 'Home'].includes(key)) {
         if (key === 'End') {
-            index = getCurrentTextObject().text.length - 1;
+            currentLetterIndex = current.text.length - 1;
         }
         else if (key === 'Home') {
-            index = -1;
+            currentLetterIndex = -1;
         }
     }
     else if (key === 'Backspace') {
 
-        getCurrentTextObject().delete(index);
-        index = index - 1;
-        if (index < -1) {
-            index = -1;
+        current.delete(currentLetterIndex);
+        currentLetterIndex = currentLetterIndex - 1;
+        if (currentLetterIndex < -1) {
+            currentLetterIndex = -1;
         }
 
 
     }
 
     else if (key) {
-        index = index + 1;
-        getCurrentTextObject().add(key, index);
+        currentLetterIndex = currentLetterIndex + 1;
+        current.add(key, currentLetterIndex);
     }
 
-    drawCursor(index);
+    drawCursor(currentLetterIndex, current.id);
     drawText(false);
 }
 
@@ -1464,16 +1501,20 @@ function getLetterSize(letter) {
     };
 }
 
-export function drawCursor(index = -1) {
+export function drawCursor(index = 0, id) {
     context.clearRect(0, 0, canvasText.width, canvasText.height);
-    const currentTextObject = getCurrentTextObject();
+    context.strokeStyle = 'blue';
+    context.lineWidth = 2;
+
+    const currentTextObject = getCurrentTextObject(id);
     let w, h;
     const letter = getStringUpToIndex(currentTextObject.text, index + 1);
 
     w = getLetterSize(letter).width;
     h = getLetterSize(letter).height;
 
-    const p = new Point(t.textPosition.x + w, t.textPosition.y);
+
+    const p = new Point(currentTextObject.start.x + w, currentTextObject.start.y);
     context.beginPath();
     context.moveTo(p.x, p.y);
     context.lineTo(p.x, p.y - h);
@@ -1489,8 +1530,26 @@ function getStringUpToIndex(text, index) {
     }
 }
 
-function getCurrentTextObject() {
-    return t.utext[t.utext.length - 1];
+function getCurrentTextObject(editId) {
+    /**
+     * Функция возвращает "текущий" объект класса Text из массива t.utext
+     * @param {Number} editId - идентификатор экземпляра текста, который предполагается редактировать.
+     * Этот параметр назначается в функции handleMouseDownText, 
+     * если указатель мыши попадает на какую-то строку уже существующего текста. А
+     * если не попадает, то t.editId назначается null.
+     * Таким образом, если параметр editId не определён, из текущей функцц возвращается последний
+     * объект массива t.utext, а если параметр editId назначен, то возвращается 
+     * массив с индексом (editId - 1)
+     */
+    if (!editId) {
+        return t.utext[t.utext.length - 1];
+    }
+    else if (editId>0 && editId<=t.utext.length) {
+        return t.utext[editId - 1];
+    }
+    else {
+        console.error(`Error : editId === ${editId}`);
+    }
 }
 
 export function drawText(clear = true) {

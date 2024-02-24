@@ -53,7 +53,7 @@ export class Text extends BasicShape {
         return false;
     }
 
-    isinSelectBoundary(mouse) {
+    isinSelectBoundary(mouse, pixels=false) {
         /**
          * Функция проверяет, находится ли мышь внутри selectBoundary.
          * Так как отрисовка selectBoundary выполняется через webgl,
@@ -62,15 +62,22 @@ export class Text extends BasicShape {
          */
         this.update(this.textArray);
 
-
-        const p1 = canvasGetWebglCoordinates(this.p1,this.context.canvas);
-        const p2 = canvasGetWebglCoordinates(this.p2, this.context.canvas);
-        const p4 = canvasGetWebglCoordinates(this.p3, this.context.canvas);
-
+        let p1, p2, p4;
+        if (!pixels) {
+            p1 = canvasGetWebglCoordinates(this.p1,this.context.canvas);
+            p2 = canvasGetWebglCoordinates(this.p2, this.context.canvas);
+            p4 = canvasGetWebglCoordinates(this.p3, this.context.canvas);
+    
+        }
+        else {
+            p1 = this.p1;
+            p2 = this.p2;
+            p4 = this.p3;
+        }
 
         
         if (mouse.x > p1.x && mouse.x < p2.x) {
-            if (mouse.y > p1.y && mouse.y < p4.y) {
+            if ((mouse.y > p1.y && mouse.y < p4.y) || (mouse.y< p1.y && mouse.y > p4.y)) {
                 return true;
             }
         }

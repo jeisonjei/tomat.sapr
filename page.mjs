@@ -27,7 +27,7 @@ export function setMode(mode_elem, mode) {
     }
     else if (mode === 'textEdit') {
         s.textContext.canvas.style.cursor = 'text';
-        }
+    }
     else {
         s.textContext.canvas.style.cursor = 'crosshair';
     }
@@ -38,22 +38,52 @@ export function gm() {
     return mode_elem.innerHTML.split(' ')[1];
 }
 
+export function copyModeObserver(mouse) {
+    /**
+     * Функция нужна для раскрашивания ручек
+     */
+    if (a.isMouseDown) {
+        return;
+    }
+
+    else if (gm() === 'move' || gm() === 'copy') {
+        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+            switch (shape.type) {
+                case 'line':
+                    if (shape.isinGripStart(mouse) || shape.isinGripEnd(mouse)) {
+                        shape.grip.color = [1, 0, 0, 1];
+                        drawSingle(shape.grip);
+                        shape.grip.color = [0, 1, 0, 1];
+                    }
+                    break;
+                case 'rectangle':
+                    if (shape.isinGripP1(mouse) || shape.isinGripP2(mouse) || shape.isinGripP3(mouse) || shape.isinGripP4(mouse)) {
+                        shape.grip.color = [1, 0, 0, 1];
+                        drawSingle(shape.grip);
+                        shape.grip.color = [0, 1, 0, 1];
+                    }
+                    break;
+                case 'circle':
+                    if (shape.isinGripQ1(mouse) || shape.isinGripQ2(mouse) || shape.isinGripQ3(mouse) || shape.isinGripQ4(mouse)) {
+                        shape.grip.color = [1, 0, 0, 1];
+                        drawSingle(shape.grip);
+                        shape.grip.color = [0, 1, 0, 1];
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
+
+    }
+
+}
+
 export function editModeObserver(mouse) {
     if (a.isMouseDown) {
         return;
     }
-    if (['text','textEdit'].includes(gm())) {
-        t.utext.forEach(t => {
-            if (t.isinSelectBoundary(mouse)) {
-                t.edit = true;
-                setMode(mode_elem,'textEdit');
-            }
-            else {
-                t.edit = false;
-                setMode(mode_elem,'text');
-            }
-        })
-    }
+
     else if (gm() === 'select' || gm() === 'edit' || gm() === 'boundary') {
         a.shapes.filter(shape => shape.isSelected).forEach(shape => {
             switch (shape.type) {
@@ -72,10 +102,10 @@ export function editModeObserver(mouse) {
                     }
                     break;
                 case 'rectangle':
-                    if (shape.isinGripP1(mouse) || shape.isinGripP2(mouse) || shape.isinGripP3(mouse) || shape.isinGripP4(mouse)){
-                        shape.grip.color = [0, 0,1, 1];
+                    if (shape.isinGripP1(mouse) || shape.isinGripP2(mouse) || shape.isinGripP3(mouse) || shape.isinGripP4(mouse)) {
+                        shape.grip.color = [0, 0, 1, 1];
                         drawSingle(shape.grip);
-                        shape.grip.color = [0,1,0,1];
+                        shape.grip.color = [0, 1, 0, 1];
                         setMode(mode_elem, 'edit');
                     }
                     else {
@@ -85,10 +115,10 @@ export function editModeObserver(mouse) {
                     }
                     break;
                 case 'circle':
-                    if (shape.isinGripQ1(mouse) || shape.isinGripQ2(mouse) || shape.isinGripQ3(mouse) || shape.isinGripQ4(mouse)){ 
-                        shape.grip.color = [0, 0,1, 1];
+                    if (shape.isinGripQ1(mouse) || shape.isinGripQ2(mouse) || shape.isinGripQ3(mouse) || shape.isinGripQ4(mouse)) {
+                        shape.grip.color = [0, 0, 1, 1];
                         drawSingle(shape.grip);
-                        shape.grip.color = [0,1,0,1];
+                        shape.grip.color = [0, 1, 0, 1];
 
                         setMode(mode_elem, 'edit');
                     }
@@ -112,6 +142,23 @@ export function boundaryModeObserver(mouse) {
         return;
     }
 
+    t.editBoundary = false;
+
+    if (gm() === 'text') {
+        const isinSelectBoundary = t.utext.filter(t => t.isinSelectBoundary(mouse));
+        if (isinSelectBoundary.length > 0) {
+            isinSelectBoundary.forEach(t => {
+                t.setSelectBoundary();
+                t.selectBoundary.color = [0, 0, 1, 1];
+                drawSingle(t.selectBoundary);
+                t.selectBoundary.color = [0.75,0.75,0.75,1];
+            });
+            t.editBoundary = true;
+            return;
+        }
+
+    }
+
     else if (gm() === 'select' || gm() === 'boundary') {
         const isinSelectBoundary = a.shapes.filter(shape => checkFunction(shape, 'isinSelectBoundary', mouse));
         if (isinSelectBoundary.length > 0) {
@@ -119,24 +166,13 @@ export function boundaryModeObserver(mouse) {
             isinSelectBoundary.forEach(shape => {
                 shape.setSelectBoundary();
                 drawSingle(shape.selectBoundary);
+
             })
         }
         else {
             setMode(mode_elem, 'select');
         }
 
-        // --- text
-        const isinSelectBoundaryText = t.utext.filter(t => t.isinSelectBoundary(mouse));
-        if (isinSelectBoundary.length > 0) {
-            if (gm()==='select') {
-                setMode(mode_elem, 'boundary');
-                isinSelectBoundaryText.forEach(t => {
-                    t.setSelectBoundary();
-                    drawSingle(t.selectBoundary);
-                })                
-            }
-
-        }
     }
 }
 
@@ -150,7 +186,13 @@ const ctrlCheckbox = document.getElementById('ctrl');
 const keyDown$ = fromEvent(document, 'keydown');
 const keyUp$ = fromEvent(document, 'keyup');
 keyDown$.subscribe(event => {
-    if (gm() === 'text' && event.key !== 'Escape') {
+    if (event.key === 'F3') {
+        event.preventDefault();
+        magnetsCheckbox.checked = !magnetsCheckbox.checked;
+        return;
+
+    }
+    if (['text', 'textEdit'].includes(gm()) && event.key !== 'Escape') {
         return;
     }
 
@@ -177,10 +219,6 @@ keyDown$.subscribe(event => {
 
     // Handle key down events
     switch (event.key) {
-        case 'F3':
-            event.preventDefault();
-            magnetsCheckbox.checked = !magnetsCheckbox.checked;
-            break;
 
         case 's':
         case 'ы':
@@ -237,14 +275,18 @@ keyDown$.subscribe(event => {
                 shape.isSelected = false;
             });
             reset();
-            setMode(mode_elem, 'select');
             drawShapes();
 
             // --- text
-            t.utext.filter(text => text.isSelected).forEach(text => {
+
+            t.utext.filter(t => t.isSelected).forEach(text => {
                 text.isSelected = false;
+                text.edit = false;
             })
             drawText();
+
+            t.editId = null;
+            setMode(mode_elem, 'select');
             break;
         case 'Delete':
             deleteShapes();
@@ -440,7 +482,6 @@ savePdfButton.addEventListener('click', function () {
     pdf.setFont('GOST type A');
 
     const scaleYmm = (scaleY / 3.78) * 0.75;
-    console.log(scaleYmm);
     pdf.setFontSize(t.fontSize * 0.75 * scaleYmm);
 
 
