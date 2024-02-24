@@ -416,9 +416,6 @@ formatSelect.addEventListener('change', (event) => {
 
 
 
-
-
-
 // --------- PDF ---------
 
 savePdfButton.addEventListener('click', function () {
@@ -460,6 +457,7 @@ savePdfButton.addEventListener('click', function () {
                     const width = (shape.p2.x - shape.p1.x) / (1 / s.canvasWidth * 2) / scaleX;
                     const height = (shape.p3.y - shape.p2.y) / (1 / s.canvasHeight * 2) / scaleX;
                     pdf.rect(verticesPixels[6], verticesPixels[7], width, height);
+
                     break;
                 case 'circle':
                     const center = convertWebGLToCanvas2DPoint(shape.center, s.canvasWidth, s.canvasHeight);
@@ -467,6 +465,7 @@ savePdfButton.addEventListener('click', function () {
                     const y = center.y / scaleX;
                     const radius = shape.radius * s.aspectRatio / (1 / s.canvasWidth * 2) / scaleX;
                     pdf.circle(x, y, radius);
+
                     break;
                 default:
                     break;
