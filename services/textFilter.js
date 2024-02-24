@@ -93,7 +93,11 @@ export function filterText(keydownEvent) {
 
         // ... special keys
         'Enter',
-        'Backspace'
+        'Backspace',
+        'ArrowLeft',
+        'ArrowRight',
+        'End',
+        'Home'
     ];
 
     const letters = [...acceptable.filter(char => ![

@@ -4,8 +4,10 @@
  * заполнение основной надписи, нужно сделать красиво и удобно
  * области печати до вывода в PDF
  * редактирование текста
+ * мультитекст
  * специальные символы в тексте
  * операция scale
+ * resize canvas
  */
 
 'use strict'
@@ -126,6 +128,7 @@ export const a = {
 
 export const t = {
     utext: [],
+    utext$: new Subject(),
     textPosition: new Point(0, 0),
 
     translateX: 0,
@@ -140,7 +143,7 @@ export const t = {
     fontSize: 36,
     fontName: 'gost_type_a',
 
-    offset:6
+    offset: 6
 
 }
 
@@ -619,7 +622,7 @@ function handleMouseMove(mouse) {
 
         // magnets
         if (magnetsCheckbox.checked) {
-            if (gm() !== 'select' && gm() !== 'boundary') {
+            if (!['select', 'boundary', 'textEdit'].includes(gm())) {
                 if (!a.pan) {
                     // disabling magnets for currently edited shape
                     observeMagnet(a.shapes.filter(shape => shape.edit === null), mouse).subscribe();
@@ -1308,8 +1311,26 @@ export function drawSingle(shape) {
 
 
 // --------- UTEXT ---------
+let index;
+let textId = 0;
+
+t.utext$.subscribe(text => {
+    t.utext = text;
+});
+
+function addText(textLine) {
+    textId =textId + 1;
+    textLine.id = textId;
+    t.utext.push(textLine);
+    // t.utext$.next(t.utext);
+}
+
+function removeText() {
+    
+}
 
 function handleMouseDownText(mouse) {
+    index = 0;
 
     if (gm() !== 'text') {
         return;
@@ -1334,9 +1355,11 @@ function handleMouseDownText(mouse) {
     }
 
     const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
-    
-    t.utext = t.utext.filter(t=>t.text!=='');
-    t.utext.push(textLine);
+
+    t.utext = t.utext.filter(t => t.text !== '');
+    addText(textLine);
+
+    console.log(t.utext.map(t => t.id));
 
     const textHeight = context.measureText(textLine.text).fontBoundingBoxAscent;
 
@@ -1371,13 +1394,52 @@ function handleKeyPress(key) {
         return;
     }
 
-    if (key === 'Backspace') {
-        t.utext[t.utext.length - 1].delete();
-    } else if (key) {
-        t.utext[t.utext.length - 1].add(key);
+
+    if (['ArrowLeft', 'ArrowRight'].includes(key)) {
+        if (key === 'ArrowLeft') {
+            if (index === getCurrentTextObject().text.length) {
+                index = index - 2;
+            }
+            else if (index < getCurrentTextObject().text.length) {
+                index = index - 1;
+            }
+            else if (index < -1) {
+                index = -1;
+            }
+        }
+        else if (key === 'ArrowRight') {
+            index = index + 1;
+            if (index > getCurrentTextObject().text.length - 1) {
+                index = getCurrentTextObject().text.length - 1;
+            }
+        }
+    }
+    else if (['End','Home'].includes(key)) {
+        if (key === 'End') {
+            index = getCurrentTextObject().text.length - 1;
+        }
+        else if (key === 'Home') {
+            index = -1;
+        }
+    }
+    else if (key === 'Backspace') {
+
+        getCurrentTextObject().delete(index);
+        index = index - 1;
+        if (index < -1) {
+            index = -1;
+        }
+
+
     }
 
-    drawText();
+    else if (key) {
+        index = index + 1;
+        getCurrentTextObject().add(key, index);
+    }
+
+    drawCursor(index);
+    drawText(false);
 }
 
 
@@ -1392,7 +1454,44 @@ const keyPress$ = fromEvent(document, 'keydown').pipe(
 mouseDownText$.subscribe(handleMouseDownText);
 keyPress$.subscribe(handleKeyPress);
 
+function getLetterSize(letter) {
+    const measure = context.measureText(letter);
 
+
+    return {
+        width: measure.width,
+        height: measure.fontBoundingBoxAscent
+    };
+}
+
+export function drawCursor(index = -1) {
+    context.clearRect(0, 0, canvasText.width, canvasText.height);
+    const currentTextObject = getCurrentTextObject();
+    let w, h;
+    const letter = getStringUpToIndex(currentTextObject.text, index + 1);
+
+    w = getLetterSize(letter).width;
+    h = getLetterSize(letter).height;
+
+    const p = new Point(t.textPosition.x + w, t.textPosition.y);
+    context.beginPath();
+    context.moveTo(p.x, p.y);
+    context.lineTo(p.x, p.y - h);
+    context.stroke();
+}
+
+function getStringUpToIndex(text, index) {
+    if (index >= 0 && index < text.length) {
+        const newString = text.substring(0, index);
+        return newString;
+    } else {
+        return text;
+    }
+}
+
+function getCurrentTextObject() {
+    return t.utext[t.utext.length - 1];
+}
 
 export function drawText(clear = true) {
 

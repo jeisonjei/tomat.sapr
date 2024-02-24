@@ -116,12 +116,23 @@ export class Text extends BasicShape {
 
     }
 
-    add(char) {
-        this.textArray.push(char);
+    add(char, index) {
+        if (index >= 0 && index <= this.textArray.length) {
+            this.textArray.splice(index, 0, char);
+        } else {
+            this.textArray.push(char);
+        }
         this.update(this.textArray);
     }
-    delete() {
-        this.textArray.pop();
+    delete(index) {
+        if (index >= 0 && index < this.textArray.length) {
+            let text = this.textArray.join('');
+            text = text.substring(0, index) + text.substring(index + 1);
+            this.textArray = text.split('');
+        }
+        else {
+            this.textArray.pop();            
+        }
         this.update(this.textArray);
     }
 

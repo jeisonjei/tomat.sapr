@@ -25,6 +25,9 @@ export function setMode(mode_elem, mode) {
     else if (mode === 'text') {
         s.textContext.canvas.style.cursor = 'default';
     }
+    else if (mode === 'textEdit') {
+        s.textContext.canvas.style.cursor = 'text';
+        }
     else {
         s.textContext.canvas.style.cursor = 'crosshair';
     }
@@ -39,7 +42,19 @@ export function editModeObserver(mouse) {
     if (a.isMouseDown) {
         return;
     }
-    if (gm() === 'select' || gm() === 'edit' || gm() === 'boundary') {
+    if (['text','textEdit'].includes(gm())) {
+        t.utext.forEach(t => {
+            if (t.isinSelectBoundary(mouse)) {
+                t.edit = true;
+                setMode(mode_elem,'textEdit');
+            }
+            else {
+                t.edit = false;
+                setMode(mode_elem,'text');
+            }
+        })
+    }
+    else if (gm() === 'select' || gm() === 'edit' || gm() === 'boundary') {
         a.shapes.filter(shape => shape.isSelected).forEach(shape => {
             switch (shape.type) {
                 case 'line':
@@ -87,14 +102,17 @@ export function editModeObserver(mouse) {
                     break;
             }
         });
+
     }
+
 }
 
 export function boundaryModeObserver(mouse) {
     if (a.isMouseDown) {
         return;
     }
-    if (gm() === 'select' || gm() === 'boundary') {
+
+    else if (gm() === 'select' || gm() === 'boundary') {
         const isinSelectBoundary = a.shapes.filter(shape => checkFunction(shape, 'isinSelectBoundary', mouse));
         if (isinSelectBoundary.length > 0) {
             setMode(mode_elem, 'boundary');
@@ -110,14 +128,19 @@ export function boundaryModeObserver(mouse) {
         // --- text
         const isinSelectBoundaryText = t.utext.filter(t => t.isinSelectBoundary(mouse));
         if (isinSelectBoundary.length > 0) {
-            setMode(mode_elem, 'boundary');
-            isinSelectBoundaryText.forEach(t => {
-                t.setSelectBoundary();
-                drawSingle(t.selectBoundary);
-            })
+            if (gm()==='select') {
+                setMode(mode_elem, 'boundary');
+                isinSelectBoundaryText.forEach(t => {
+                    t.setSelectBoundary();
+                    drawSingle(t.selectBoundary);
+                })                
+            }
+
         }
     }
 }
+
+
 
 // --------- KEY EVENTS ---------
 export const magnetsCheckbox = document.getElementById('magnets');
