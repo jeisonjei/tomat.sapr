@@ -166,7 +166,7 @@ context.font = `${t.fontSize}px ${t.fontName}`;
 
 // --------- INIT ---------
 function init() {
-    s.tolerance = 0.025;
+    s.tolerance = 0.02;
 
 
     const fontSize = document.getElementById('fontSize').value;
@@ -316,10 +316,13 @@ function handleMouseDown(mouse) {
                 t.utext.filter(t => t.isSelected).forEach(t => {
                     array.push(t.getClone());
                     t.copyClick = { ...t.start };
-                });
 
+                });
+                
                 array.forEach(item => {
                     addText(item);
+                    // это нужно для работы magnetObserver и boundaryModeObserver
+                    a.shapes.push(item);
                 });
                 
             }
@@ -1335,7 +1338,7 @@ function removeText() {
 
 function handleMouseDownText(mouse) {
 
-    console.log(t.utext.map(t=>t.id));
+    
 
     currentLetterIndex = 0;
 
@@ -1540,15 +1543,14 @@ function getCurrentTextObject(editId) {
      * Таким образом, если параметр editId не определён, из текущей функцц возвращается последний
      * объект массива t.utext, а если параметр editId назначен, то возвращается 
      * массив с индексом (editId - 1)
-     */
+    */
     if (!editId) {
-        return t.utext[t.utext.length - 1];
-    }
-    else if (editId>0 && editId<=t.utext.length) {
-        return t.utext[editId - 1];
+        const textObject = t.utext[t.utext.length - 1];
+        return textObject;
     }
     else {
-        console.error(`Error : editId === ${editId}`);
+        const textObject = t.utext.filter(textLine=>textLine.id === editId)[0]
+        return textObject;
     }
 }
 
