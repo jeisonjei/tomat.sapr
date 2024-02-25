@@ -630,7 +630,7 @@ function handleMouseMove(mouse) {
 
         // magnets
         if (magnetsCheckbox.checked) {
-            if (!['select', 'boundary', 'textEdit'].includes(gm())) {
+            if (!['select', 'boundary', 'textEdit','none'].includes(gm())) {
                 if (!a.pan) {
                     if (!t.editBoundary) {
                         // disabling magnets for currently edited shape

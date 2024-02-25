@@ -364,6 +364,7 @@ const saveDxfButton = document.getElementById('saveDxf');
 const savePdfButton = document.getElementById('savePdf');
 const formatSelect = document.getElementById('format');
 
+
 const buttons = [lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, saveDxfButton, savePdfButton];
 
 buttons.forEach(button => {
@@ -425,11 +426,13 @@ fontSelect.addEventListener("change", (event) => {
     t.fontSize = event.target.value;
     s.textContext.font = `${t.fontSize}px ${t.fontName}`;
     drawText();
+    fontSelect.blur();
 });
 
 let format = 'a4';
 formatSelect.addEventListener('change', (event) => {
     format = event.target.value.toLowerCase();
+    formatSelect.blur();
 })
 
 export function drawPrintArea() {
