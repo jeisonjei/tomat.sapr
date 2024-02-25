@@ -16,7 +16,7 @@ import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
 import { applyTransformationToPoint, canvasGetMouse, convertWebGLToCanvas2DPoint, resizeCanvasToDisplaySize, transformPointByMatrix3 } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
-import { boundaryModeObserver, copyModeObserver, editModeObserver, gm, magnetsCheckbox, mode_elem, setMode } from "./page.mjs";
+import { boundaryModeObserver, copyModeObserver, drawPrintArea, editModeObserver, gm, magnetsCheckbox, mode_elem, setMode } from "./page.mjs";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
 import { getMirrorMatrix, getMoveMatrix, getRotateMatrix } from "./shared/transform.mjs";
 import { observeMagnet, magnetState$, getExtensionCoordDraw, getAnglePosition } from "./shared/magnets.mjs";
@@ -644,6 +644,7 @@ function handleMouseMove(mouse) {
 
         // pan
         if (a.pan) {
+            
             if (a.isPanning) {
                 a.pan_start_x = mouse.x;
                 a.pan_start_y = mouse.y;
@@ -666,6 +667,10 @@ function handleMouseMove(mouse) {
             const matrix = new DOMMatrix([1, 0, 0, 1, tx, -ty]);
             context.setTransform(matrix);
             drawText();
+            if (gm() === 'output') {
+                context.resetTransform();
+                drawPrintArea();
+            }
 
 
         }
@@ -1078,6 +1083,7 @@ function handleMouseUp(mouse) {
 
 
     drawShapes();
+
 }
 
 function handleMouseWheel(ev) {
@@ -1104,6 +1110,10 @@ function handleMouseWheel(ev) {
     context.font = `${t.fontSize}px ${t.fontName}`;
 
     drawText();
+
+    if (gm() === 'output') {
+        drawPrintArea();
+    }
 
 }
 
@@ -1135,6 +1145,10 @@ function handleSpacebarUp() {
     a.pan_tx = 0;
     a.pan_ty = 0;
     drawShapes();
+    if (gm() === 'output') {
+        drawPrintArea();
+    }
+
 }
 
 const mouseDown$ = fromEvent(document, 'mousedown').pipe(map(ev => canvasGetMouse(ev, canvas)));
@@ -1560,6 +1574,8 @@ export function drawText(clear = true) {
         context.clearRect(0, 0, canvasText.width, canvasText.height);
     }
 
+    context.save();
+
     t.utext.forEach(textLine => {
         if (textLine.isSelected) {
             context.fillStyle = '#7B7272';
@@ -1569,6 +1585,8 @@ export function drawText(clear = true) {
         }
         context.fillText(textLine.text, textLine.start.x, textLine.start.y);
     });
+
+    context.restore();
 }
 
 function drawTextSingle(text, point) {

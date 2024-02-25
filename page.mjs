@@ -1,11 +1,13 @@
 import { fromEvent } from "rxjs";
 import { a, canvas, deleteShapes, deleteText, drawShapes, drawSingle, drawText, gl } from "./main.js";
-import { checkFunction, convertWebGLToCanvas2DPoint } from "./shared/common.mjs";
+import { canvasGetWebglCoordinates, checkFunction, convertWebGLToCanvas2DPoint } from "./shared/common.mjs";
 import { generateDXFContent } from "./shared/export/dxf.mjs";
 import { t } from "./main.js";
 import jsPDF from "jspdf";
 import { s } from "./shared/settings.mjs";
 import { font } from "./fonts/GOST type A-normal.js";
+import { Line } from "./models/shapes/Line.mjs";
+import { Point } from "./models/Point.mjs";
 
 
 export const mode_elem = document.getElementById('mode');
@@ -28,6 +30,9 @@ export function setMode(mode_elem, mode) {
     else if (mode === 'textEdit') {
         s.textContext.canvas.style.cursor = 'text';
     }
+    else if (mode === 'output') {
+        s.textContext.canvas.style.cursor = 'grab';
+        }
     else {
         s.textContext.canvas.style.cursor = 'crosshair';
     }
@@ -219,6 +224,11 @@ keyDown$.subscribe(event => {
 
     // Handle key down events
     switch (event.key) {
+        case 'o':
+        case 'щ':
+            setMode(mode_elem, 'output');
+            drawPrintArea();
+            break;
 
         case 's':
         case 'ы':
@@ -414,6 +424,52 @@ formatSelect.addEventListener('change', (event) => {
     format = event.target.value.toLowerCase();
 })
 
+export function drawPrintArea() {
+    const pdf = new jsPDF({
+        unit: 'mm',
+        format: format,
+        orientation: 'landscape'
+    });
+
+    const pdfMock = new jsPDF({
+        unit: 'px',
+        format: format,
+        orientation: 'landscape'
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfMockWidth = pdfMock.internal.pageSize.getWidth();
+
+    const mmpx = pdfMockWidth / pdfWidth;
+
+
+    const scaleX = s.canvasWidth / pdfMockWidth;
+
+    const topPadding = (5 * mmpx) * scaleX;
+    const rightPadding = 5 * mmpx * scaleX;
+    const bottomPadding = 5 * mmpx * scaleX;
+    const leftPadding = 20 * mmpx * scaleX;
+
+    const p1x = leftPadding;
+    const p1y = topPadding;
+    const p2x = s.canvasWidth - leftPadding - rightPadding;
+    const p2y = p1y;
+    const p3x = p2x;
+    const p3y = s.canvasHeight - topPadding;
+    const p4x = p1x;
+    const p4y = p3y;
+
+    s.textContext.save();
+
+    s.textContext.strokeStyle = "rgba(0,0,255,0.5)";
+    s.textContext.lineWidth = 4;
+
+    s.textContext.strokeRect(p1x,p1y,p2x,p3y);
+
+    s.textContext.restore();
+
+
+}
 
 
 // --------- PDF ---------
@@ -443,8 +499,8 @@ savePdfButton.addEventListener('click', function () {
     const scaleX = s.canvasWidth / pdfWidth;
     const scaleY = s.canvasHeight / pdfHeight;
 
-    const mmtopx = pdfMockWidth/ pdfWidth ;
-    
+    const mmtopx = pdfMockWidth / pdfWidth;
+
 
     const filteredShapes = a.shapes.filter(shape => shape.type !== 'text');
     if (filteredShapes.length > 0) {
@@ -490,7 +546,7 @@ savePdfButton.addEventListener('click', function () {
 
     pdf.setFont('GOST type A');
 
-    const mmtopoints=0.75
+    const mmtopoints = 0.75
 
     const scaleYmm = (pdfWidth * mmtopx / s.canvasWidth) / mmtopoints;
     const fontSizemm = t.fontSize * scaleYmm;
@@ -513,7 +569,7 @@ savePdfButton.addEventListener('click', function () {
     const topX = pdfWidth - 190;
     const topY = pdfHeight - 60;
     const b = 5;
-   
+
 
     pdf.rect(0, 0, pdfWidth, pdfHeight, 'S');
     pdf.rect(20, 5, pdfWidth - 25, pdfHeight - 10, 'S');
