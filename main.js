@@ -771,7 +771,6 @@ function handleMouseMove(mouse) {
                     }
                     break;
                 case 'select':
-                case 'boundary':
                     a.selectFrame.end = mouse;
                     drawSingle(a.selectFrame);
                     break;

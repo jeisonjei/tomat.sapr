@@ -18,8 +18,10 @@ canvas.text {
 
 .tools {
   position: absolute;
-  left: 25%;
+  left: 50%;
+  transform: translateX(-50%);
   user-select: none;
+  
 }
 
 .info {
@@ -50,8 +52,12 @@ canvas.text {
 .flex-row {
   display: flex;
   flex-flow: row;
+  
 }
 
+.align-center{
+align-items: center;
+}
 .cont {
   justify-content: center;
   /* width: 80%; */
@@ -78,6 +84,7 @@ canvas.text {
 .absolute-div {
   position: absolute;
   left: 1rem;
+  top: 2rem;
   user-select: none;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
 }
