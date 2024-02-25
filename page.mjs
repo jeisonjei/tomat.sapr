@@ -30,9 +30,6 @@ export function setMode(mode_elem, mode) {
     else if (mode === 'textEdit') {
         s.textContext.canvas.style.cursor = 'text';
     }
-    else if (mode === 'output') {
-        s.textContext.canvas.style.cursor = 'grab';
-        }
     else {
         s.textContext.canvas.style.cursor = 'crosshair';
     }
@@ -185,18 +182,35 @@ export function boundaryModeObserver(mouse) {
 
 // --------- KEY EVENTS ---------
 export const magnetsCheckbox = document.getElementById('magnets');
+export const outputCheckbox = document.getElementById('output');
 const angleSnapCheckbox = document.getElementById('angleSnap');
 const ctrlCheckbox = document.getElementById('ctrl');
 
 const keyDown$ = fromEvent(document, 'keydown');
 const keyUp$ = fromEvent(document, 'keyup');
 keyDown$.subscribe(event => {
-    if (event.key === 'F3') {
+    // эфки - эфки не включают никакой режим mode
+    if (['F1','F3'].includes(event.key)) {
         event.preventDefault();
-        magnetsCheckbox.checked = !magnetsCheckbox.checked;
+        if (event.key === 'F3') {
+            magnetsCheckbox.checked = !magnetsCheckbox.checked;
+        }
+        else if (event.key === 'F1') {
+            if (outputCheckbox.checked) {
+                outputCheckbox.checked = false;
+                removePrintArea();
+
+            }
+            else {
+                outputCheckbox.checked = true;
+                drawPrintArea()
+            }
+
+        }
         return;
 
     }
+
     if (['text', 'textEdit'].includes(gm()) && event.key !== 'Escape') {
         return;
     }
@@ -224,12 +238,6 @@ keyDown$.subscribe(event => {
 
     // Handle key down events
     switch (event.key) {
-        case 'o':
-        case 'щ':
-            setMode(mode_elem, 'output');
-            drawPrintArea();
-            break;
-
         case 's':
         case 'ы':
             a.shapes.filter(shape => shape.isSelected).forEach(shape => {
@@ -469,6 +477,11 @@ export function drawPrintArea() {
     s.textContext.restore();
 
 
+}
+
+export function removePrintArea() {
+    s.textContext.clearRect(0, 0, s.canvasWidth, s.canvasHeight);
+    drawText();
 }
 
 

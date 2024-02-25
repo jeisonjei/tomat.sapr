@@ -16,24 +16,24 @@
           <div class="flex-row">
             <div><button id="text">Текст</button></div>
             <div><select name="" id="fontSize">
-              <option value="6">6</option>
-              <option value="12">12</option>
-              <option value="18">18</option>
-              <option value="24">24</option>
-              <option value="30">30</option>
-              <option value="36" selected>36</option>
-              <option value="42">42</option>
-              <option value="48">48</option>
-              <option value="54">54</option>
-              <option value="60">60</option>
-              <option value="66">66</option>
-              <option value="72">72</option>
-              <option value="78">78</option>
-              <option value="84">84</option>
-              <option value="90">90</option>
-              <option value="96">96</option>
-              <option value="102">102</option>
-            </select></div>
+                <option value="6">6</option>
+                <option value="12">12</option>
+                <option value="18">18</option>
+                <option value="24">24</option>
+                <option value="30">30</option>
+                <option value="36" selected>36</option>
+                <option value="42">42</option>
+                <option value="48">48</option>
+                <option value="54">54</option>
+                <option value="60">60</option>
+                <option value="66">66</option>
+                <option value="72">72</option>
+                <option value="78">78</option>
+                <option value="84">84</option>
+                <option value="90">90</option>
+                <option value="96">96</option>
+                <option value="102">102</option>
+              </select></div>
             <span class="mx-1">|</span>
             <div><button id="line">Линия</button></div>
             <div><button id="rectangle">Прямоуг.</button></div>
@@ -50,11 +50,11 @@
             <div><button id="saveDxf">DXF</button></div>
             <div><button id="savePdf">PDF</button></div>
             <div><select name="" id="format">
-              <option value="A4">A4</option>
-              <option value="A3">A3</option>
-              <option value="A2">A2</option>
-              <option value="A1">A1</option>
-            </select></div>
+                <option value="A4">A4</option>
+                <option value="A3">A3</option>
+                <option value="A2">A2</option>
+                <option value="A1">A1</option>
+              </select></div>
             <span class="mx-1">|</span>
 
             <div class="flex-row">
@@ -64,6 +64,10 @@
             <div class="flex-row">
               <input type="checkbox" name="magnets" id="magnets" checked="true">
               <label for="magnets">Маг.</label>
+            </div>
+            <div class="flex-box">
+              <input type="checkbox" name="output" id="output">
+              <label for="output">Рамка</label>
             </div>
             <div class="flex-row">
               <input type="checkbox" name="ctrl" id="ctrl">
@@ -85,6 +89,11 @@
                   <td>SHIFT</td>
                   <td>Угловая привязка</td>
                 </tr>
+                <tr>
+                  <td>F1</td>
+                  <td>Показать или скрыть область печати</td>
+                </tr>
+
                 <tr>
                   <td>F3</td>
                   <td>Включение и выключение магнитов</td>
@@ -156,10 +165,6 @@
                 <tr>
                   <td>CTRL</td>
                   <td>Альтернативный вариант редактирования фигур за ручки</td>
-                </tr>
-                <tr>
-                  <td>O</td>
-                  <td>Показать область печати</td>
                 </tr>
               </tbody>
             </table>

@@ -16,7 +16,7 @@ import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
 import { applyTransformationToPoint, canvasGetMouse, convertWebGLToCanvas2DPoint, resizeCanvasToDisplaySize, transformPointByMatrix3 } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
-import { boundaryModeObserver, copyModeObserver, drawPrintArea, editModeObserver, gm, magnetsCheckbox, mode_elem, setMode } from "./page.mjs";
+import { boundaryModeObserver, copyModeObserver, drawPrintArea, editModeObserver, gm, magnetsCheckbox, mode_elem, outputCheckbox, setMode } from "./page.mjs";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
 import { getMirrorMatrix, getMoveMatrix, getRotateMatrix } from "./shared/transform.mjs";
 import { observeMagnet, magnetState$, getExtensionCoordDraw, getAnglePosition } from "./shared/magnets.mjs";
@@ -667,10 +667,6 @@ function handleMouseMove(mouse) {
             const matrix = new DOMMatrix([1, 0, 0, 1, tx, -ty]);
             context.setTransform(matrix);
             drawText();
-            if (gm() === 'output') {
-                context.resetTransform();
-                drawPrintArea();
-            }
 
 
         }
@@ -1111,9 +1107,6 @@ function handleMouseWheel(ev) {
 
     drawText();
 
-    if (gm() === 'output') {
-        drawPrintArea();
-    }
 
 }
 
@@ -1145,9 +1138,6 @@ function handleSpacebarUp() {
     a.pan_tx = 0;
     a.pan_ty = 0;
     drawShapes();
-    if (gm() === 'output') {
-        drawPrintArea();
-    }
 
 }
 
@@ -1585,6 +1575,12 @@ export function drawText(clear = true) {
         }
         context.fillText(textLine.text, textLine.start.x, textLine.start.y);
     });
+
+    if (outputCheckbox.checked) {
+        context.resetTransform();
+
+        drawPrintArea();
+    }
 
     context.restore();
 }
