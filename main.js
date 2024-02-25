@@ -213,11 +213,13 @@ function handleMouseDown(mouse) {
                     case 'line':
                         if (shape.isinSelectBoundary(mouse)) {
                             const breakPoints = shape.getBreakPoints(mouse,a.shapes);
-                            shape.grip.center = breakPoints.breakStart;
-                            drawSingle(shape.grip);
-                            shape.grip.center = breakPoints.breakEnd;
-                            drawSingle(shape.grip);
-                            
+                            const line1 = shape.getClone();
+                            line1.end = breakPoints.breakStart;
+                            const line2 = shape.getClone();
+                            line2.start = breakPoints.breakEnd;
+                            addShapes(line1);
+                            addShapes(line2);
+                            a.shapes = a.shapes.filter(s=>s.id!==shape.id);
                         }
                         break;
                 
@@ -1321,11 +1323,12 @@ export function drawSingle(shape) {
             gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
             break;
         case 'm_grip':
-            console.log('.');
             gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
+            break;
         case 'm_triph':
         case 'm_tripv':
             gl.drawArrays(gl.LINES, 0, size / 2);
+            break;
         case 'line':
         case 'symline':
             gl.drawArrays(gl.LINES, 0, size / 2);

@@ -164,10 +164,12 @@ export function boundaryModeObserver(mouse) {
 
     }
 
-    else if (gm() === 'select' || gm() === 'boundary') {
+    else if (['select','boundary','break'].includes(gm())) {
         const isinSelectBoundary = a.shapes.filter(shape => checkFunction(shape, 'isinSelectBoundary', mouse));
         if (isinSelectBoundary.length > 0) {
-            setMode(mode_elem, 'boundary');
+            if (gm()!=='break') {
+                setMode(mode_elem, 'boundary');
+            }
             isinSelectBoundary.forEach(shape => {
                 shape.setSelectBoundary();
                 drawSingle(shape.selectBoundary);
@@ -175,7 +177,12 @@ export function boundaryModeObserver(mouse) {
             })
         }
         else {
-            setMode(mode_elem, 'select');
+            if (gm()!=='break') {
+                setMode(mode_elem, 'select');
+            }
+            else {
+                setMode(mode_elem, 'break');
+            }
         }
 
     }
