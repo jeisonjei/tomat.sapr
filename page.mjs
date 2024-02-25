@@ -493,11 +493,6 @@ savePdfButton.addEventListener('click', function () {
     const mmtopoints=0.75
 
     const scaleYmm = (pdfWidth * mmtopx / s.canvasWidth) / mmtopoints;
-    console.log('pxtomm',mmtopx);
-    console.log('t.fontSize', t.fontSize);
-    console.log('canvasWidth', s.canvasWidth);
-    console.log('pdfWidth', pdfWidth);
-    console.log('scaleYmm', scaleYmm);
     const fontSizemm = t.fontSize * scaleYmm;
     pdf.setFontSize(fontSizemm);
 

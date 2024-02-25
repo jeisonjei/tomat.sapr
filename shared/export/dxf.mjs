@@ -8,8 +8,8 @@ export function generateDXFContent() {
     // let dxfContent = `0\nSECTION\n2\nENTITIES\n`; // DXF header
     let dxfContent = `0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nSECTION\n2\nTABLES\n0\nENDSEC\n0\nSECTION\n2\nBLOCKS\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n`;
 
-    const canvasHeight = canvas.height;
-    const canvasWidth = canvas.width;
+    const canvasHeight = s.canvasHeight;
+    const canvasWidth = s.canvasWidth;
 
     a.shapes.forEach((shape) => {
         switch (shape.type) {
@@ -48,12 +48,12 @@ export function generateDXFContent() {
         }
     });
 
-    const scaleY = 1 / canvas.height;
+    const scaleY = 1 / s.canvasHeight;
     
     t.utext.forEach((textInput, index) => {
         const textString = textInput.text;
         const size = t.fontSize;
-        const webglCoord = canvasGetWebglCoordinates(textInput.start, canvas);
+        const webglCoord = canvasGetWebglCoordinates(textInput.start, s.textContext.canvas);
 
         const a = scalePoint(webglCoord, canvasHeight, canvasWidth);
 
