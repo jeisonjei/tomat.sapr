@@ -30,6 +30,9 @@ export function setMode(mode_elem, mode) {
     else if (mode === 'textEdit') {
         s.textContext.canvas.style.cursor = 'text';
     }
+    else if (mode === 'break') {
+        s.textContext.canvas.style.cursor = 'cell'
+    }
     else {
         s.textContext.canvas.style.cursor = 'crosshair';
     }
@@ -190,7 +193,7 @@ const keyDown$ = fromEvent(document, 'keydown');
 const keyUp$ = fromEvent(document, 'keyup');
 keyDown$.subscribe(event => {
     // эфки - эфки не включают никакой режим mode
-    if (['F1','F3'].includes(event.key)) {
+    if (['F1', 'F3'].includes(event.key)) {
         event.preventDefault();
         if (event.key === 'F3') {
             magnetsCheckbox.checked = !magnetsCheckbox.checked;
@@ -238,6 +241,10 @@ keyDown$.subscribe(event => {
 
     // Handle key down events
     switch (event.key) {
+        case 'b':
+        case 'и':
+            setMode(mode_elem, 'break');
+            break;
         case 's':
         case 'ы':
             a.shapes.filter(shape => shape.isSelected).forEach(shape => {
@@ -475,7 +482,7 @@ export function drawPrintArea() {
     s.textContext.strokeStyle = "rgba(0,0,255,0.5)";
     s.textContext.lineWidth = 4;
 
-    s.textContext.strokeRect(p1x,p1y,p2x,p3y);
+    s.textContext.strokeRect(p1x, p1y, p2x, p3y);
 
     s.textContext.restore();
 

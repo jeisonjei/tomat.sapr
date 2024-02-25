@@ -207,6 +207,26 @@ function handleMouseDown(mouse) {
 
     switch (gm()) {
 
+        case 'break':
+            a.shapes.forEach(shape => {
+                switch (shape.type) {
+                    case 'line':
+                        if (shape.isinSelectBoundary(mouse)) {
+                            const breakPoints = shape.getBreakPoints(mouse,a.shapes);
+                            shape.grip.center = breakPoints.breakStart;
+                            drawSingle(shape.grip);
+                            shape.grip.center = breakPoints.breakEnd;
+                            drawSingle(shape.grip);
+                            
+                        }
+                        break;
+                
+                    default:
+                        break;
+                }
+            })
+            break;
+
         case 'select':
             a.selectFrame.start = a.start;
             break;
@@ -540,6 +560,10 @@ function handleMouseDown(mouse) {
     drawShapes();
 }
 
+
+
+
+// --------- MAGNETS ---------
 magnetState$.pipe(
     /**
      * Функция получает начальную или конечную привязку.
@@ -578,6 +602,10 @@ magnetState$.pipe(
         }
     }
 });
+// --------- MAGNETS ---------
+
+
+
 
 function handleMouseMove(mouse) {
     /**
@@ -630,7 +658,7 @@ function handleMouseMove(mouse) {
 
         // magnets
         if (magnetsCheckbox.checked) {
-            if (!['select', 'boundary', 'textEdit','none'].includes(gm())) {
+            if (!['select', 'boundary', 'textEdit','none','break'].includes(gm())) {
                 if (!a.pan) {
                     if (!t.editBoundary) {
                         // disabling magnets for currently edited shape
@@ -1224,7 +1252,7 @@ export function drawShapes() {
     // gl.drawArrays(gl.LINES, 0, a.vertices.length / 2);
 
     gl.clearColor(1, 1, 1, 1);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    // gl.clear(gl.COLOR_BUFFER_BIT);
 
     a.shapes.forEach(shape => {
         drawSingle(shape);
@@ -1293,6 +1321,7 @@ export function drawSingle(shape) {
             gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
             break;
         case 'm_grip':
+            console.log('.');
             gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
         case 'm_triph':
         case 'm_tripv':

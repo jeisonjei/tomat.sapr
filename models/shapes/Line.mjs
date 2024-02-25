@@ -59,8 +59,8 @@ export class Line extends BasicShape {
         const endPixels = convertWebGLToCanvas2DPoint(this.end, s.canvasWidth, s.canvasHeight);
 
         return [
-            startPixels.x/scale, startPixels.y/scale,
-            endPixels.x/scale,endPixels.y/scale
+            startPixels.x / scale, startPixels.y / scale,
+            endPixels.x / scale, endPixels.y / scale
         ]
     }
 
@@ -90,7 +90,7 @@ export class Line extends BasicShape {
     }
 
     isinSelectBoundary(mouse) {
-        return isinSelectBoundaryLine(mouse,this.start,this.end);
+        return isinSelectBoundaryLine(mouse, this.start, this.end);
     }
 
     setSelectBoundary() {
@@ -125,6 +125,144 @@ export class Line extends BasicShape {
         this.mid = transformPointByMatrix3(pan_mat, this.mid);
         this.end = transformPointByMatrix3(pan_mat, this.end);
     }
+    getBreakPoints(mouse, shapes) {
+        let breakStart, breakEnd;
+        shapes.forEach(shape => {
+            switch (shape.type) {
+                case 'line':
+                    let selectedLine = this;
+                    let closestLines = this.findClosestLines(mouse, shapes, 1);
+                    console.log(closestLines.map(line=>line.start.x));
+
+                    for (let line of closestLines) {
+                        if (this.doLinesIntersect(selectedLine, line)) {
+                            let intersectionPoint = this.findIntersectionPoint(selectedLine, line);
+                            if (!breakStart) {
+                                breakStart = intersectionPoint;
+                            } else {
+                                breakEnd = intersectionPoint;
+                            }
+                        }
+                    }
+                    break;
+            }
+        });
+        return { breakStart, breakEnd };
+    }
+
+    checkClosestIntersections(selectedLine, shapes, mouse) {
+        let closestLines = this.findClosestLines(mouse, shapes, 1);
+        let intersections = [];
+
+        for (let line of closestLines) {
+            if (this.doLinesIntersect(selectedLine, line)) {
+                let intersectionPoint = this.findIntersectionPoint(selectedLine, line);
+                intersections.push(intersectionPoint);
+            }
+        }
+
+        return intersections;
+    }
+
+    findIntersectionPoint(line1, line2) {
+        const x1 = line1.start.x;
+        const y1 = line1.start.y;
+        const x2 = line1.end.x;
+        const y2 = line1.end.y;
+
+        const x3 = line2.start.x;
+        const y3 = line2.start.y;
+        const x4 = line2.end.x;
+        const y4 = line2.end.y;
+
+        const denominator = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+
+        if (denominator === 0) {
+            return null; // Lines are parallel or coincident
+        }
+
+        const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator;
+        const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator;
+
+        if (ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1) {
+            const x = x1 + ua * (x2 - x1);
+            const y = y1 + ua * (y2 - y1);
+            return { x, y };
+        } else {
+            return null; // Intersection point is outside the line segments
+        }
+    }
+    doLinesIntersect(line1, line2) {
+        const x1 = line1.start.x;
+        const y1 = line1.start.y;
+        const x2 = line1.end.x;
+        const y2 = line1.end.y;
+
+        const x3 = line2.start.x;
+        const y3 = line2.start.y;
+        const x4 = line2.end.x;
+        const y4 = line2.end.y;
+
+        const denominator = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+        if (denominator === 0) {
+            return false; // Lines are parallel
+        }
+
+        const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator;
+        const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator;
+
+        return ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1;
+    }
+
+    findClosestLines(mouse, shapes, count) {
+        const linesLeft = shapes.filter(shape => {
+            const intersectionLeft = this.findIntersectionPoint(this, shape);
+            if (!intersectionLeft) {
+                return false;
+            }
+            console.log(intersectionLeft);
+            if (intersectionLeft.x < mouse.x) {
+                return true;
+            }
+            return false;
+        })
+            .map(line => ({ line, distance: this.calculateDistanceLeft(mouse, line) }))
+            .sort((a, b) => a.distance - b.distance)
+            .slice(0, count)
+            .map(item => item.line);
+    
+        const linesRight = shapes.filter(shape => {
+            const intersectionRight = this.findIntersectionPoint(this, shape);
+            if (!intersectionRight) {
+                return false;
+            }
+            console.log(intersectionRight);
+            if (intersectionRight.x > mouse.x) {
+                return true;
+            }
+            return false;
+        })
+            .map(line => ({ line, distance: this.calculateDistanceRight(mouse, line) }))
+            .sort((a, b) => a.distance - b.distance)
+            .slice(0, count)
+            .map(item => item.line);
+        const result = [...linesLeft, ...linesRight];
+        return result;
+    }
+    
+    calculateDistanceLeft(mouse, line) {
+        const result = Math.hypot(mouse.x - line.start.x, mouse.y - line.start.y)
+        console.log(result);
+        return result;
+    }
+    
+    calculateDistanceRight(mouse, line) {
+        const result = Math.hypot(line.start.x - mouse.x, line.start.y - mouse.y);
+        console.log(result);
+        return result;
+         
+    }
+
 
 
 }
