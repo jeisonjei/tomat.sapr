@@ -226,3 +226,15 @@ export function isinSelectBoundaryLine(mouse, start, end) {
   }
   return isInside;
 }
+
+export function isHorizontal(line1, line2) {
+  const deltaY1 = Math.abs(line1.start.y - line1.end.y);
+  const deltaY2 = Math.abs(line2.start.y - line2.end.y);
+
+  if (deltaY1<deltaY2) {
+    return line1;
+  }
+  else {
+    return line2;
+  }
+}

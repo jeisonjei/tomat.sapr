@@ -14,7 +14,7 @@
 import { Point } from "./models/Point.mjs"
 import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
-import { applyTransformationToPoint, canvasGetMouse, convertWebGLToCanvas2DPoint, resizeCanvasToDisplaySize, transformPointByMatrix3 } from "./shared/common.mjs";
+import { applyTransformationToPoint, canvasGetMouse, convertWebGLToCanvas2DPoint, isHorizontal, resizeCanvasToDisplaySize, transformPointByMatrix3 } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
 import { boundaryModeObserver, copyModeObserver, drawPrintArea, editModeObserver, gm, magnetsCheckbox, mode_elem, outputCheckbox, setMode } from "./page.mjs";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
@@ -208,25 +208,42 @@ function handleMouseDown(mouse) {
     switch (gm()) {
 
         case 'break':
-            a.shapes.forEach(shape => {
-                switch (shape.type) {
-                    case 'line':
-                        if (shape.isinSelectBoundary(mouse)) {
-                            const breakPoints = shape.getBreakPoints(mouse,a.shapes);
+            const filteredShapes = a.shapes.filter(shape => shape.isinSelectBoundary(mouse));
+            if (filteredShapes.length === 1) {
+                filteredShapes.forEach(shape => {
+                    switch (shape.type) {
+                        case 'line':
+                            const breakPoints = shape.getBreakPoints(mouse, a.shapes);
                             const line1 = shape.getClone();
-                            line1.end = breakPoints.breakStart;
+                            line1.end = breakPoints.bs;
                             const line2 = shape.getClone();
-                            line2.start = breakPoints.breakEnd;
+                            line2.start = breakPoints.be;
                             addShapes(line1);
                             addShapes(line2);
-                            a.shapes = a.shapes.filter(s=>s.id!==shape.id);
-                        }
-                        break;
-                
-                    default:
-                        break;
-                }
-            })
+                            a.shapes = a.shapes.filter(s => s.id !== shape.id);
+                            break;
+
+                        default:
+                            break;
+                    }
+                })
+
+            }
+            else {
+                const [l1, l2] = filteredShapes;
+                const horizontalLine = isHorizontal(l1, l2);
+                console.log('horizontalLine id', horizontalLine.id);
+                console.log('a.shapes',l1.shapes);
+                const breakPoints = horizontalLine.getBreakPoints(mouse, filteredShapes);
+                const line1 = horizontalLine.getClone();
+                line1.end = new Point(breakPoints.bs.x - s.tolerance, line1.start.y);
+                const line2 = horizontalLine.getClone();
+                line2.start = new Point(breakPoints.be.x + s.tolerance, line2.end.y);
+                addShapes(line1);
+                addShapes(line2);
+                a.shapes = a.shapes.filter(s => s.id !== horizontalLine.id);
+
+            }
             break;
 
         case 'select':
@@ -340,13 +357,13 @@ function handleMouseDown(mouse) {
                     t.copyClick = { ...t.start };
 
                 });
-                
+
                 array.forEach(item => {
                     addText(item);
                     // это нужно для работы magnetObserver и boundaryModeObserver
                     a.shapes.push(item);
                 });
-                
+
             }
             else if (a.clickCopyStart) {
                 const move_mat = getMoveMatrix(a.clickCopyStart, a.start);
@@ -660,11 +677,11 @@ function handleMouseMove(mouse) {
 
         // magnets
         if (magnetsCheckbox.checked) {
-            if (!['select', 'boundary', 'textEdit','none','break'].includes(gm())) {
+            if (!['select', 'boundary', 'textEdit', 'none', 'break'].includes(gm())) {
                 if (!a.pan) {
                     if (!t.editBoundary) {
                         // disabling magnets for currently edited shape
-                        observeMagnet(a.shapes.filter(shape => (shape.edit === null)), mouse).subscribe();                        
+                        observeMagnet(a.shapes.filter(shape => (shape.edit === null)), mouse).subscribe();
                     }
                 }
             }
@@ -674,7 +691,7 @@ function handleMouseMove(mouse) {
 
         // pan
         if (a.pan) {
-            
+
             if (a.isPanning) {
                 a.pan_start_x = mouse.x;
                 a.pan_start_y = mouse.y;
@@ -1254,7 +1271,8 @@ export function drawShapes() {
     // gl.drawArrays(gl.LINES, 0, a.vertices.length / 2);
 
     gl.clearColor(1, 1, 1, 1);
-    // gl.clear(gl.COLOR_BUFFER_BIT);
+    // закомментировать если где-то нужно нарисовать что-то локально, ручку например функцией drawSingle()
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
     a.shapes.forEach(shape => {
         drawSingle(shape);
@@ -1373,7 +1391,7 @@ function removeText() {
 
 function handleMouseDownText(mouse) {
 
-    
+
 
     currentLetterIndex = 0;
 
@@ -1584,7 +1602,7 @@ function getCurrentTextObject(editId) {
         return textObject;
     }
     else {
-        const textObject = t.utext.filter(textLine=>textLine.id === editId)[0]
+        const textObject = t.utext.filter(textLine => textLine.id === editId)[0]
         return textObject;
     }
 }

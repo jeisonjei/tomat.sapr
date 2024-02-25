@@ -125,29 +125,29 @@ export class Line extends BasicShape {
         this.mid = transformPointByMatrix3(pan_mat, this.mid);
         this.end = transformPointByMatrix3(pan_mat, this.end);
     }
-    getBreakPoints(mouse, shapes) {
-        let breakStart, breakEnd;
+    getBreakPoints(mouse, shapes_) {
+        let bs, be;
+        const shapes = shapes_.filter(shape=>shape.type==='line');
         shapes.forEach(shape => {
             switch (shape.type) {
                 case 'line':
                     let selectedLine = this;
                     let closestLines = this.findClosestLines(mouse, shapes, 1);
-                    console.log(closestLines.map(line=>line.start.x));
-
                     for (let line of closestLines) {
                         if (this.doLinesIntersect(selectedLine, line)) {
                             let intersectionPoint = this.findIntersectionPoint(selectedLine, line);
-                            if (!breakStart) {
-                                breakStart = intersectionPoint;
+                            if (!bs) {
+                                bs = intersectionPoint;
                             } else {
-                                breakEnd = intersectionPoint;
+                                be = intersectionPoint;
                             }
                         }
                     }
+
                     break;
             }
         });
-        return { breakStart, breakEnd };
+        return { bs: bs, be: be };
     }
 
     checkClosestIntersections(selectedLine, shapes, mouse) {
@@ -220,8 +220,7 @@ export class Line extends BasicShape {
             if (!intersectionLeft) {
                 return false;
             }
-            console.log(intersectionLeft);
-            if (intersectionLeft.x < mouse.x) {
+            if (intersectionLeft.x <= mouse.x) {
                 return true;
             }
             return false;
@@ -236,8 +235,8 @@ export class Line extends BasicShape {
             if (!intersectionRight) {
                 return false;
             }
-            console.log(intersectionRight);
-            if (intersectionRight.x > mouse.x) {
+
+            if (intersectionRight.x >= mouse.x) {
                 return true;
             }
             return false;
