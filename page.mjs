@@ -423,8 +423,15 @@ savePdfButton.addEventListener('click', function () {
         unit: 'mm',
         format: format,
         orientation: "l",
-        userUnit: 300
     });
+
+    const pdfMock = new jsPDF({
+        unit: 'px',
+        format: format,
+        orientation: 'landscape'
+    });
+
+    const pdfMockWidth = pdfMock.internal.pageSize.getWidth();
 
     // draw shapes from a.shapes to canvas2d
     pdf.setDrawColor(0, 0, 0);
@@ -435,6 +442,9 @@ savePdfButton.addEventListener('click', function () {
     const pdfHeight = pdf.internal.pageSize.getHeight();
     const scaleX = s.canvasWidth / pdfWidth;
     const scaleY = s.canvasHeight / pdfHeight;
+
+    const mmtopx = pdfMockWidth/ pdfWidth ;
+    
 
     const filteredShapes = a.shapes.filter(shape => shape.type !== 'text');
     if (filteredShapes.length > 0) {
@@ -480,8 +490,16 @@ savePdfButton.addEventListener('click', function () {
 
     pdf.setFont('GOST type A');
 
-    const scaleYmm = (scaleY / 3.78) * 0.75;
-    pdf.setFontSize(t.fontSize * 0.75 * scaleYmm);
+    const mmtopoints=0.75
+
+    const scaleYmm = (pdfWidth * mmtopx / s.canvasWidth) / mmtopoints;
+    console.log('pxtomm',mmtopx);
+    console.log('t.fontSize', t.fontSize);
+    console.log('canvasWidth', s.canvasWidth);
+    console.log('pdfWidth', pdfWidth);
+    console.log('scaleYmm', scaleYmm);
+    const fontSizemm = t.fontSize * scaleYmm;
+    pdf.setFontSize(fontSizemm);
 
 
     t.utext.forEach(t => {
@@ -494,11 +512,14 @@ savePdfButton.addEventListener('click', function () {
 
 
     // --- border
+    pdf.setDrawColor(0, 0, 0);
+    pdf.setLineWidth(0.75);
+
     const topX = pdfWidth - 190;
     const topY = pdfHeight - 60;
     const b = 5;
-    pdf.setDrawColor(0, 0, 0);
-    pdf.setLineWidth(0.75);
+   
+
     pdf.rect(0, 0, pdfWidth, pdfHeight, 'S');
     pdf.rect(20, 5, pdfWidth - 25, pdfHeight - 10, 'S');
     pdf.rect(topX, topY, 185, 55);
