@@ -125,9 +125,10 @@ export class Line extends BasicShape {
         this.mid = transformPointByMatrix3(pan_mat, this.mid);
         this.end = transformPointByMatrix3(pan_mat, this.end);
     }
+
     getBreakPoints(mouse, shapes_) {
         let bs, be;
-        const shapes = shapes_.filter(shape=>shape.type==='line');
+        const shapes = shapes_.filter(shape => shape.type === 'line');
         shapes.forEach(shape => {
             switch (shape.type) {
                 case 'line':
@@ -147,22 +148,17 @@ export class Line extends BasicShape {
                     break;
             }
         });
+        if (bs.x>be.x) {
+            let temp;
+            temp = {...be};
+            be = {...bs};
+            bs = {...temp};
+
+        }
         return { bs: bs, be: be };
     }
 
-    checkClosestIntersections(selectedLine, shapes, mouse) {
-        let closestLines = this.findClosestLines(mouse, shapes, 1);
-        let intersections = [];
 
-        for (let line of closestLines) {
-            if (this.doLinesIntersect(selectedLine, line)) {
-                let intersectionPoint = this.findIntersectionPoint(selectedLine, line);
-                intersections.push(intersectionPoint);
-            }
-        }
-
-        return intersections;
-    }
 
     findIntersectionPoint(line1, line2) {
         const x1 = line1.start.x;
@@ -187,7 +183,7 @@ export class Line extends BasicShape {
         if (ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1) {
             const x = x1 + ua * (x2 - x1);
             const y = y1 + ua * (y2 - y1);
-            return { x, y };
+            return new Point(x,y);
         } else {
             return null; // Intersection point is outside the line segments
         }
@@ -225,11 +221,11 @@ export class Line extends BasicShape {
             }
             return false;
         })
-            .map(line => ({ line, distance: this.calculateDistanceLeft(mouse, line) }))
+            .map(line => ({ line, distance: this.calculateDistance(mouse, line) }))
             .sort((a, b) => a.distance - b.distance)
             .slice(0, count)
             .map(item => item.line);
-    
+
         const linesRight = shapes.filter(shape => {
             const intersectionRight = this.findIntersectionPoint(this, shape);
             if (!intersectionRight) {
@@ -241,25 +237,17 @@ export class Line extends BasicShape {
             }
             return false;
         })
-            .map(line => ({ line, distance: this.calculateDistanceRight(mouse, line) }))
+            .map(line => ({ line, distance: this.calculateDistance(mouse, line) }))
             .sort((a, b) => a.distance - b.distance)
             .slice(0, count)
             .map(item => item.line);
-        const result = [...linesLeft, ...linesRight];
+        const result = [...linesLeft, ...linesRight].sort((a,b)=>a.start.x-b.start.x);
         return result;
     }
-    
-    calculateDistanceLeft(mouse, line) {
+
+    calculateDistance(mouse, line) {
         const result = Math.hypot(mouse.x - line.start.x, mouse.y - line.start.y)
-        console.log(result);
         return result;
-    }
-    
-    calculateDistanceRight(mouse, line) {
-        const result = Math.hypot(line.start.x - mouse.x, line.start.y - mouse.y);
-        console.log(result);
-        return result;
-         
     }
 
 

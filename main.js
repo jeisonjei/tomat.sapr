@@ -16,7 +16,7 @@ import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
 import { applyTransformationToPoint, canvasGetMouse, convertWebGLToCanvas2DPoint, isHorizontal, resizeCanvasToDisplaySize, transformPointByMatrix3 } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
-import { boundaryModeObserver, copyModeObserver, drawPrintArea, editModeObserver, gm, magnetsCheckbox, mode_elem, outputCheckbox, setMode } from "./page.mjs";
+import { boundaryModeObserver, colorMagnetsObserver, drawPrintArea, editModeObserver, gm, magnetsCheckbox, mode_elem, outputCheckbox, setMode } from "./page.mjs";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
 import { getMirrorMatrix, getMoveMatrix, getRotateMatrix } from "./shared/transform.mjs";
 import { observeMagnet, magnetState$, getExtensionCoordDraw, getAnglePosition } from "./shared/magnets.mjs";
@@ -31,6 +31,7 @@ import { Circle } from "./models/shapes/Circle.mjs";
 import { SymLine } from "./models/shapes/SymLine.mjs";
 import { filterText } from "./services/textFilter";
 import { Text } from "./models/shapes/Text.mjs";
+import { Grip } from "./models/snaps/Grip.mjs";
 
 /**
  * В этой версии программы попробуем осущещствлять вызовы к webgl только из текущего файла.
@@ -209,18 +210,49 @@ function handleMouseDown(mouse) {
 
         case 'break':
             const filteredShapes = a.shapes.filter(shape => shape.isinSelectBoundary(mouse));
+            // выбрана 1 линия
             if (filteredShapes.length === 1) {
                 filteredShapes.forEach(shape => {
                     switch (shape.type) {
                         case 'line':
                             const breakPoints = shape.getBreakPoints(mouse, a.shapes);
-                            const line1 = shape.getClone();
-                            line1.end = breakPoints.bs;
-                            const line2 = shape.getClone();
-                            line2.start = breakPoints.be;
-                            addShapes(line1);
-                            addShapes(line2);
-                            a.shapes = a.shapes.filter(s => s.id !== shape.id);
+                            if (!breakPoints.bs) {
+                                return;
+                            }
+                            else if (breakPoints.bs.isEqual(breakPoints.be)) {
+                                // если bs.isEqual(be), то найдена только одна точка
+                                if (mouse.x <= breakPoints.bs.x) {
+                                    if (shape.start.x <= breakPoints.bs.x) {
+                                        shape.start = breakPoints.bs;
+                                    }
+                                    else if (shape.end.x <= breakPoints.bs.x) {
+                                        shape.end = breakPoints.bs;
+                                    }
+                                }
+                                else if (mouse.x > breakPoints.bs.x) {
+                                    if (shape.start.x > breakPoints.bs.x) {
+                                        shape.start = breakPoints.bs;
+                                    }
+                                    else if (shape.end.x > breakPoints.bs.x) {
+                                        shape.end = breakPoints.bs;
+                                    }
+                                }
+                            }
+                            else {
+                                const line1 = shape.getClone();
+                                const line2 = shape.getClone();
+                                if (shape.start.x <= shape.end.x) {
+                                    line1.end = breakPoints.bs;
+                                    line2.start = breakPoints.be;
+                                }
+                                else {
+                                    line1.end = breakPoints.be;
+                                    line2.start = breakPoints.bs;
+                                }
+                                addShapes(line1);
+                                addShapes(line2);
+                                a.shapes = a.shapes.filter(s => s.id !== shape.id);
+                            }
                             break;
 
                         default:
@@ -229,11 +261,10 @@ function handleMouseDown(mouse) {
                 })
 
             }
-            else {
+            // выбрано 2 пересекающихся линии
+            else if (filteredShapes.length === 2) {
                 const [l1, l2] = filteredShapes;
                 const horizontalLine = isHorizontal(l1, l2);
-                console.log('horizontalLine id', horizontalLine.id);
-                console.log('a.shapes',l1.shapes);
                 const breakPoints = horizontalLine.getBreakPoints(mouse, filteredShapes);
                 const line1 = horizontalLine.getClone();
                 line1.end = new Point(breakPoints.bs.x - s.tolerance, line1.start.y);
@@ -589,38 +620,46 @@ magnetState$.pipe(
      * Переменная a.gripPosition назначается только здесь
      */
     map(state => {
-
-        const mouse = state.filter(object => object.hasOwnProperty('mouse'))[0].mouse;
+        const mouse = state.find(object => object.hasOwnProperty('mouse')).mouse;
         const grips = state.filter(magnet => magnet.type === 'm_grip');
+
+        if (grips.length > 0) {
+            return { mouse, magnet: grips[0] };
+        }
+
+        // If grips.length <= 0, return tripsH or tripsV if available
         const tripsH = state.filter(magnet => magnet.type === 'm_triph');
         const tripsV = state.filter(magnet => magnet.type === 'm_tripv');
 
-        if (grips.length > 0) {
-            return { mouse: mouse, magnet: grips[0] };
-        }
-        else if (tripsH.length > 0 && tripsV.length > 0) {
-            return { mouse: mouse, magnet: [tripsH[0], tripsV[0]] };
+        if (tripsH.length > 0 && tripsV.length > 0) {
+            return { mouse, magnet: [tripsH[0], tripsV[0]] };
         }
         else if (tripsH.length > 0) {
-            return { mouse: mouse, magnet: tripsH[0] };
+            return { mouse, magnet: tripsH[0] };
         }
         else if (tripsV.length > 0) {
-            return { mouse: mouse, magnet: tripsV[0] };
+            return { mouse, magnet: tripsV[0] };
         }
 
+        // If no valid magnets found, return null or handle as needed
+        return null;
     })
-).subscribe(magnet => {
-    if (magnet && a.start) {
-        if (magnet.magnet instanceof Array) {
-            a.magnetPosition = getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
-            magnet.magnet.forEach(magnet => drawSingle(magnet));
+)
+    .subscribe(magnet => {
+        if (magnet && a.start) {
+            if (magnet.magnet instanceof Array) {
+                a.magnetPosition = getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
+                magnet.magnet.forEach(magnet => drawSingle(magnet));
+            }
+            else {
+
+                a.magnetPosition = magnet.magnet.center ?? getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
+
+                drawSingle(magnet.magnet);
+
+            }
         }
-        else {
-            a.magnetPosition = magnet.magnet.center ?? getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
-            drawSingle(magnet.magnet);
-        }
-    }
-});
+    });
 // --------- MAGNETS ---------
 
 
@@ -721,7 +760,7 @@ function handleMouseMove(mouse) {
         // enable edit mode
         editModeObserver(mouse);
         // color grips on move and copy mode
-        copyModeObserver(mouse);
+        colorMagnetsObserver(mouse);
         // enable boundary mode
         boundaryModeObserver(mouse);
 

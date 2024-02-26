@@ -43,7 +43,7 @@ export function gm() {
     return mode_elem.innerHTML.split(' ')[1];
 }
 
-export function copyModeObserver(mouse) {
+export function colorMagnetsObserver(mouse) {
     /**
      * Функция нужна для раскрашивания ручек
      */
@@ -51,7 +51,7 @@ export function copyModeObserver(mouse) {
         return;
     }
 
-    else if (gm() === 'move' || gm() === 'copy') {
+    else if (['move','copy','rotate','rotatecopy','mirror'].includes(gm())) {
         a.shapes.filter(shape => shape.isSelected).forEach(shape => {
             switch (shape.type) {
                 case 'line':
@@ -62,7 +62,8 @@ export function copyModeObserver(mouse) {
                     }
                     break;
                 case 'rectangle':
-                    if (shape.isinGripP1(mouse) || shape.isinGripP2(mouse) || shape.isinGripP3(mouse) || shape.isinGripP4(mouse)) {
+                    if (shape.isinGripP1(mouse) || shape.isinGripP2(mouse) || shape.isinGripP3(mouse) || shape.isinGripP4(mouse)
+                    || isinGripM1(mouse) || isinGripM2(mouse) || isinGripM3(mouse) || isinGripM4(mouse)) {
                         shape.grip.color = [1, 0, 0, 1];
                         drawSingle(shape.grip);
                         shape.grip.color = [0, 1, 0, 1];
