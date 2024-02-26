@@ -221,12 +221,34 @@ function handleMouseDown(mouse) {
                             }
                             else if (breakPoints.bs.isEqual(breakPoints.be)) {
                                 // если bs.isEqual(be), то найдена только одна точка
+
                                 if (mouse.x <= breakPoints.bs.x) {
-                                    if (shape.start.x <= breakPoints.bs.x) {
-                                        shape.start = breakPoints.bs;
+                                    if (shape.start.x === shape.end.x) {
+                                        if (mouse.y > breakPoints.bs.y) {
+                                            if (shape.start.y > breakPoints.bs.y) {
+                                                shape.start = breakPoints.bs;
+                                            }
+                                            else {
+                                                shape.end = breakPoints.bs;
+                                            }
+                                        }
+                                        else if (mouse.y < breakPoints.bs.y) {
+                                            if (shape.start.y < breakPoints.bs.y) {
+                                                shape.start = breakPoints.bs;
+                                            }
+                                            else { 
+                                                shape.end = breakPoints.bs;
+                                            }
+                                        }
                                     }
-                                    else if (shape.end.x <= breakPoints.bs.x) {
-                                        shape.end = breakPoints.bs;
+                                    else {
+
+                                        if (shape.start.x <= breakPoints.bs.x) {
+                                            shape.start = breakPoints.bs;
+                                        }
+                                        else if (shape.end.x <= breakPoints.bs.x) {
+                                            shape.end = breakPoints.bs;
+                                        }
                                     }
                                 }
                                 else if (mouse.x > breakPoints.bs.x) {
@@ -241,13 +263,23 @@ function handleMouseDown(mouse) {
                             else {
                                 const line1 = shape.getClone();
                                 const line2 = shape.getClone();
-                                if (shape.start.x <= shape.end.x) {
+                                if (shape.start.x < shape.end.x) {
                                     line1.end = breakPoints.bs;
                                     line2.start = breakPoints.be;
                                 }
-                                else {
+                                else if (shape.start.x > shape.end.x) {
                                     line1.end = breakPoints.be;
                                     line2.start = breakPoints.bs;
+                                }
+                                else {
+                                    if (shape.start.y < shape.end.y) {
+                                        line1.end = breakPoints.bs;
+                                        line2.start = breakPoints.be;
+                                    }
+                                    else if (shape.start.y > shape.end.y) {
+                                        line1.end = breakPoints.be;
+                                        line2.start = breakPoints.bs;
+                                    }
                                 }
                                 addShapes(line1);
                                 addShapes(line2);
@@ -269,7 +301,7 @@ function handleMouseDown(mouse) {
                 const line1 = horizontalLine.getClone();
                 line1.end = new Point(breakPoints.bs.x - s.tolerance, line1.start.y);
                 const line2 = horizontalLine.getClone();
-                line2.start = new Point(breakPoints.be.x + s.tolerance, line2.end.y);
+                line2.start = new Point(breakPoints.bs.x + s.tolerance, line2.end.y);
                 addShapes(line1);
                 addShapes(line2);
                 a.shapes = a.shapes.filter(s => s.id !== horizontalLine.id);

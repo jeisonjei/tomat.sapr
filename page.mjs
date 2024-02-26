@@ -63,7 +63,7 @@ export function colorMagnetsObserver(mouse) {
                     break;
                 case 'rectangle':
                     if (shape.isinGripP1(mouse) || shape.isinGripP2(mouse) || shape.isinGripP3(mouse) || shape.isinGripP4(mouse)
-                    || isinGripM1(mouse) || isinGripM2(mouse) || isinGripM3(mouse) || isinGripM4(mouse)) {
+                    ) {
                         shape.grip.color = [1, 0, 0, 1];
                         drawSingle(shape.grip);
                         shape.grip.color = [0, 1, 0, 1];
