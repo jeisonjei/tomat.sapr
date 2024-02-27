@@ -127,7 +127,7 @@ export class Line extends BasicShape {
     }
 
     getBreakPoints(mouse, shapes_) {
-        let bs, be;
+        let bs, be, crossing;
         const shapesCircle = shapes_.filter(shape => shape.type === 'circle');
         const shapesLine = shapes_.filter(shape => shape.type === 'line');
         let selectedLine = this;
@@ -151,11 +151,6 @@ export class Line extends BasicShape {
                     }
 
                 }
-                if (bs && bs.x > be.x) {
-                    let temp = { ...be };
-                    be = { ...bs };
-                    bs = { ...temp };
-                }
 
                 return { bs, be }; // Return immediately if circle condition is met
 
@@ -164,6 +159,7 @@ export class Line extends BasicShape {
 
         let closestLines = this.findClosestLines(mouse, shapesLine, 1);
         if (closestLines.length === 1) {
+            // только одна линия по близости
             if (this.doLinesIntersect(selectedLine, closestLines[0])) {
                 let intersectionPoint = this.findIntersectionPoint(selectedLine, closestLines[0]);
                 if (!bs) {
@@ -171,6 +167,7 @@ export class Line extends BasicShape {
                 } else {
                     be = intersectionPoint;
                 }
+                crossing = closestLines[0];
 
             }
         }
@@ -183,18 +180,13 @@ export class Line extends BasicShape {
                     } else {
                         be = intersectionPoint;
                     }
+                    crossing = null;
                 }
             }
     
         }
 
-        if (bs && be && bs.x > be.x) {
-            let temp = { ...be };
-            be = { ...bs };
-            bs = { ...temp };
-        }
-
-        return { bs, be };
+        return { bs:bs,be:be,crossing:crossing };
 
 
     }

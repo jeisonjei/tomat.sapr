@@ -238,3 +238,54 @@ export function isHorizontal(line1, line2) {
     return line2;
   }
 }
+
+
+
+export const getSideOfMouse = (mouseCoords, lineCoords) => {
+  const dx1 = mouseCoords.x - lineCoords.start.x;
+  const dy1 = mouseCoords.y - lineCoords.start.y;
+  const dx2 = lineCoords.end.x - lineCoords.start.x;
+  const dy2 = lineCoords.end.y - lineCoords.start.y;
+
+  const dotProduct = dx1 * dx2 + dy1 * dy2;
+  if (dotProduct > 0) {
+    return 'START';
+  } else if (dotProduct < 0) {
+    return 'END';
+  } else {
+    console.log('On the line');
+    return null;
+  };
+};
+
+
+export function getSideOfMouseRelativeToLine(mouse, breakStart, selectedLine) {
+  
+  // Определяем координаты начала и конца выбранной линии
+  const start = selectedLine.start;
+  const end = selectedLine.end;
+
+  // Определяем вектор, соединяющий начало и конец выбранной линии
+  const lineVector = end.subtract(breakStart);
+
+  // Определяем вектор, соединяющий начало выбранной линии и точку мыши
+  const mouseVector = mouse.subtract(breakStart);
+
+  // Вычисляем скалярное произведение векторов
+  const scalarProduct = lineVector.dot(mouseVector);
+
+  // Если скалярное произведение положительное, то точка мыши находится на одной стороне линии с началом
+  if (scalarProduct > 0) {
+    console.log('end');
+    return 'end';
+  }
+
+  // Если скалярное произведение отрицательное, то точка мыши находится на одной стороне линии с концом
+  if (scalarProduct < 0) {
+    console.log('start')
+    return 'start';
+  }
+
+  // Если скалярное произведение равно нулю, то точка мыши находится на самой линии
+  return 'onLine';
+}

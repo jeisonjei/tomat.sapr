@@ -14,10 +14,10 @@
 import { Point } from "./models/Point.mjs"
 import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
-import { applyTransformationToPoint, canvasGetMouse, convertWebGLToCanvas2DPoint, isHorizontal, resizeCanvasToDisplaySize, transformPointByMatrix3 } from "./shared/common.mjs";
+import { applyTransformationToPoint, canvasGetMouse, convertWebGLToCanvas2DPoint, getSideOfMouse, getSideOfMouseRelativeToLine, isHorizontal, resizeCanvasToDisplaySize, transformPointByMatrix3 } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
 import {  drawPrintArea,  gm, magnetsCheckbox, mode_elem, outputCheckbox, setMode } from "./page.mjs";
-import { editModeObserver,boundaryModeObserver,colorMagnetsObserver } from "./services/mouseMoveObservers";
+import { editModeObserver,boundaryModeObserver,colorMagnetsObserver } from "./services/moveObservers";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
 import { getMirrorMatrix, getMoveMatrix, getRotateMatrix } from "./shared/transform.mjs";
 import { observeMagnet, magnetState$, getExtensionCoordDraw, getAnglePosition } from "./shared/magnets.mjs";
@@ -207,79 +207,59 @@ function handleMouseDown(mouse) {
     }
 
 
+
     switch (gm()) {
 
         case 'break':
+
+
+            
             const filteredShapes = a.shapes.filter(shape => shape.isinSelectBoundary(mouse));
+
             // выбрана 1 линия
             if (filteredShapes.length === 1) {
                 filteredShapes.forEach(shape => {
+                    // так как массив длиной 1, то этот блок выполняется только один раз
                     switch (shape.type) {
                         case 'line':
-                            const breakPoints = shape.getBreakPoints(mouse, a.shapes);
-                            if (!breakPoints.bs) {
+                            const { bs, be } = shape.getBreakPoints(mouse, a.shapes);
+                            const side = getSideOfMouseRelativeToLine(mouse, bs, shape);
+                            
+                            if (!bs) {
                                 return;
                             }
-                            else if (breakPoints.bs.isEqual(breakPoints.be)) {
-                                // если bs.isEqual(be), то найдена только одна точка
-
-                                if (mouse.x <= breakPoints.bs.x) {
-                                    if (shape.start.x === shape.end.x) {
-                                        if (mouse.y > breakPoints.bs.y) {
-                                            if (shape.start.y > breakPoints.bs.y) {
-                                                shape.start = breakPoints.bs;
-                                            }
-                                            else {
-                                                shape.end = breakPoints.bs;
-                                            }
-                                        }
-                                        else if (mouse.y < breakPoints.bs.y) {
-                                            if (shape.start.y < breakPoints.bs.y) {
-                                                shape.start = breakPoints.bs;
-                                            }
-                                            else { 
-                                                shape.end = breakPoints.bs;
-                                            }
-                                        }
-                                    }
-                                    else {
-
-                                        if (shape.start.x <= breakPoints.bs.x) {
-                                            shape.start = breakPoints.bs;
-                                        }
-                                        else if (shape.end.x <= breakPoints.bs.x) {
-                                            shape.end = breakPoints.bs;
-                                        }
-                                    }
+                            else if ((bs && !be) || bs.isEqual(be)) {
+                                /**
+                                 * если bs.isEqual(be), то найдена только одна точка,
+                                 * в этом случае нужно обрезать линию с одной стороны
+                                 */
+                                if (side === 'start') {
+                                    shape.start = bs;
                                 }
-                                else if (mouse.x > breakPoints.bs.x) {
-                                    if (shape.start.x > breakPoints.bs.x) {
-                                        shape.start = breakPoints.bs;
-                                    }
-                                    else if (shape.end.x > breakPoints.bs.x) {
-                                        shape.end = breakPoints.bs;
-                                    }
+                                else if (side === 'end') {
+                                    shape.end = bs;
                                 }
+
                             }
                             else {
                                 const line1 = shape.getClone();
                                 const line2 = shape.getClone();
                                 if (shape.start.x < shape.end.x) {
-                                    line1.end = breakPoints.bs;
-                                    line2.start = breakPoints.be;
+                                    line1.end = bs;
+                                    line2.start = be;
                                 }
                                 else if (shape.start.x > shape.end.x) {
-                                    line1.end = breakPoints.be;
-                                    line2.start = breakPoints.bs;
+                                    line1.end = be;
+                                    line2.start = bs;
                                 }
                                 else {
                                     if (shape.start.y < shape.end.y) {
-                                        line1.end = breakPoints.bs;
-                                        line2.start = breakPoints.be;
+                                        line1.end = bs;
+                                        line2.start = be;
                                     }
                                     else if (shape.start.y > shape.end.y) {
-                                        line1.end = breakPoints.be;
-                                        line2.start = breakPoints.bs;
+                                        line1.end = be;
+                                        line2.start = bs;
                                     }
                                 }
                                 addShapes(line1);
@@ -1038,7 +1018,7 @@ function handleMouseMove(mouse) {
 
 
 function handleMouseUp(mouse) {
-    console.log('shapes', a.shapes.length);
+    // console.log('shapes', a.shapes.length);
     a.isMouseDown = false;
 
     if (a.magnetPosition) {

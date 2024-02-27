@@ -10,4 +10,12 @@ export function Point(x, y) {
         }
 
     }
+
+    // ---
+    this.subtract = (otherPoint) => {
+        return new Point(this.x - otherPoint.x, this.y - otherPoint.y);
+    }
+    this.dot = (otherVector) =>{
+        return this.x * otherVector.x + this.y * otherVector.y;
+      }
 }
