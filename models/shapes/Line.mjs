@@ -1,5 +1,5 @@
 import { Observable, filter, of } from "rxjs";
-import { convertWebGLToCanvas2DPoint, findClosestPoints, getLineSelectBoundary, getProjection, isPointInsideFrame, isinSelectBoundaryLine, transformPointByMatrix3 } from "../../shared/common.mjs";
+import { convertWebGLToCanvas2DPoint, findClosestPoints, getLineSelectBoundary, getProjection, getSideOfMouseRelativeToLine, isPointInsideFrame, isinSelectBoundaryLine, transformPointByMatrix3 } from "../../shared/common.mjs";
 import { getMoveMatrix } from "../../shared/transform.mjs";
 import { BasicShape } from "../BasicShape.mjs";
 import { Point } from "../Point.mjs";
@@ -135,11 +135,10 @@ export class Line extends BasicShape {
         for (const shape of shapesCircle) {
             if (this.isinCircle(shape, mouse)) {
                 const intersectionPoints = this.findCircleLineIntersections(shape, selectedLine);
-                console.log('intersectionPoints',intersectionPoints);
                 if (intersectionPoints.length > 0) {
                     if (intersectionPoints.length === 1) {
                         bs = intersectionPoints[0];
-                        be = bs;
+                        be = null;
                     }
                     else {
                         for (let point of intersectionPoints) {
@@ -210,102 +209,58 @@ export class Line extends BasicShape {
         }
     }
 
+    
+      
+
     findCircleLineIntersections(circle, line) {
-        const cx = circle.center.x;
-        const cy = circle.center.y;
-
-        
+        const lineVector = line.end.subtract(line.start);
+        const circleCenter = circle.center;
         const angleRad = Math.atan2(circle.center.y - line.start.y, circle.center.x - line.start.x);
+    
         const aspectCoeff = s.aspectRatio + (1 - s.aspectRatio) * (1 - Math.abs(Math.cos(angleRad)));
-        const r = circle.radius * aspectCoeff;
-
-
-        let x1, y1, x2, y2;
-        if (line.start.x === line.end.x) {
-            if ((line.start.y > cy - r && line.start.y < cy + r)) {
-                x1 = line.start.x;
-                y1 = line.start.y;
-                x2 = line.end.x;
-                y2 = line.end.y;
-
-            }
-            else if ((line.end.y > cy - r && line.end.y < cy + r)) {
-                x1 = line.end.x;
-                y1 = line.end.y;
-                x2 = line.start.x;
-                y2 = line.start.y;
-            }
-            else {
-                x1 = line.start.x;
-                y1 = line.start.y;
-                x2 = line.end.x;
-                y2 = line.end.y;
-
-            }
-        }
-        else {
-            if ((line.start.x > cx - r && line.start.x < cx + r)) {
-                x1 = line.start.x;
-                y1 = line.start.y;
-                x2 = line.end.x;
-                y2 = line.end.y;
-
-            }
-            else if ((line.end.x > cx - r && line.end.x < cx + r)) {
-                x1 = line.end.x;
-                y1 = line.end.y;
-                x2 = line.start.x;
-                y2 = line.start.y;
-            }
-            else {
-                x1 = line.start.x;
-                y1 = line.start.y;
-                x2 = line.end.x;
-                y2 = line.end.y;
-
-            }
-
-        }
-
-        // Calculate the coefficients for the quadratic formula
-        const dx = x2 - x1;
-        const dy = y2 - y1;
+        const circleRadius = circle.radius * aspectCoeff;
+    
+        const dx = line.end.x - line.start.x;
+        const dy = line.end.y - line.start.y;
+    
         const a = dx * dx + dy * dy;
-        const b = 2 * (dx * (x1 - cx) + dy * (y1 - cy));
-        const c = cx * cx + cy * cy + x1 * x1 + y1 * y1 - 2 * (cx * x1 + cy * y1) - r * r;
-
-        // Calculate the discriminant
+        const b = 2 * (dx * (line.start.x - circleCenter.x) + dy * (line.start.y - circleCenter.y));
+        const c = circleCenter.x * circleCenter.x + circleCenter.y * circleCenter.y + line.start.x * line.start.x + line.start.y * line.start.y - 2 * (circleCenter.x * line.start.x + circleCenter.y * line.start.y) - circleRadius * circleRadius;
+    
         const discriminant = b * b - 4 * a * c;
 
         if (discriminant < 0) {
             return []; // No intersection, return empty array
-        } else if (discriminant === 0) {
-            // One intersection point
-            const t = -b / (2 * a);
-            const intersectionX = x1 + t * dx;
-            const intersectionY = y1 + t * dy;
-            return [new Point(intersectionX, intersectionY)];
         } else {
             // Two intersection points
             const t1 = (-b + Math.sqrt(discriminant)) / (2 * a);
             const t2 = (-b - Math.sqrt(discriminant)) / (2 * a);
-            const intersection1 = new Point(x1 + t1 * dx, y1 + t1 * dy);
-            const intersection2 = new Point(x1 + t2 * dx, y1 + t2 * dy);
-
-            // Adjust intersection points for WebGl coordinate system
-            if (dx < 0) {
-                intersection1.x = x1 - Math.abs(t1) * Math.abs(dx);
-                intersection2.x = x1 - Math.abs(t2) * Math.abs(dx);
+            const intersection1 = new Point(line.start.x + t1 * dx, line.start.y + t1 * dy);
+            const intersection2 = new Point(line.start.x + t2 * dx, line.start.y + t2 * dy);
+            if (this.isinCircle(circle,line.start) || this.isinCircle(circle, line.end)) {
+                if (this.isinCircle(circle,line.start)) {
+                    const side = getSideOfMouseRelativeToLine(line.start, intersection1, line);
+                    if (side === 'start') {
+                        return [intersection1];
+                    }
+                    else {
+                        return [intersection2];
+                    }
+                    
+                }
+                else if (this.isinCircle(circle, line.end)) {
+                    const side = getSideOfMouseRelativeToLine(line.end, intersection1, line);
+                    if (side === 'start') {
+                        return [intersection1];
+                    }
+                    else {
+                        return [intersection2];
+                    }
+                }
             }
-            if (dy < 0) {
-                intersection1.y = y1 - Math.abs(t1) * Math.abs(dy);
-                intersection2.y = y1 - Math.abs(t2) * Math.abs(dy);
-            }
-
-            if (intersection1.isEqual(intersection2)) {
-                return [intersection1]; // Return one intersection point if they are equal
-            } else {
-                return [intersection1, intersection2]; // Return both intersection points if they are different
+            else {
+                return [intersection1, intersection2];
+                
             }
         }
     }

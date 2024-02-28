@@ -223,7 +223,6 @@ function handleMouseDown(mouse) {
                     switch (shape.type) {
                         case 'line':
                             const { bs, be } = shape.getBreakPoints(mouse, a.shapes);
-                            console.log([bs,be]);
                             if (!bs) {
                                 return;
                             }
