@@ -135,6 +135,7 @@ export class Line extends BasicShape {
         for (const shape of shapesCircle) {
             if (this.isinCircle(shape, mouse)) {
                 const intersectionPoints = this.findCircleLineIntersections(shape, selectedLine);
+                console.log('intersectionPoints',intersectionPoints);
                 if (intersectionPoints.length > 0) {
                     if (intersectionPoints.length === 1) {
                         bs = intersectionPoints[0];
@@ -212,7 +213,12 @@ export class Line extends BasicShape {
     findCircleLineIntersections(circle, line) {
         const cx = circle.center.x;
         const cy = circle.center.y;
-        const r = circle.radius;
+
+        
+        const angleRad = Math.atan2(circle.center.y - line.start.y, circle.center.x - line.start.x);
+        const aspectCoeff = s.aspectRatio + (1 - s.aspectRatio) * (1 - Math.abs(Math.cos(angleRad)));
+        const r = circle.radius * aspectCoeff;
+
 
         let x1, y1, x2, y2;
         if (line.start.x === line.end.x) {
@@ -303,6 +309,7 @@ export class Line extends BasicShape {
             }
         }
     }
+    
     doLinesIntersect(line1, line2) {
         const x1 = line1.start.x;
         const y1 = line1.start.y;

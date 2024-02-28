@@ -223,10 +223,11 @@ function handleMouseDown(mouse) {
                     switch (shape.type) {
                         case 'line':
                             const { bs, be } = shape.getBreakPoints(mouse, a.shapes);
+                            console.log([bs,be]);
                             if (!bs) {
                                 return;
                             }
-                            else if ((bs && !be)) {
+                            else if ((bs && !be) || (bs?.isEqual(be))) {
                                 const side = getSideOfMouseRelativeToLine(mouse, bs, shape);
                                 if (side === 'start') {
                                     shape.start = bs;

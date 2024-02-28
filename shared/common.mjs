@@ -332,6 +332,9 @@ export function findClosestPoints(mouse, points) {
 
 
 
+
+
+
 export function getScalar(mouse, point) {
   const result = mouse.dot(point);
   return result;
