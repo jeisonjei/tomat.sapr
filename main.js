@@ -223,16 +223,11 @@ function handleMouseDown(mouse) {
                     switch (shape.type) {
                         case 'line':
                             const { bs, be } = shape.getBreakPoints(mouse, a.shapes);
-                            const side = getSideOfMouseRelativeToLine(mouse, bs, shape);
-                            
                             if (!bs) {
                                 return;
                             }
-                            else if ((bs && !be) || bs.isEqual(be)) {
-                                /**
-                                 * если bs.isEqual(be), то найдена только одна точка,
-                                 * в этом случае нужно обрезать линию с одной стороны
-                                 */
+                            else if ((bs && !be)) {
+                                const side = getSideOfMouseRelativeToLine(mouse, bs, shape);
                                 if (side === 'start') {
                                     shape.start = bs;
                                 }
@@ -242,26 +237,20 @@ function handleMouseDown(mouse) {
 
                             }
                             else {
+                                const side = getSideOfMouseRelativeToLine(mouse, bs, shape);
                                 const line1 = shape.getClone();
                                 const line2 = shape.getClone();
-                                if (shape.start.x < shape.end.x) {
-                                    line1.end = bs;
-                                    line2.start = be;
-                                }
-                                else if (shape.start.x > shape.end.x) {
+                                if (side === 'start') {
                                     line1.end = be;
                                     line2.start = bs;
                                 }
-                                else {
-                                    if (shape.start.y < shape.end.y) {
-                                        line1.end = bs;
-                                        line2.start = be;
-                                    }
-                                    else if (shape.start.y > shape.end.y) {
-                                        line1.end = be;
-                                        line2.start = bs;
-                                    }
+                                else if (side === 'end') {
+                                    line1.start = be;
+                                    line2.end = bs;
                                 }
+
+
+
                                 addShapes(line1);
                                 addShapes(line2);
                                 a.shapes = a.shapes.filter(s => s.id !== shape.id);

@@ -231,7 +231,7 @@ export function isHorizontal(line1, line2) {
   const deltaY1 = Math.abs(line1.start.y - line1.end.y);
   const deltaY2 = Math.abs(line2.start.y - line2.end.y);
 
-  if (deltaY1<deltaY2) {
+  if (deltaY1 < deltaY2) {
     return line1;
   }
   else {
@@ -260,7 +260,7 @@ export const getSideOfMouse = (mouseCoords, lineCoords) => {
 
 
 export function getSideOfMouseRelativeToLine(mouse, breakStart, selectedLine) {
-  
+
   // Определяем координаты начала и конца выбранной линии
   const start = selectedLine.start;
   const end = selectedLine.end;
@@ -276,16 +276,82 @@ export function getSideOfMouseRelativeToLine(mouse, breakStart, selectedLine) {
 
   // Если скалярное произведение положительное, то точка мыши находится на одной стороне линии с началом
   if (scalarProduct > 0) {
-    console.log('end');
     return 'end';
   }
 
   // Если скалярное произведение отрицательное, то точка мыши находится на одной стороне линии с концом
   if (scalarProduct < 0) {
-    console.log('start')
     return 'start';
   }
 
   // Если скалярное произведение равно нулю, то точка мыши находится на самой линии
   return 'onLine';
+}
+
+export function getProjection(mouse, line) {
+  const lineVector = { x: line.end.x - line.start.x, y: line.end.y - line.start.y };
+  const mouseVector = { x: mouse.x - line.start.x, y: mouse.y - line.start.y };
+
+  const dotProduct = (mouseVector.x * lineVector.x + mouseVector.y * lineVector.y);
+  const lineLengthSquared = lineVector.x * lineVector.x + lineVector.y * lineVector.y;
+
+  const projectionScalar = dotProduct / lineLengthSquared;
+  const projectionPoint = new Point(line.start.x + projectionScalar * lineVector.x, line.start.y + projectionScalar * lineVector.y);
+
+  return projectionPoint;
+}
+
+export function findClosestPoints(mouse, points) {
+  const result = points.map(p => {
+    const mouseVector = mouse.subtract(p);
+    return { scalar: getScalar(mouse, mouseVector), point: p }
+  });
+
+  let firstNegativeScalar = null;
+  let firstPositiveScalar = null;
+
+  result.forEach(({ scalar, point }) => {
+    if (scalar < 0 && (!firstNegativeScalar || scalar > firstNegativeScalar.scalar)) {
+      firstNegativeScalar = { scalar, point };
+    } else if (scalar > 0 && (!firstPositiveScalar || scalar < firstPositiveScalar.scalar)) {
+      firstPositiveScalar = { scalar, point };
+    }
+  });
+
+  let closestPoints = [];
+  if (firstNegativeScalar && firstPositiveScalar) {
+    closestPoints = [firstNegativeScalar.point, firstPositiveScalar.point];
+  } else if (firstNegativeScalar) {
+    closestPoints = [firstNegativeScalar.point];
+  } else if (firstPositiveScalar) {
+    closestPoints = [firstPositiveScalar.point];
+  }
+
+  return closestPoints;
+}
+
+
+
+export function getScalar(mouse, point) {
+  const result = mouse.dot(point);
+  return result;
+}
+
+export function getDistance(mouse, point) {
+  const result = Math.hypot(mouse.x - point.x, mouse.y - point.y)
+  return result;
+}
+export function isPointBetweenTwoPointsOnLine(point1, point2, selectedPoint) {
+  const vector1 = { x: point1.x - selectedPoint.x, y: point1.y - selectedPoint.y };
+  const vector2 = { x: point2.x - selectedPoint.x, y: point2.y - selectedPoint.y };
+
+  const dotProduct = vector1.x * vector2.x + vector1.y * vector2.y;
+
+  if (dotProduct > 0) {
+    return true;
+  } else if (dotProduct < 0) {
+    return false;
+  } else {
+    return false;
+  }
 }
