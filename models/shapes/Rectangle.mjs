@@ -197,10 +197,15 @@ export class Rectangle extends BasicShape {
     isinGripM2 = (mouse) => this.grip.isin(this.m2, mouse);
     isinGripM3 = (mouse) => this.grip.isin(this.m3, mouse);
     isinGripM4 = (mouse) => this.grip.isin(this.m4, mouse);
+    isinGripCenter = (mouse) => this.grip.isin(this.center, mouse);
     isinTripHtop = (mouse) => this.tripH.isin(this.m1, mouse);
     isinTripHbottom = (mouse) => this.tripH.isin(this.m3, mouse);
     isinTripVleft = (mouse) => this.tripV.isin(this.m4, mouse);
     isinTripVright = (mouse) => this.tripV.isin(this.m2, mouse);
+    isinTripVMtop = (mouse) => this.tripV.isin(this.m1, mouse);
+    isinTripVMbottom = (mouse) => this.tripV.isin(this.m3, mouse);
+    isinTripHMright = (mouse) => this.tripH.isin(this.m2, mouse);
+    isinTripHMleft = (mouse) => this.tripH.isin(this.m4, mouse);
     // --------- MAGNETS ---------
 
     zoom(zl) {

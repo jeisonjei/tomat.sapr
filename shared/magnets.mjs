@@ -44,8 +44,12 @@ export function observeMagnet(shapes, mouse) {
             checkFunction(shape, 'isinTripHq3', mouse) ||
             checkFunction(shape, 'isinTripVq4', mouse) ||
             checkFunction(shape, 'isinTripVq2', mouse) ||
-            checkFunction(shape, 'isinTripHmid', mouse)
-            // checkFunction(shape, 'isinTripVmid', mouse)
+            checkFunction(shape, 'isinTripHmid', mouse) ||
+            checkFunction(shape, 'isinTripVMtop', mouse) ||
+            checkFunction(shape, 'isinTripVMbottom', mouse) ||
+            checkFunction(shape, 'isinTripHMright', mouse) ||
+            checkFunction(shape, 'isinTripHMleft', mouse) ||
+            checkFunction(shape, 'isinTripVmid', mouse)
         )),
         scan((acc, shape) => {
             switch (shape.type) {
@@ -83,14 +87,16 @@ export function observeMagnet(shapes, mouse) {
                             shape.tripV.start = shape.end;
                             acc.push(shape.tripV);
                             break;
-                        // case shape.isinTripHmid(mouse):
-                        //     shape.tripH.mouse = mouse;
-                        //     shape.tripH.start = shape.mid;
-                        //     acc.push(shape.tripH);
-                        // case shape.isinTripVmid(mouse):
-                        //     shape.tripV.mouse = mouse;
-                        //     shape.tripV.start = shape.mid;
-                        //     acc.push(shape.tripV);
+                        case shape.isinTripHmid(mouse):
+                            shape.tripH.mouse = mouse;
+                            shape.tripH.start = shape.mid;
+                            acc.push(shape.tripH);
+                            break;
+                        case shape.isinTripVmid(mouse):
+                            shape.tripV.mouse = mouse;
+                            shape.tripV.start = shape.mid;
+                            acc.push(shape.tripV);
+                            break;
                         default:
                             break;
 
@@ -130,6 +136,10 @@ export function observeMagnet(shapes, mouse) {
                             shape.grip.center = shape.m4;
                             acc.push(shape.grip);
                             return acc;
+                        case shape.isinGripCenter(mouse):
+                            shape.grip.center = shape.center;
+                            acc.push(shape.grip);
+                            return acc;
                         case shape.isinTripHtop(mouse):
                             shape.tripH.mouse = mouse;
                             shape.tripH.start = shape.m1;
@@ -151,6 +161,27 @@ export function observeMagnet(shapes, mouse) {
                             shape.tripV.start = shape.m2;
                             acc.push(shape.tripV);
                             break;
+                        case shape.isinTripVMtop(mouse):
+                            shape.tripV.mouse = mouse;
+                            shape.tripV.start = shape.m1;
+                            acc.push(shape.tripV);
+                            break;
+                        case shape.isinTripVMbottom(mouse):
+                            shape.tripV.mouse = mouse;
+                            shape.tripV.start = shape.m3;
+                            acc.push(shape.tripV);
+                            break;
+                        case shape.isinTripHMleft(mouse):
+                            shape.tripH.mouse = mouse;
+                            shape.tripH.start = shape.m2;
+                            acc.push(shape.tripH);
+                            break;
+                        case shape.isinTripHMright(mouse):
+                            shape.tripH.mouse = mouse;
+                            shape.tripH.start = shape.m4;
+                            acc.push(shape.tripH);
+                            break;
+                        
                         default:
                             break;
                     }
