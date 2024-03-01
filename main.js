@@ -1,8 +1,11 @@
 /**
  * TODO
+ * чтение, рефакторинг ...
+ * обрезка линии по кругу - неверные точки, когда линия под углом
  * zoom окном
  * авто-зум когда выбрана рамка печати
  * неудобно, что рамка выбора линии распространяется не на всю линию
+ * единые пиксельные координаты для текста и webgl
  * перемещение и копирование строго по горизонтали или вертикали
  * заполнение основной надписи, нужно сделать красиво и удобно
  * области печати до вывода в PDF
@@ -10,7 +13,9 @@
  * специальные символы в тексте
  * операция scale
  * resize canvas
- * 
+ * дизайн
+ * сайт
+ * модуль отопления
  */
 
 'use strict'
@@ -226,6 +231,7 @@ function handleMouseDown(mouse) {
                     switch (shape.type) {
                         case 'line':
                             const { bs, be } = shape.getBreakPoints(mouse, a.shapes);
+                            
                             if (!bs) {
                                 return;
                             }
@@ -240,6 +246,7 @@ function handleMouseDown(mouse) {
 
                             }
                             else {
+                                // для случая с кругом, так как там обычно возвращаются две точки
                                 const side = getSideOfMouseRelativeToLine(mouse, bs, shape);
                                 const line1 = shape.getClone();
                                 const line2 = shape.getClone();
@@ -1010,7 +1017,7 @@ function handleMouseMove(mouse) {
 
 
 function handleMouseUp(mouse) {
-    // console.log('shapes', a.shapes.length);
+    console.log('shapes', a.shapes.length);
     a.isMouseDown = false;
 
     if (a.magnetPosition) {
