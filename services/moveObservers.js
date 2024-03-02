@@ -2,7 +2,7 @@ import { Point } from "../models/Point.mjs";
 import { a, t } from '../main.js';
 import { s } from '../shared/settings.mjs'
 import { gm, setMode, mode_elem } from "../page.mjs";
-import { checkFunction } from "../shared/common.mjs";
+import { checkFunction, getColor } from "../shared/common.mjs";
 import { drawSingle } from "../main.js";
 
 export function colorMagnetsObserver(mouse) {
@@ -13,12 +13,13 @@ export function colorMagnetsObserver(mouse) {
         return;
     }
 
-    else if (['move','copy','rotate','rotatecopy','mirror'].includes(gm())) {
+    else if (['move', 'copy', 'rotate', 'rotatecopy', 'mirror'].includes(gm())) {
+        const color = getColor(212, 39, 216,1);
         a.shapes.filter(shape => shape.isSelected).forEach(shape => {
             switch (shape.type) {
                 case 'line':
                     if (shape.isinGripStart(mouse) || shape.isinGripEnd(mouse)) {
-                        shape.grip.color = [1, 0, 0, 1];
+                        shape.grip.color = color;
                         drawSingle(shape.grip);
                         shape.grip.color = [0, 1, 0, 1];
                     }
@@ -26,14 +27,14 @@ export function colorMagnetsObserver(mouse) {
                 case 'rectangle':
                     if (shape.isinGripP1(mouse) || shape.isinGripP2(mouse) || shape.isinGripP3(mouse) || shape.isinGripP4(mouse)
                     ) {
-                        shape.grip.color = [1, 0, 0, 1];
+                        shape.grip.color = color;
                         drawSingle(shape.grip);
                         shape.grip.color = [0, 1, 0, 1];
                     }
                     break;
                 case 'circle':
                     if (shape.isinGripQ1(mouse) || shape.isinGripQ2(mouse) || shape.isinGripQ3(mouse) || shape.isinGripQ4(mouse)) {
-                        shape.grip.color = [1, 0, 0, 1];
+                        shape.grip.color = color;
                         drawSingle(shape.grip);
                         shape.grip.color = [0, 1, 0, 1];
                     }
@@ -112,8 +113,10 @@ export function boundaryModeObserver(mouse) {
 
     t.editBoundary = false;
 
+    
     if (gm() === 'text') {
         const isinSelectBoundary = t.utext.filter(t => t.isinSelectBoundary(mouse));
+
         if (isinSelectBoundary.length > 0) {
             for (const textLine of isinSelectBoundary) {
                 textLine.setSelectBoundary();

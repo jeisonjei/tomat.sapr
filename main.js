@@ -349,8 +349,6 @@ function handleMouseDown(mouse) {
                         case 'line':
                             shape.start = transformPointByMatrix3(move_mat, shape.start);
                             shape.end = transformPointByMatrix3(move_mat, shape.end);
-                            console.log('shape.start', shape.start);
-                            console.log('shape.end',shape.end);
                             a.vertices = replaceVertices(shape, a.vertices);
 
                             break;
@@ -375,10 +373,8 @@ function handleMouseDown(mouse) {
 
                 // --- text
                 t.utext.filter(t => t.isSelected).forEach(text => {
-                    const astart = convertWebGLToCanvas2DPoint(a.start, canvasText.width, canvasText.height);
-                    const aclickMoveStart = convertWebGLToCanvas2DPoint(a.clickMoveStart, canvasText.width, canvasText.height);
-                    const deltaX = aclickMoveStart.x - astart.x;
-                    const deltaY = aclickMoveStart.y - astart.y;
+                    const deltaX = a.clickMoveStart.x - a.start.x;
+                    const deltaY = a.clickMoveStart.y - a.start.y;
                     text.start.x = text.moveXclick - deltaX;
                     text.start.y = text.moveYclick - deltaY;
                     text.edit = null;
@@ -440,10 +436,8 @@ function handleMouseDown(mouse) {
 
                 // --- text
                 t.utext.filter(t => t.isSelected).forEach(text => {
-                    const astart = convertWebGLToCanvas2DPoint(a.start, canvasText.width, canvasText.height);
-                    const aclickMoveStart = convertWebGLToCanvas2DPoint(a.clickCopyStart, canvasText.width, canvasText.height);
-                    const deltaX = aclickMoveStart.x - astart.x;
-                    const deltaY = aclickMoveStart.y - astart.y;
+                    const deltaX = a.clickCopyStart.x - a.start.x;
+                    const deltaY = a.clickCopyStart.y - a.start.y;
                     text.start.x = text.copyClick.x - deltaX;
                     text.start.y = text.copyClick.y - deltaY;
                     text.edit = null;
@@ -1463,7 +1457,7 @@ function handleMouseDownText(mouse) {
 
 
     for (const textLine of t.utext) {
-        if (textLine.isinSelectBoundary(mouse, true)) {
+        if (textLine.isinSelectBoundary(mouse)) {
             t.editId = textLine.id;
             t.textPosition = { ...textLine.start };
             drawCursor(0, t.editId);
@@ -1521,6 +1515,7 @@ function handleMouseDownText(mouse) {
 
     // только для magnetsObserver, также используется в boundaryModeObserver для отрисовки рамки
     a.shapes.push(...t.utext);
+    
 
 
 }

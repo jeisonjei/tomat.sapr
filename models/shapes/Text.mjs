@@ -62,22 +62,11 @@ export class Text extends BasicShape {
          */
         this.update(this.textArray);
 
-        let p1, p2, p4;
-        if (!pixels) {
-            p1 = canvasGetWebglCoordinates(this.p1,this.context.canvas);
-            p2 = canvasGetWebglCoordinates(this.p2, this.context.canvas);
-            p4 = canvasGetWebglCoordinates(this.p3, this.context.canvas);
-    
-        }
-        else {
-            p1 = this.p1;
-            p2 = this.p2;
-            p4 = this.p3;
-        }
+
 
         
-        if (mouse.x > p1.x && mouse.x < p2.x) {
-            if ((mouse.y > p1.y && mouse.y < p4.y) || (mouse.y< p1.y && mouse.y > p4.y)) {
+        if (mouse.x > this.p1.x && mouse.x < this.p2.x) {
+            if ((mouse.y > this.p1.y && mouse.y < this.p4.y) || (mouse.y< this.p1.y && mouse.y > this.p4.y)) {
                 return true;
             }
         }
@@ -89,31 +78,24 @@ export class Text extends BasicShape {
          * Функция устанавливает точки для selectBoundary.
          * Так как selectBoundary отрисовывается в webgl, то сразу переведём координаты в webgl
          */
-        const p1 = canvasGetWebglCoordinates(this.p1,this.context.canvas);
-        const p2 = canvasGetWebglCoordinates(this.p2, this.context.canvas);
-        const p3 = canvasGetWebglCoordinates(this.p3, this.context.canvas);
-        const p4 = canvasGetWebglCoordinates(this.p4, this.context.canvas);
         
-        this.selectBoundary.p1 = p1;
-        this.selectBoundary.p2 = p2;
-        this.selectBoundary.p3 = p3;
-        this.selectBoundary.p4 = p4;
+        this.selectBoundary.p1 = this.p1;
+        this.selectBoundary.p2 = this.p2;
+        this.selectBoundary.p3 = this.p3;
+        this.selectBoundary.p4 = this.p4;
 
     }
 
     isinGripStart(mouse) {
-        const s = canvasGetWebglCoordinates(this.start, this.context.canvas);
-        return this.grip.isin(s, mouse);
+        return this.grip.isin(this.start, mouse);
     }
 
     isinTripHstart(mouse) {
-        const s = canvasGetWebglCoordinates(this.start, this.context.canvas)
-        return this.tripH.isin(s, mouse);
+        return this.tripH.isin(this.start, mouse);
     }
 
     isinTripVstart(mouse) {
-        const s = canvasGetWebglCoordinates(this.start, this.context.canvas);
-        return this.tripV.isin(s, mouse);
+        return this.tripV.isin(this.start, mouse);
     }
 
     pan(tx, ty) {
