@@ -1478,7 +1478,7 @@ function handleMouseDownText(mouse) {
 
 
     if (a.magnetPosition) {
-        t.textPosition = { ...convertWebGLToCanvas2DPoint(a.magnetPosition, canvasText.width, canvasText.height) };
+        t.textPosition = { ...a.magnetPosition };
     }
     else {
         t.textPosition = new Point(mouse.x, mouse.y);

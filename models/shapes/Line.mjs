@@ -53,16 +53,7 @@ export class Line extends BasicShape {
             this.end.x, this.end.y,
         ];
     }
-    getVerticesPixels(scale) {
 
-        const startPixels = convertWebGLToCanvas2DPoint(this.start, s.canvasWidth, s.canvasHeight);
-        const endPixels = convertWebGLToCanvas2DPoint(this.end, s.canvasWidth, s.canvasHeight);
-
-        return [
-            startPixels.x / scale, startPixels.y / scale,
-            endPixels.x / scale, endPixels.y / scale
-        ]
-    }
 
     getClone() {
         const line = new Line(this.aspectRatio, this.start, this.end, this.color);

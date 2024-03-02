@@ -391,30 +391,31 @@ savePdfButton.addEventListener('click', function () {
     if (filteredShapes.length > 0) {
         filteredShapes.forEach(shape => {
 
-            const verticesPixels = shape.getVerticesPixels(scaleX);
+            const verticesPixels = shape.getVerticesArray();
+            console.log(verticesPixels);
             switch (shape.type) {
                 case 'line':
                     // TODO
                     /**
                      * к линиям относится то же самое, что и к прямоугольникам
                      */
-                    pdf.line(verticesPixels[0], verticesPixels[1], verticesPixels[2], verticesPixels[3]);
+                    pdf.line(verticesPixels[0]/scaleX, verticesPixels[1]/scaleX, verticesPixels[2]/scaleX, verticesPixels[3]/scaleX);
                     break;
                 case 'rectangle':
                     /**
                      * при операциях поворота и зеркального отображения прямоугольника нужно переназначать точки p1,p2,p3,p4
                      * чтобы точка p1 была всегда в верхнем левом углу
                      */
-                    const width = (shape.p2.x - shape.p1.x) / (1 / s.canvasWidth * 2) / scaleX;
-                    const height = (shape.p3.y - shape.p2.y) / (1 / s.canvasHeight * 2) / scaleX;
-                    pdf.rect(verticesPixels[6], verticesPixels[7], width, height);
+                    const width = (shape.p3.x-shape.p1.x) /  scaleX;
+                    const height = (shape.p1.y - shape.p4.y) / scaleX;
+                    pdf.rect(verticesPixels[6]/scaleX, verticesPixels[7]/scaleX, width, height);
 
                     break;
                 case 'circle':
-                    const center = convertWebGLToCanvas2DPoint(shape.center, s.canvasWidth, s.canvasHeight);
+                    const center = shape.center;
                     const x = center.x / scaleX;
                     const y = center.y / scaleX;
-                    const radius = shape.radius  / (1 / s.canvasWidth * 2) / scaleX;
+                    const radius = shape.radius  /  scaleX;
                     pdf.circle(x, y, radius);
 
                     break;

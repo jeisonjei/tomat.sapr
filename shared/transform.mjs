@@ -23,6 +23,7 @@ export function getRotateSnap(angle_rad) {
 }
 
 export function getMoveMatrix(p1, p2) {
+    // матрицы продолжают быть в webgl
     const point1 = canvasGetWebglCoordinates(p1, s.webglContext.canvas);
     const point2 = canvasGetWebglCoordinates(p2, s.webglContext.canvas);
     const tx = point2.x - point1.x;
@@ -33,7 +34,8 @@ export function getMoveMatrix(p1, p2) {
     return move_mat;
 }
 
-export function getRotateMatrix(c,m) {
+export function getRotateMatrix(c, m) {
+    // матрицы продолжают быть в webgl
     const center = canvasGetWebglCoordinates(c,s.webglContext.canvas);
     const mouse = canvasGetWebglCoordinates(m, s.webglContext.canvas);
     
@@ -61,6 +63,7 @@ export function getRotateMatrix(c,m) {
 }
 
 export function getMirrorMatrix(c, m) {
+    // матрицы продолжают быть в webgl
     const center = canvasGetWebglCoordinates(c,s.webglContext.canvas);
     const mouse = canvasGetWebglCoordinates(m, s.webglContext.canvas);
 
