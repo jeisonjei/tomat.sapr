@@ -24,8 +24,8 @@ import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
 import { applyTransformationToPoint, canvasGetMouse, canvasGetMouseWebgl, canvasGetWebglCoordinates, convertPixelToWebGLCoordinate, convertWebGLToCanvas2DPoint, getSideOfMouse, getSideOfMouseRelativeToLine, isHorizontal, resizeCanvasToDisplaySize, transformPointByMatrix3 } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
-import {  drawPrintArea,  gm, magnetsCheckbox, mode_elem, outputCheckbox, setMode } from "./page.mjs";
-import { editModeObserver,boundaryModeObserver,colorMagnetsObserver } from "./services/moveObservers";
+import { drawPrintArea, gm, magnetsCheckbox, mode_elem, outputCheckbox, setMode } from "./page.mjs";
+import { editModeObserver, boundaryModeObserver, colorMagnetsObserver } from "./services/moveObservers";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
 import { getMirrorMatrix, getMoveMatrix, getRotateMatrix } from "./shared/transform.mjs";
 import { observeMagnet, magnetState$, getExtensionCoordDraw, getAnglePosition } from "./shared/magnets.mjs";
@@ -79,7 +79,7 @@ gl.uniform4f(u_color, 1, 0, 0, 1);
 gl.uniformMatrix3fv(u_move, false, mat3.create());
 gl.uniformMatrix3fv(u_pan, false, mat3.create());
 gl.uniformMatrix3fv(u_rotate, false, mat3.create());
-gl.uniform2f(u_resolution,gl.canvas.width,gl.canvas.height);
+gl.uniform2f(u_resolution, gl.canvas.width, gl.canvas.height);
 // --------- WEBGL ---------
 
 s.setAspectRatio(canvas.width, canvas.height);
@@ -222,7 +222,7 @@ function handleMouseDown(mouse) {
         case 'break':
 
 
-            
+
             const filteredShapes = a.shapes.filter(shape => shape.isinSelectBoundary(mouse));
 
             // выбрана 1 линия
@@ -232,7 +232,7 @@ function handleMouseDown(mouse) {
                     switch (shape.type) {
                         case 'line':
                             const { bs, be } = shape.getBreakPoints(mouse, a.shapes);
-                            
+
                             if (!bs) {
                                 return;
                             }
@@ -739,7 +739,7 @@ function handleMouseMove(mouse) {
 
         // pan
         if (a.pan) {
-            const mouseWebgl = canvasGetWebglCoordinates(mouse,canvas);
+            const mouseWebgl = canvasGetWebglCoordinates(mouse, canvas);
 
             if (a.isPanning) {
                 a.pan_start_x = mouseWebgl.x;
@@ -747,11 +747,11 @@ function handleMouseMove(mouse) {
                 a.isPanning = false;
             }
 
-            a.pan_tx =  mouseWebgl.x- a.pan_start_x;
+            a.pan_tx = mouseWebgl.x - a.pan_start_x;
             a.pan_ty = mouseWebgl.y - a.pan_start_y;
 
 
-            
+
             const pan_mat = mat3.fromTranslation(mat3.create(), [a.pan_tx, a.pan_ty, 0]);
             a.pan_mat = [...pan_mat];
             mat3.transpose(pan_mat, pan_mat);
@@ -914,13 +914,13 @@ function handleMouseMove(mouse) {
 
                     const height = (mouse.y - a.start.y);
                     if (height < 0 && a.rectangle.width < 0) {
-                        a.rectangle.height = a.rectangle.width ;
+                        a.rectangle.height = a.rectangle.width;
                     } else if (height < 0 && a.rectangle.width > 0) {
-                        a.rectangle.height = -a.rectangle.width ;
+                        a.rectangle.height = -a.rectangle.width;
                     } else if (height > 0 && a.rectangle.width < 0) {
-                        a.rectangle.height = -a.rectangle.width ;
+                        a.rectangle.height = -a.rectangle.width;
                     } else if (height > 0 && a.rectangle.width > 0) {
-                        a.rectangle.height = a.rectangle.width ;
+                        a.rectangle.height = a.rectangle.width;
                     }
                     a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
                     a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
@@ -931,7 +931,7 @@ function handleMouseMove(mouse) {
                     break;
 
                 case 'circle':
-                    a.circle.radius = Math.hypot((mouse.x - a.start.x) , mouse.y - a.start.y);
+                    a.circle.radius = Math.hypot((mouse.x - a.start.x), mouse.y - a.start.y);
                     drawSingle(a.circle);
                     break;
 
@@ -942,7 +942,7 @@ function handleMouseMove(mouse) {
             switch (gm()) {
                 case 'move':
                     if (a.clickMoveStart) {
-                        const move_mat = getMoveMatrix(a.clickMoveStart,mouse);
+                        const move_mat = getMoveMatrix(a.clickMoveStart, mouse);
                         gl.uniformMatrix3fv(u_move, false, move_mat);
                         a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                             drawSingle(shape);
@@ -1150,13 +1150,13 @@ function handleMouseUp(mouse) {
 
             const height = (a.end.y - a.start.y);
             if (height < 0 && a.rectangle.width < 0) {
-                a.rectangle.height = a.rectangle.width ;
+                a.rectangle.height = a.rectangle.width;
             } else if (height < 0 && a.rectangle.width > 0) {
-                a.rectangle.height = -a.rectangle.width ;
+                a.rectangle.height = -a.rectangle.width;
             } else if (height > 0 && a.rectangle.width < 0) {
-                a.rectangle.height = -a.rectangle.width ;
+                a.rectangle.height = -a.rectangle.width;
             } else if (height > 0 && a.rectangle.width > 0) {
-                a.rectangle.height = a.rectangle.width ;
+                a.rectangle.height = a.rectangle.width;
             }
             a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
             a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
@@ -1165,7 +1165,7 @@ function handleMouseUp(mouse) {
             addShapes(a.rectangle.getClone());
             break;
         case 'circle':
-            a.circle.radius = Math.hypot((a.end.x - a.start.x) , a.end.y - a.start.y);;
+            a.circle.radius = Math.hypot((a.end.x - a.start.x), a.end.y - a.start.y);;
             addShapes(a.circle.getClone());
             break;
         default:
@@ -1330,7 +1330,7 @@ export function drawShapes() {
     a.shapes.forEach(shape => {
         drawSingle(shape);
     })
-}   
+}
 
 
 export function drawSingle(shape) {
@@ -1515,7 +1515,7 @@ function handleMouseDownText(mouse) {
 
     // только для magnetsObserver, также используется в boundaryModeObserver для отрисовки рамки
     a.shapes.push(...t.utext);
-    
+
 
 
 }
@@ -1579,6 +1579,27 @@ function handleKeyPress(key) {
 
 
     }
+    else if (key === 'Enter') {
+        t.textPosition = new Point(t.textPosition.x,t.textPosition.y+36);
+        const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
+
+        t.utext = t.utext.filter(t => t.text !== '');
+
+        addText(textLine);
+
+        context.clearRect(0, 0, canvasText.width, canvasText.height);
+        context.save();
+
+        drawCursor(0, 0);
+        drawText(false);
+
+
+        a.shapes = a.shapes.filter(t => (t.type !== 'text' || t.text !== ''));
+
+        // только для magnetsObserver, также используется в boundaryModeObserver для отрисовки рамки
+        a.shapes.push(...t.utext);
+
+    }
 
     else if (key) {
         currentLetterIndex = currentLetterIndex + 1;
@@ -1615,7 +1636,7 @@ export function drawCursor(index = 0, id) {
     context.clearRect(0, 0, canvasText.width, canvasText.height);
     context.strokeStyle = 'blue';
     context.lineWidth = 2;
-
+    
     const currentTextObject = getCurrentTextObject(id);
     let w, h;
     const letter = getStringUpToIndex(currentTextObject.text, index + 1);
