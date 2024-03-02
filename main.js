@@ -1581,7 +1581,7 @@ function handleKeyPress(key) {
 
     }
     else if (key === 'Enter') {
-        t.textPosition = new Point(t.textPosition.x,t.textPosition.y+36);
+        t.textPosition = new Point(t.textPosition.x, t.textPosition.y + 36);
         const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
 
         t.utext = t.utext.filter(t => t.text !== '');
@@ -1599,6 +1599,7 @@ function handleKeyPress(key) {
 
         // только для magnetsObserver, также используется в boundaryModeObserver для отрисовки рамки
         a.shapes.push(...t.utext);
+        return;
 
     }
 
@@ -1637,7 +1638,7 @@ export function drawCursor(index = 0, id) {
     context.clearRect(0, 0, canvasText.width, canvasText.height);
     context.strokeStyle = 'blue';
     context.lineWidth = 2;
-    
+
     const currentTextObject = getCurrentTextObject(id);
     let w, h;
     const letter = getStringUpToIndex(currentTextObject.text, index + 1);
