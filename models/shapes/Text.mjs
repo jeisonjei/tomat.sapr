@@ -1,6 +1,7 @@
 import { canvasGetWebglCoordinates, isPointInsideFrame } from "../../shared/common.mjs";
 import { BasicShape } from "../BasicShape.mjs";
 import { Point } from "../Point.mjs";
+import {s} from "../../shared/settings.mjs";
 
 export class Text extends BasicShape {
 

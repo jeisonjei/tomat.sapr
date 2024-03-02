@@ -1479,6 +1479,7 @@ function handleMouseDownText(mouse) {
     }
 
     t.textPosition.y = t.textPosition.y - t.offset;
+    t.textPosition.x = t.textPosition.x + t.offset;
 
 
     if (a.magnetPosition) {

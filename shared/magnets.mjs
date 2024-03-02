@@ -247,17 +247,23 @@ export function observeMagnet(shapes, mouse) {
                     switch (true) {
                         case shape.isinGripStart(mouse):
                             shape.grip.center = shape.start;
+                            shape.grip.center.x = shape.grip.center.x - s.textOffset;
+                            shape.grip.center.y = shape.grip.center.y + s.textOffset;
                             acc.push(shape.grip);
                             return acc;
 
                         case shape.isinTripHstart(mouse):
                             shape.tripH.mouse = mouse;
                             shape.tripH.start = shape.start;
+                            shape.tripH.start.x = shape.tripH.start.x - s.textOffset;
+                            shape.tripH.start.y = shape.tripH.start.y + s.textOffset;
                             acc.push(shape.tripH);
                             break;
                         case shape.isinTripVstart(mouse):
                             shape.tripV.mouse = mouse;
                             shape.tripV.start = shape.start;
+                            shape.tripV.start.x = shape.tripV.start.x - s.textOffset;
+                            shape.tripV.start.y = shape.tripV.start.y + s.textOffset;
                             acc.push(shape.tripV);
                             break;
                         default:

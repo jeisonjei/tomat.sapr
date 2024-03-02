@@ -1,7 +1,8 @@
 export class s{
     static tolerance = 20;
-    static tripLen = 200;
+    static tripLen = 2000;
     static aspectRatio = 1;
+    static textOffset = 6;
     static canvasWidth = null;
     static canvasHeight = null;
     static webglContext = null;
