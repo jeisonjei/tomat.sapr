@@ -1,15 +1,12 @@
 /**
  * TODO
  * чтение, рефакторинг ...
- * обрезка линии по кругу - неверные точки, когда линия под углом
  * zoom окном
  * авто-зум когда выбрана рамка печати
  * неудобно, что рамка выбора линии распространяется не на всю линию
- * единые пиксельные координаты для текста и webgl
  * перемещение и копирование строго по горизонтали или вертикали
  * заполнение основной надписи, нужно сделать красиво и удобно
  * области печати до вывода в PDF
- * мультитекст
  * специальные символы в тексте
  * операция scale
  * resize canvas
@@ -105,6 +102,7 @@ export const a = {
     clickCopyStart: null,
     clickRotateStart: null,
     clickMirrorStart: null,
+    clickScaleStart: null,
 
     start: null,
     end: null,
@@ -568,6 +566,23 @@ function handleMouseDown(mouse) {
                 gl.uniformMatrix3fv(u_rotate, false, mat3.create());
             }
             break;
+        case 'scale':
+            const scale_mat = getScaleMatrix(a.clickScaleStart, mouse);
+            a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                switch (shape.type) {
+                    case 'line':
+                        
+                        break;
+                    case 'rectangle':
+
+                        break;
+                    case 'circle':
+
+                        break;
+                    default:
+                        break;
+                }
+            })
         case 'edit':
             a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                 switch (shape.type) {

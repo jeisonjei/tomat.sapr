@@ -36,9 +36,9 @@ export function getMoveMatrix(p1, p2) {
 
 export function getRotateMatrix(c, m) {
     // матрицы продолжают быть в webgl
-    const center = canvasGetWebglCoordinates(c,s.webglContext.canvas);
+    const center = canvasGetWebglCoordinates(c, s.webglContext.canvas);
     const mouse = canvasGetWebglCoordinates(m, s.webglContext.canvas);
-    
+
     const mouse_dx = mouse.x - center.x;
     const mouse_dy = mouse.y - center.y;
     const mouse_angle_rad = Math.atan2(mouse_dy, mouse_dx);
@@ -47,7 +47,7 @@ export function getRotateMatrix(c, m) {
 
     const translate_before_matrix = mat3.fromTranslation(mat3.create(), [-center.x, -center.y, 0]);
     mat3.transpose(translate_before_matrix, translate_before_matrix);
-    const aspect_before_matrix = mat3.fromScaling(mat3.create(), [1/s.aspectRatio , 1, 1]);
+    const aspect_before_matrix = mat3.fromScaling(mat3.create(), [1 / s.aspectRatio, 1, 1]);
     const rotate_matrix = mat3.fromRotation(mat3.create(), -angle, [0, 0, 1]);
     const aspect_after_matrix = mat3.invert(mat3.create(), aspect_before_matrix);
     const translate_after_matrix = mat3.invert(mat3.create(), translate_before_matrix);
@@ -64,7 +64,7 @@ export function getRotateMatrix(c, m) {
 
 export function getMirrorMatrix(c, m) {
     // матрицы продолжают быть в webgl
-    const center = canvasGetWebglCoordinates(c,s.webglContext.canvas);
+    const center = canvasGetWebglCoordinates(c, s.webglContext.canvas);
     const mouse = canvasGetWebglCoordinates(m, s.webglContext.canvas);
 
     const mouse_dx = mouse.x - center.x;
@@ -75,18 +75,18 @@ export function getMirrorMatrix(c, m) {
 
     const translate_before_matrix = mat3.fromTranslation(mat3.create(), [-center.x, -center.y, 0]);
     mat3.transpose(translate_before_matrix, translate_before_matrix);
-    const aspect_before_matrix = mat3.fromScaling(mat3.create(), [1/s.aspectRatio , 1, 1]);
+    const aspect_before_matrix = mat3.fromScaling(mat3.create(), [1 / s.aspectRatio, 1, 1]);
     const rotate_matrix = mat3.fromRotation(mat3.create(), -angle, [0, 0, 1]);
     const aspect_after_matrix = mat3.invert(mat3.create(), aspect_before_matrix);
     const translate_after_matrix = mat3.invert(mat3.create(), translate_before_matrix);
 
     const mirror_matrix = mat3.fromValues(
-      -1, 0, 0,
-      0, 1, 0, 
-      0, 0, 1, 
+        -1, 0, 0,
+        0, 1, 0,
+        0, 0, 1,
     );
     let cum_matrix = mat3.create();
-  
+
     mat3.multiply(cum_matrix, cum_matrix, translate_before_matrix);
     mat3.multiply(cum_matrix, cum_matrix, aspect_before_matrix);
     mat3.multiply(cum_matrix, cum_matrix, rotate_matrix);
@@ -94,4 +94,10 @@ export function getMirrorMatrix(c, m) {
     mat3.multiply(cum_matrix, cum_matrix, aspect_after_matrix);
     mat3.multiply(cum_matrix, cum_matrix, translate_after_matrix);
     return cum_matrix;
-  }
+}
+
+export function getScaleMatrix(c, m) {
+    const center = canvasGetWebglCoordinates(c, s.webglContext.canvas);
+    const mouse = canvasGetWebglCoordinates(m, s.webglContext.canvas);
+    
+}

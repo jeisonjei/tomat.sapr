@@ -54,7 +54,10 @@ const ctrlCheckbox = document.getElementById('ctrl');
 const keyDown$ = fromEvent(document, 'keydown');
 const keyUp$ = fromEvent(document, 'keyup');
 keyDown$.subscribe(event => {
-    // эфки - эфки не включают никакой режим mode
+
+
+
+    // --- эфки - эфки не включают никакой режим mode
     if (['F1', 'F3'].includes(event.key)) {
         event.preventDefault();
         if (event.key === 'F3') {
@@ -80,6 +83,8 @@ keyDown$.subscribe(event => {
         return;
     }
 
+
+    // --- alt
     if (event.altKey) {
         event.preventDefault();
         switch (event.key) {
@@ -101,8 +106,14 @@ keyDown$.subscribe(event => {
         ctrlCheckbox.checked = true;
     }
 
-    // Handle key down events
+
+
+    // --- Handle key down events
     switch (event.key) {
+        case 'w':
+        case 'ц':
+            setMode(mode_elem, 'scale');
+            break;
         case 'b':
         case 'и':
             setMode(mode_elem, 'break');
