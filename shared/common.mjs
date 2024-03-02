@@ -1,3 +1,4 @@
+import { mat3 } from "gl-matrix";
 import { Point } from "../models/Point.mjs";
 import { SelectBoundary } from "../models/frames/SelectBoundary.mjs";
 import { s } from "./settings.mjs";
@@ -66,27 +67,59 @@ export function transformPointByMatrix4(matrix, point) {
   return transformedPoint;
 }
 
-export function transformPointByMatrix3(matrix, point) {
-  if (point.x === 0 && point.y === 0) {
+function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
+  // Calculate the scaling factors for x and y axes
+  const scaleX = canvasWidth / 2;
+  const scaleY = canvasHeight / 2;
+
+  // Create a translation matrix to align with pixel coordinates
+  const translationMatrix = mat3.fromValues(
+    1, 0, 0,
+    0, -1, 0,
+    0, 0, 1
+  );
+
+  // Scale the transformation matrix to pixel coordinates
+  const scaledMatrix = mat3.scale(mat3.create(), matrix, [scaleX, scaleY, 1]);
+
+  // Apply translation to align with pixel coordinates
+  const pixelMatrix = mat3.multiply(mat3.create(), translationMatrix, scaledMatrix);
+
+  return pixelMatrix;
+}
+
+
+export function transformPointByMatrix3(matrix, p) {
+  /**
+   * В этой функции матрица остаётся той же - в webgl координатах.
+   * Так как на полотне теперь используются пиксели, точка преобразуется сначала
+   * к координатам webgl, а затем обратно в пиксели
+   */
+  if (p.x === 0 && p.y === 0) {
     return new Point(0, 0);
   }
-  const transformedPoint = new Point(0, 0);
+  let transformedPoint = new Point(0, 0);
+
+  const point = canvasGetWebglCoordinates(p,s.webglContext.canvas);
 
   const x = point.x;
   const y = point.y;
   const w = 1;
 
-  transformedPoint.x = matrix[0] * x + matrix[1] * y + matrix[2] * w;
-  transformedPoint.y = matrix[3] * x + matrix[4] * y + matrix[5] * w;
+  transformedPoint.x = matrix[0] * x + matrix[1] * y  + matrix[2] * w;
+  transformedPoint.y = matrix[3] * x + matrix[4] * y  + matrix[5] * w;
+
+  transformedPoint = convertWebGLToCanvas2DPoint(transformedPoint,s.canvasWidth,s.canvasHeight);
 
   return transformedPoint;
 }
-// export function canvasGetMouse(event, canvas) {
-//   return new Point(
-//     (event.clientX - canvas.offsetLeft) / canvas.width * 2 - 1,
-//     -(event.clientY - canvas.offsetTop) / canvas.height * 2 + 1
-//   )
-// }
+export function canvasGetMouseWebgl(event, canvas) {
+  return new Point(
+    (event.clientX - canvas.offsetLeft) / canvas.width * 2 - 1,
+    -(event.clientY - canvas.offsetTop) / canvas.height * 2 + 1
+  )
+}
+
 export function canvasGetMouse(event, canvas) {
   return new Point(
     (event.clientX - canvas.offsetLeft), (event.clientY - canvas.offsetTop)
@@ -95,6 +128,21 @@ export function canvasGetMouse(event, canvas) {
 
 export function canvasGetWebglCoordinates(position, canvas) {
   return new Point((position.x) / canvas.width * 2 - 1, (-position.y) / canvas.height * 2 + 1);
+}
+
+export function convertPixelToWebGLCoordinate(pixelValue, canvasSize, isXAxis) {
+  const canvasSizeHalf = canvasSize / 2;
+  const scaleFactor = 2 / canvasSize;
+
+  // Normalize the pixel coordinate to WebGL coordinate
+  let webglCoord = (pixelValue - canvasSizeHalf) * scaleFactor;
+
+  // Adjust for y-axis inversion in WebGL
+  if (!isXAxis) {
+      webglCoord *= -1;
+  }
+
+  return webglCoord;
 }
 
 export function canvasGetClientY(event, canvas) {
@@ -166,7 +214,7 @@ export function applyTransformationToPoint(x, y, matrix) {
 export function getLineSelectBoundary(start, end) {
   const width = s.tolerance / 2;
   const angle = Math.atan2(end.y - start.y, end.x - start.x);
-  const offsetX = width * Math.sin(angle) * s.aspectRatio;
+  const offsetX = width * Math.sin(angle);
   const offsetY = width * Math.cos(angle);
 
   const selectBoundary = new SelectBoundary(s.aspectRatio, new Point(0, 0), new Point(0, 0), new Point(0, 0), new Point(0, 0));

@@ -71,7 +71,7 @@ export class Line extends BasicShape {
 
     isinSelectFrame(frame) {
         const angle = Math.atan2(this.end.y - this.start.y, this.end.x - this.start.x);
-        const offsetX = s.tolerance * Math.sin(angle) * this.aspectRatio;
+        const offsetX = s.tolerance * Math.sin(angle) ;
         const offsetY = s.tolerance * Math.cos(angle);
         const point1 = new Point(this.start.x - offsetX, this.start.y + offsetY);
         const point2 = new Point(this.end.x - offsetX, this.end.y + offsetY);
@@ -130,31 +130,30 @@ export class Line extends BasicShape {
         let bs, be
         const shapesCircle = shapes_.filter(shape => shape.type === 'circle');
         const shapesLine = shapes_.filter(shape => shape.type === 'line');
-        let selectedLine = this;
 
         for (const shape of shapesCircle) {
-            if (this.isinCircle(shape, mouse)) {
-                const intersectionPoints = this.findCircleLineIntersections(shape, selectedLine);
-                if (intersectionPoints.length > 0) {
-                    if (intersectionPoints.length === 1) {
-                        bs = intersectionPoints[0];
-                        be = null;
-                    }
-                    else {
-                        for (let point of intersectionPoints) {
-                            if (!bs) {
-                                bs = point;
-                            } else {
-                                be = point;
-                            }
+            const intersectionPoints = this.findCircleLineIntersections(shape, this);
+            if (intersectionPoints.length > 0) {
+                if (intersectionPoints.length === 1) {
+                    bs = intersectionPoints[0];
+                    be = null;
+                }
+                else {
+                    for (let point of intersectionPoints) {
+                        if (!bs) {
+                            bs = point;
+                        } else {
+                            be = point;
                         }
                     }
-
                 }
 
-                return { bs, be }; // Return immediately if circle condition is met
-
             }
+            else {
+                continue;
+            }
+
+            return { bs, be }; // Return immediately if circle condition is met
         }
 
         let closest = this.findClosest(mouse, shapesLine, 1);
@@ -217,8 +216,7 @@ export class Line extends BasicShape {
         const circleCenter = circle.center;
         const angleRad = Math.atan2(circle.center.y - line.start.y, circle.center.x - line.start.x);
     
-        const aspectCoeff = s.aspectRatio + (1 - s.aspectRatio) * (1 - Math.abs(Math.cos(angleRad)));
-        const circleRadius = circle.radius * aspectCoeff;
+        const circleRadius = circle.radius;
     
         const dx = line.end.x - line.start.x;
         const dy = line.end.y - line.start.y;

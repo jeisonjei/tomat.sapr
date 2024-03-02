@@ -22,7 +22,7 @@
 import { Point } from "./models/Point.mjs"
 import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
-import { applyTransformationToPoint, canvasGetMouse, convertWebGLToCanvas2DPoint, getSideOfMouse, getSideOfMouseRelativeToLine, isHorizontal, resizeCanvasToDisplaySize, transformPointByMatrix3 } from "./shared/common.mjs";
+import { applyTransformationToPoint, canvasGetMouse, canvasGetMouseWebgl, canvasGetWebglCoordinates, convertPixelToWebGLCoordinate, convertWebGLToCanvas2DPoint, getSideOfMouse, getSideOfMouseRelativeToLine, isHorizontal, resizeCanvasToDisplaySize, transformPointByMatrix3 } from "./shared/common.mjs";
 import { Line } from "./models/shapes/Line.mjs";
 import {  drawPrintArea,  gm, magnetsCheckbox, mode_elem, outputCheckbox, setMode } from "./page.mjs";
 import { editModeObserver,boundaryModeObserver,colorMagnetsObserver } from "./services/moveObservers";
@@ -178,7 +178,7 @@ context.font = `${t.fontSize}px ${t.fontName}`;
 
 // --------- INIT ---------
 function init() {
-    s.tolerance = 0.02;
+    s.tolerance = 10;
 
 
     const fontSize = document.getElementById('fontSize').value;
@@ -349,6 +349,8 @@ function handleMouseDown(mouse) {
                         case 'line':
                             shape.start = transformPointByMatrix3(move_mat, shape.start);
                             shape.end = transformPointByMatrix3(move_mat, shape.end);
+                            console.log('shape.start', shape.start);
+                            console.log('shape.end',shape.end);
                             a.vertices = replaceVertices(shape, a.vertices);
 
                             break;
@@ -743,15 +745,19 @@ function handleMouseMove(mouse) {
 
         // pan
         if (a.pan) {
+            const mouseWebgl = canvasGetWebglCoordinates(mouse,canvas);
 
             if (a.isPanning) {
-                a.pan_start_x = mouse.x;
-                a.pan_start_y = mouse.y;
+                a.pan_start_x = mouseWebgl.x;
+                a.pan_start_y = mouseWebgl.y;
                 a.isPanning = false;
             }
 
-            a.pan_tx = mouse.x - a.pan_start_x;
-            a.pan_ty = mouse.y - a.pan_start_y;
+            a.pan_tx =  mouseWebgl.x- a.pan_start_x;
+            a.pan_ty = mouseWebgl.y - a.pan_start_y;
+
+
+            
             const pan_mat = mat3.fromTranslation(mat3.create(), [a.pan_tx, a.pan_ty, 0]);
             a.pan_mat = [...pan_mat];
             mat3.transpose(pan_mat, pan_mat);
@@ -860,7 +866,7 @@ function handleMouseMove(mouse) {
                                     break;
                                 case 'circle':
                                     if (['q1', 'q2', 'q3', 'q4'].includes(shape.edit)) {
-                                        const newRadius = Math.hypot((mouse.x - shape.center.x) / s.aspectRatio, mouse.y - shape.center.y);
+                                        const newRadius = Math.hypot((mouse.x - shape.center.x), mouse.y - shape.center.y);
                                         shape.radius = newRadius;
                                     }
                                 default:
@@ -914,13 +920,13 @@ function handleMouseMove(mouse) {
 
                     const height = (mouse.y - a.start.y);
                     if (height < 0 && a.rectangle.width < 0) {
-                        a.rectangle.height = a.rectangle.width / s.aspectRatio;
+                        a.rectangle.height = a.rectangle.width ;
                     } else if (height < 0 && a.rectangle.width > 0) {
-                        a.rectangle.height = -a.rectangle.width / s.aspectRatio;
+                        a.rectangle.height = -a.rectangle.width ;
                     } else if (height > 0 && a.rectangle.width < 0) {
-                        a.rectangle.height = -a.rectangle.width / s.aspectRatio;
+                        a.rectangle.height = -a.rectangle.width ;
                     } else if (height > 0 && a.rectangle.width > 0) {
-                        a.rectangle.height = a.rectangle.width / s.aspectRatio;
+                        a.rectangle.height = a.rectangle.width ;
                     }
                     a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
                     a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
@@ -931,7 +937,7 @@ function handleMouseMove(mouse) {
                     break;
 
                 case 'circle':
-                    a.circle.radius = Math.hypot((mouse.x - a.start.x) / s.aspectRatio, mouse.y - a.start.y);
+                    a.circle.radius = Math.hypot((mouse.x - a.start.x) , mouse.y - a.start.y);
                     drawSingle(a.circle);
                     break;
 
@@ -942,7 +948,7 @@ function handleMouseMove(mouse) {
             switch (gm()) {
                 case 'move':
                     if (a.clickMoveStart) {
-                        const move_mat = getMoveMatrix(a.clickMoveStart, mouse);
+                        const move_mat = getMoveMatrix(a.clickMoveStart,mouse);
                         gl.uniformMatrix3fv(u_move, false, move_mat);
                         a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                             drawSingle(shape);
@@ -1150,13 +1156,13 @@ function handleMouseUp(mouse) {
 
             const height = (a.end.y - a.start.y);
             if (height < 0 && a.rectangle.width < 0) {
-                a.rectangle.height = a.rectangle.width / s.aspectRatio;
+                a.rectangle.height = a.rectangle.width ;
             } else if (height < 0 && a.rectangle.width > 0) {
-                a.rectangle.height = -a.rectangle.width / s.aspectRatio;
+                a.rectangle.height = -a.rectangle.width ;
             } else if (height > 0 && a.rectangle.width < 0) {
-                a.rectangle.height = -a.rectangle.width / s.aspectRatio;
+                a.rectangle.height = -a.rectangle.width ;
             } else if (height > 0 && a.rectangle.width > 0) {
-                a.rectangle.height = a.rectangle.width / s.aspectRatio;
+                a.rectangle.height = a.rectangle.width ;
             }
             a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
             a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
@@ -1165,7 +1171,7 @@ function handleMouseUp(mouse) {
             addShapes(a.rectangle.getClone());
             break;
         case 'circle':
-            a.circle.radius = Math.hypot((a.end.x - a.start.x) / s.aspectRatio, a.end.y - a.start.y);;
+            a.circle.radius = Math.hypot((a.end.x - a.start.x) , a.end.y - a.start.y);;
             addShapes(a.circle.getClone());
             break;
         default:

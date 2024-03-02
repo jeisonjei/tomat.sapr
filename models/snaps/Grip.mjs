@@ -14,7 +14,7 @@ export class Grip extends BasicMagnet {
         super(aspectRatio);
 
         this._center = { ...center };
-        this.width = s.tolerance * this.aspectRatio;
+        this.width = s.tolerance;
         this.height = s.tolerance;
 
         this.type = 'm_grip';
@@ -33,8 +33,8 @@ export class Grip extends BasicMagnet {
     }
 
     isin(point, mouse) {
-        const minX = point.x - s.tolerance * this.aspectRatio;
-        const maxX = point.x + s.tolerance * this.aspectRatio;
+        const minX = point.x - s.tolerance ;
+        const maxX = point.x + s.tolerance ;
         const minY = point.y - s.tolerance;
         const maxY = point.y + s.tolerance;
 

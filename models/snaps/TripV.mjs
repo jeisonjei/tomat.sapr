@@ -49,8 +49,8 @@ export class TripV extends BasicMagnet {
     }
 
     isin(point, mouse) {
-        const minX = point.x - s.tolerance * this.aspectRatio;
-        const maxX = point.x + s.tolerance * this.aspectRatio;
+        const minX = point.x - s.tolerance ;
+        const maxX = point.x + s.tolerance ;
         const points = convertVerticesToPoints([
             minX, 1,
             maxX, 1,

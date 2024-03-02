@@ -1,15 +1,30 @@
-import { filter, from } from "rxjs";
+import { mat3 } from "gl-matrix";
+function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
+    // Calculate the scaling factors for x and y axes
+    const scaleX = canvasWidth / 2;
+    const scaleY = canvasHeight / 2;
 
-const f1 = () => 1;
-const f2 = () => 2;
-const f3 = () => 3;
-const f4 = () => 4;
-const f5 = () => 5;
-const f6 = () => 6;
-const f7 = () => 7;
-const f8 = () => 8;
+    // Create a translation matrix to align with pixel coordinates
+    const translationMatrix = mat3.fromValues(
+        1, 0, 0,
+        0, -1, 0,
+        0, 0, 1
+    );
 
-const shapes$ = from([f1, f2, f3, f4, f5, f6, f7, f8]).pipe(
-    filter(shape => shape()===1 || shape()===2)
-);
-shapes$.subscribe(console.log);
+    // Scale the transformation matrix to pixel coordinates
+    const scaledMatrix = mat3.scale(mat3.create(), matrix, [scaleX, scaleY, 1]);
+
+    // Apply translation to align with pixel coordinates
+    const pixelMatrix = mat3.multiply(mat3.create(), translationMatrix, scaledMatrix);
+
+    return pixelMatrix;
+}
+
+// Example usage
+const matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // Example transformation matrix
+const canvasWidth = 800; // Width of the canvas in pixels
+const canvasHeight = 600; // Height of the canvas in pixels
+
+const pixelMatrix = convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight);
+
+console.log(pixelMatrix)

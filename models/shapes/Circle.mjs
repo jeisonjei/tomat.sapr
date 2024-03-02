@@ -38,7 +38,7 @@ export class Circle extends BasicShape {
         const circleVertices = [];
         for (let i = 0; i <= 360; i++) {
             const angle = i * Math.PI / 180;
-            const x = this.center.x + this.radius * Math.cos(angle) * this.aspectRatio;
+            const x = this.center.x + this.radius * Math.cos(angle);
             const y = this.center.y + this.radius * Math.sin(angle);
             circleVertices.push(x, y);
         }
@@ -48,7 +48,7 @@ export class Circle extends BasicShape {
         const circleVertices = [];
         for (let i = 0; i <= 360; i++) {
             const angle = i * Math.PI / 180;
-            const x = this.center.x + this.radius * Math.cos(angle) * this.aspectRatio;
+            const x = this.center.x + this.radius * Math.cos(angle);
             const y = this.center.y + this.radius * Math.sin(angle);
             circleVertices.push(x, y);
         }
@@ -68,9 +68,9 @@ export class Circle extends BasicShape {
         const radius = this.radius;
 
         this.quad1 = new Point(center.x, center.y + radius); // top point
-        this.quad2 = new Point(center.x + radius * this.aspectRatio, center.y); // right point
+        this.quad2 = new Point(center.x + radius, center.y); // right point
         this.quad3 = new Point(center.x, center.y - radius); // bottom point
-        this.quad4 = new Point(center.x - radius * this.aspectRatio, center.y); // left point
+        this.quad4 = new Point(center.x - radius, center.y); // left point
     }
 
     isinSelectFrame(frame) {
@@ -87,7 +87,7 @@ export class Circle extends BasicShape {
         return false;
     }
     isinSelectBoundary(mouse) {
-        const radiusX = this.radius * s.aspectRatio;
+        const radiusX = this.radius;
         const radiusY = this.radius;
         const { p1, p2, p3, p4 } = this.getBoundary(radiusX, radiusY);
 
@@ -104,7 +104,7 @@ export class Circle extends BasicShape {
 
     
     setSelectBoundary() {
-        const radiusX = this.radius * s.aspectRatio;
+        const radiusX = this.radius;
         const radiusY = this.radius;
 
         const { p1, p2, p3, p4 } = this.getBoundary(radiusX, radiusY);

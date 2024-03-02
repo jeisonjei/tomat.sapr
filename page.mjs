@@ -414,7 +414,7 @@ savePdfButton.addEventListener('click', function () {
                     const center = convertWebGLToCanvas2DPoint(shape.center, s.canvasWidth, s.canvasHeight);
                     const x = center.x / scaleX;
                     const y = center.y / scaleX;
-                    const radius = shape.radius * s.aspectRatio / (1 / s.canvasWidth * 2) / scaleX;
+                    const radius = shape.radius  / (1 / s.canvasWidth * 2) / scaleX;
                     pdf.circle(x, y, radius);
 
                     break;

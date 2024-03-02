@@ -1,4 +1,4 @@
-import { getAngleDegrees, getAngleRadians } from "./common.mjs";
+import { canvasGetWebglCoordinates, getAngleDegrees, getAngleRadians } from "./common.mjs";
 import { mat3 } from "gl-matrix";
 import { s } from './settings.mjs';
 
@@ -22,7 +22,9 @@ export function getRotateSnap(angle_rad) {
     return snappedAngleRad;
 }
 
-export function getMoveMatrix(point1, point2) {
+export function getMoveMatrix(p1, p2) {
+    const point1 = canvasGetWebglCoordinates(p1, s.webglContext.canvas);
+    const point2 = canvasGetWebglCoordinates(p2, s.webglContext.canvas);
     const tx = point2.x - point1.x;
     const ty = point2.y - point1.y;
 
@@ -31,7 +33,10 @@ export function getMoveMatrix(point1, point2) {
     return move_mat;
 }
 
-export function getRotateMatrix(center, mouse) {
+export function getRotateMatrix(c,m) {
+    const center = canvasGetWebglCoordinates(c,s.webglContext.canvas);
+    const mouse = canvasGetWebglCoordinates(m, s.webglContext.canvas);
+    
     const mouse_dx = mouse.x - center.x;
     const mouse_dy = mouse.y - center.y;
     const mouse_angle_rad = Math.atan2(mouse_dy, mouse_dx);
@@ -40,7 +45,7 @@ export function getRotateMatrix(center, mouse) {
 
     const translate_before_matrix = mat3.fromTranslation(mat3.create(), [-center.x, -center.y, 0]);
     mat3.transpose(translate_before_matrix, translate_before_matrix);
-    const aspect_before_matrix = mat3.fromScaling(mat3.create(), [1 / s.aspectRatio, 1, 1]);
+    const aspect_before_matrix = mat3.fromScaling(mat3.create(), [1/s.aspectRatio , 1, 1]);
     const rotate_matrix = mat3.fromRotation(mat3.create(), -angle, [0, 0, 1]);
     const aspect_after_matrix = mat3.invert(mat3.create(), aspect_before_matrix);
     const translate_after_matrix = mat3.invert(mat3.create(), translate_before_matrix);
@@ -55,7 +60,10 @@ export function getRotateMatrix(center, mouse) {
     return cum_matrix;
 }
 
-export function getMirrorMatrix(center, mouse) {
+export function getMirrorMatrix(c, m) {
+    const center = canvasGetWebglCoordinates(c,s.webglContext.canvas);
+    const mouse = canvasGetWebglCoordinates(m, s.webglContext.canvas);
+
     const mouse_dx = mouse.x - center.x;
     const mouse_dy = mouse.y - center.y;
     const mouse_angle_rad = Math.atan2(mouse_dy, mouse_dx);
@@ -64,7 +72,7 @@ export function getMirrorMatrix(center, mouse) {
 
     const translate_before_matrix = mat3.fromTranslation(mat3.create(), [-center.x, -center.y, 0]);
     mat3.transpose(translate_before_matrix, translate_before_matrix);
-    const aspect_before_matrix = mat3.fromScaling(mat3.create(), [1 / s.aspectRatio, 1, 1]);
+    const aspect_before_matrix = mat3.fromScaling(mat3.create(), [1/s.aspectRatio , 1, 1]);
     const rotate_matrix = mat3.fromRotation(mat3.create(), -angle, [0, 0, 1]);
     const aspect_after_matrix = mat3.invert(mat3.create(), aspect_before_matrix);
     const translate_after_matrix = mat3.invert(mat3.create(), translate_before_matrix);

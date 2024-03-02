@@ -314,13 +314,13 @@ export function getAnglePosition(mouse, start) {
     if (!start) {
         return;
     }
-    const dx = (mouse.x - start.x) / s.aspectRatio;
+    const dx = (mouse.x - start.x) ;
     const dy = mouse.y - start.y;
     const angle = -Math.atan2(dy, dx);
     const distance = Math.hypot(dx, dy);
     const snappedAngleRad = getRotateSnap(angle);
     const snappedDistance = distance / Math.cos(angle - snappedAngleRad);
-    const snappedDx = snappedDistance * Math.cos(snappedAngleRad) * s.aspectRatio;
+    const snappedDx = snappedDistance * Math.cos(snappedAngleRad) ;
     const snappedDy = snappedDistance * Math.sin(snappedAngleRad);
     return new Point(start.x + snappedDx, start.y - snappedDy);
 }
