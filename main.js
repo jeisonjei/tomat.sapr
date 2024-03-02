@@ -74,10 +74,12 @@ const u_color = gl.getUniformLocation(program, 'u_color');
 const u_pan = gl.getUniformLocation(program, 'u_pan');
 const u_move = gl.getUniformLocation(program, 'u_move');
 const u_rotate = gl.getUniformLocation(program, 'u_rotate');
+const u_resolution = gl.getUniformLocation(program, 'u_resolution');
 gl.uniform4f(u_color, 1, 0, 0, 1);
 gl.uniformMatrix3fv(u_move, false, mat3.create());
 gl.uniformMatrix3fv(u_pan, false, mat3.create());
 gl.uniformMatrix3fv(u_rotate, false, mat3.create());
+gl.uniform2f(u_resolution,gl.canvas.width,gl.canvas.height);
 // --------- WEBGL ---------
 
 s.setAspectRatio(canvas.width, canvas.height);
@@ -213,7 +215,6 @@ function handleMouseDown(mouse) {
     else {
         a.start = { ...mouse };
     }
-
 
 
     switch (gm()) {
@@ -1314,6 +1315,7 @@ export function deleteText(text) {
 export function drawShapes() {
     gl.uniformMatrix3fv(u_move, false, mat3.create());
     gl.uniformMatrix3fv(u_rotate, false, mat3.create());
+    // НЕ УДАЛЯТЬ !!!
     // if (a.vertices.length === 0) {
     //     return;
     // }

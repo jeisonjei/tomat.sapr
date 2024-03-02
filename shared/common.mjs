@@ -81,10 +81,15 @@ export function transformPointByMatrix3(matrix, point) {
 
   return transformedPoint;
 }
+// export function canvasGetMouse(event, canvas) {
+//   return new Point(
+//     (event.clientX - canvas.offsetLeft) / canvas.width * 2 - 1,
+//     -(event.clientY - canvas.offsetTop) / canvas.height * 2 + 1
+//   )
+// }
 export function canvasGetMouse(event, canvas) {
   return new Point(
-    (event.clientX - canvas.offsetLeft) / canvas.width * 2 - 1,
-    -(event.clientY - canvas.offsetTop) / canvas.height * 2 + 1
+    (event.clientX - canvas.offsetLeft), (event.clientY - canvas.offsetTop)
   )
 }
 

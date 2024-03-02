@@ -1,6 +1,6 @@
 export class s{
-    static tolerance = 0.02;
-    static tripLen = 10;
+    static tolerance = 20;
+    static tripLen = 200;
     static aspectRatio = 1;
     static canvasWidth = null;
     static canvasHeight = null;
