@@ -93,7 +93,7 @@ export class Line extends BasicShape {
             isPointInsideFrame(frame, point3.x, point3.y) ||
             isPointInsideFrame(frame, point4.x, point4.y)
         ) {
-            return true;
+            return true;  
         }
 
         return false;

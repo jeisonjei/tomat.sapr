@@ -230,7 +230,7 @@ function handleMouseDown(mouse) {
 
 
 
-            const filteredShapes = a.activeShapes.filter(shape => shape.isinSelectBoundary(mouse));
+            const filteredShapes = a.shapes.filter(shape => shape.isinSelectBoundary(mouse));
 
             // выбрана 1 линия
             if (filteredShapes.length === 1) {
@@ -304,7 +304,7 @@ function handleMouseDown(mouse) {
             a.selectFrame.start = a.start;
             break;
         case 'boundary':
-            const isinSelectBoundary = a.activeShapes.filter(shape => shape.type !== 'text').filter(shape => shape.isinSelectBoundary(mouse));
+            const isinSelectBoundary = a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isinSelectBoundary(mouse));
             if (isinSelectBoundary.length > 0) {
                 isinSelectBoundary.forEach(shape => {
                     shape.isSelected = !shape.isSelected;
@@ -354,7 +354,7 @@ function handleMouseDown(mouse) {
             }
             else if (a.clickMoveStart) {
                 const move_mat = getMoveMatrix(a.clickMoveStart, a.start);
-                a.activeShapes.filter(shape => shape.type !== 'text').filter(shape => shape.isSelected).forEach(shape => {
+                a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isSelected).forEach(shape => {
                     switch (shape.type) {
                         case 'line':
                             shape.start = transformPointByMatrix3(move_mat, shape.start);
@@ -398,7 +398,7 @@ function handleMouseDown(mouse) {
         case 'copy':
             if (!a.clickCopyStart) {
                 a.clickCopyStart = { ...a.start };
-                a.activeShapes.filter(shape => shape.type !== 'text').filter(shape => shape.isSelected).forEach(shape => {
+                a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isSelected).forEach(shape => {
                     addShapes(shape.getClone());
                 });
 
@@ -419,7 +419,7 @@ function handleMouseDown(mouse) {
             }
             else if (a.clickCopyStart) {
                 const move_mat = getMoveMatrix(a.clickCopyStart, a.start);
-                a.activeShapes.filter(shape => shape.type !== 'text').filter(shape => shape.isSelected).forEach(shape => {
+                a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isSelected).forEach(shape => {
                     switch (shape.type) {
                         case 'line':
                             shape.start = transformPointByMatrix3(move_mat, shape.start);
@@ -466,7 +466,7 @@ function handleMouseDown(mouse) {
             else {
                 const rotate_mat = getRotateMatrix(a.clickRotateStart, mouse);
 
-                a.activeShapes.filter(shape => shape.isSelected).forEach(shape => {
+                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                     switch (shape.type) {
                         case 'line':
                             shape.start = transformPointByMatrix3(rotate_mat, shape.start);
@@ -498,7 +498,7 @@ function handleMouseDown(mouse) {
         case 'rotatecopy':
             if (!a.clickRotateStart) {
                 a.clickRotateStart = { ...a.start };
-                a.activeShapes.filter(shape => shape.isSelected).forEach(shape => {
+                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                     addShapes(shape.getClone());
                 });
 
@@ -506,7 +506,7 @@ function handleMouseDown(mouse) {
             else {
                 const rotate_mat = getRotateMatrix(a.clickRotateStart, mouse);
 
-                a.activeShapes.filter(shape => shape.isSelected).forEach(shape => {
+                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                     switch (shape.type) {
                         case 'line':
                             shape.start = transformPointByMatrix3(rotate_mat, shape.start);
@@ -539,7 +539,7 @@ function handleMouseDown(mouse) {
         case 'mirror':
             if (!a.clickMirrorStart) {
                 a.clickMirrorStart = { ...a.start };
-                a.activeShapes.filter(shape => shape.isSelected).forEach(shape => {
+                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                     addShapes(shape.getClone());
                 });
 
@@ -547,7 +547,7 @@ function handleMouseDown(mouse) {
             else {
                 const mirror_mat = getMirrorMatrix(a.clickMirrorStart, mouse);
 
-                a.activeShapes.filter(shape => shape.isSelected).forEach(shape => {
+                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                     switch (shape.type) {
                         case 'line':
                             shape.start = transformPointByMatrix3(mirror_mat, shape.start);
@@ -590,7 +590,7 @@ function handleMouseDown(mouse) {
                 let minX = 10000;
                 let maxX = 0;
 
-                a.activeShapes.filter(shape => shape.isSelected).forEach(shape => {
+                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                     switch (shape.constructor.name) {
                         case 'Line':
                             if (shape.start.x < minX) {
@@ -645,7 +645,7 @@ function handleMouseDown(mouse) {
 
                 const scale_mat = getScaleMatrix(a.clickScaleStart1, distX, distY, a.clickScaleBaseDistance, a.clickScaleShapeDistance);
                 gl.uniformMatrix3fv(u_scale, false, scale_mat);
-                a.activeShapes.filter(shape => shape.isSelected).forEach(shape => {
+                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                     switch (shape.type) {
                         case 'line':
                             shape.start = transformPointByMatrix3(scale_mat, shape.start);
@@ -675,7 +675,7 @@ function handleMouseDown(mouse) {
                 gl.uniformMatrix3fv(u_scale, false, mat3.create());
             }
         case 'edit':
-            a.activeShapes.filter(shape => shape.isSelected).forEach(shape => {
+            a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                 switch (shape.type) {
                     case 'line':
                         if (shape.isinGripStart(mouse)) {
@@ -803,7 +803,7 @@ function handleMouseMove(mouse) {
         if (a.angle_snap) {
             let start = null;
             if (gm() === 'edit') {
-                const editShapes = a.activeShapes.filter(shape => shape.edit !== null);
+                const editShapes = a.shapes.filter(shape => shape.edit !== null);
                 editShapes.forEach(shape => {
                     switch (shape.type) {
                         case 'line':
@@ -890,7 +890,7 @@ function handleMouseMove(mouse) {
         if (a.isMouseDown) {
             switch (gm()) {
                 case 'edit':
-                    const editShapes = a.activeShapes.filter(shape => shape.edit !== null);
+                    const editShapes = a.shapes.filter(shape => shape.edit !== null);
                     if (editShapes.length > 0) {
                         editShapes.forEach(shape => {
                             switch (shape.type) {
@@ -1053,7 +1053,7 @@ function handleMouseMove(mouse) {
                     if (a.clickMoveStart) {
                         const move_mat = getMoveMatrix(a.clickMoveStart, mouse);
                         gl.uniformMatrix3fv(u_move, false, move_mat);
-                        a.activeShapes.filter(shape => shape.isSelected).forEach(shape => {
+                        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                             drawSingle(shape);
                         });
 
@@ -1075,7 +1075,7 @@ function handleMouseMove(mouse) {
                     if (a.clickCopyStart) {
                         const move_mat = getMoveMatrix(a.clickCopyStart, mouse);
                         gl.uniformMatrix3fv(u_move, false, move_mat);
-                        a.activeShapes.filter(shape => shape.isSelected).forEach(shape => {
+                        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                             drawSingle(shape);
                         });
 
@@ -1101,7 +1101,7 @@ function handleMouseMove(mouse) {
 
                         const rotate_mat = getRotateMatrix(a.clickRotateStart, mouse);
                         gl.uniformMatrix3fv(u_rotate, false, rotate_mat);
-                        a.activeShapes.filter(shape => shape.isSelected).forEach(shape => {
+                        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                             drawSingle(shape);
                         })
                     }
@@ -1110,7 +1110,7 @@ function handleMouseMove(mouse) {
                     if (a.clickMirrorStart) {
                         const mirror_mat = getMirrorMatrix(a.clickMirrorStart, mouse);
                         gl.uniformMatrix3fv(u_rotate, false, mirror_mat);
-                        a.activeShapes.filter(shape => shape.isSelected).forEach(shape => {
+                        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                             drawSingle(shape);
                         })
                     }
@@ -1126,7 +1126,7 @@ function handleMouseMove(mouse) {
 
                         const scale_mat = getScaleMatrix(a.clickScaleStart1, distX, distY, a.clickScaleBaseDistance, a.clickScaleShapeDistance);
                         gl.uniformMatrix3fv(u_scale, false, scale_mat);
-                        a.activeShapes.filter(shape => shape.isSelected).forEach(shape => {
+                        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                             drawSingle(shape);
                         })
                     }
@@ -1160,7 +1160,7 @@ function handleMouseUp(mouse) {
 
     switch (gm()) {
         case 'edit':
-            const editShapes = a.activeShapes.filter(shape => shape.edit !== null);
+            const editShapes = a.shapes.filter(shape => shape.edit !== null);
             if (editShapes.length > 0) {
                 editShapes.forEach(shape => {
                     switch (shape.type) {
@@ -1231,7 +1231,7 @@ function handleMouseUp(mouse) {
 
             break;
         case 'select':
-            a.activeShapes.forEach(shape => {
+            a.shapes.forEach(shape => {
                 if (shape.isinSelectFrame(a.selectFrame)) {
                     shape.isSelected = true;
                 }
@@ -1299,7 +1299,7 @@ function handleMouseUp(mouse) {
     }
 
     // reset all edits
-    a.activeShapes.filter(shape => shape.edit !== null).forEach(shape => shape.edit = null);
+    a.shapes.filter(shape => shape.edit !== null).forEach(shape => shape.edit = null);
 
 
     drawShapes();
@@ -1490,7 +1490,7 @@ export function drawShapes() {
     // закомментировать если где-то нужно нарисовать что-то локально, ручку например функцией drawSingle()
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    a.activeShapes.forEach(shape => {
+    a.shapes.forEach(shape => {
         drawSingle(shape);
     })
 }
