@@ -660,9 +660,9 @@ function handleMouseDown(mouse) {
                             break;
                         case 'circle':
                             shape.center = transformPointByMatrix3(scale_mat, shape.center);
-                            shape.quad1 = transformPointByMatrix3(scale_mat, shape.quad1);
-                            shape.radius = shape.center.y - shape.quad1.y;
-
+                            // Calculate the new radius based on the scale factor
+                            let distanceFromCenter = Math.hypot(distX, distY);
+                            shape.radius = shape.radius * (distanceFromCenter / a.clickScaleBaseDistance);
                             break;
                         default:
 
