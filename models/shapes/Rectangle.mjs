@@ -171,6 +171,19 @@ export class Rectangle extends BasicShape {
         return false;
     }
 
+    isinSelectFrameAtLeast(frame) {
+        if (
+            isPointInsideFrame(frame, this.p1.x, this.p1.y) ||
+            isPointInsideFrame(frame, this.p2.x, this.p2.y) ||
+            isPointInsideFrame(frame, this.p3.x, this.p3.y) ||
+            isPointInsideFrame(frame, this.p4.x, this.p4.y)
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
     isinSelectBoundary(mouse) {
         const isinTop = isinSelectBoundaryLine(mouse, this.p1, this.p2);
         const isinRight = isinSelectBoundaryLine(mouse, this.p2, this.p3);

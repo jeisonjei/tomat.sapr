@@ -5,7 +5,7 @@ import { gm, setMode, mode_elem } from "../page.mjs";
 import { checkFunction, getColor } from "../shared/common.mjs";
 import { drawSingle } from "../main.js";
 
-export function colorMagnetsObserver(mouse) {
+export function colorMagnetsObserver(mouse, shapes) {
     /**
      * Функция нужна для раскрашивания ручек
      */
@@ -15,7 +15,7 @@ export function colorMagnetsObserver(mouse) {
 
     else if (['move', 'copy', 'rotate', 'rotatecopy', 'mirror','scale'].includes(gm())) {
         const color = getColor(212, 39, 216,1);
-        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+        shapes.filter(shape => shape.isSelected).forEach(shape => {
             switch (shape.type) {
                 case 'line':
                     if (shape.isinGripStart(mouse) || shape.isinGripEnd(mouse)) {
@@ -48,13 +48,13 @@ export function colorMagnetsObserver(mouse) {
 
 }
 
-export function editModeObserver(mouse) {
+export function editModeObserver(mouse,shapes) {
     if (a.isMouseDown) {
         return;
     }
 
     else if (gm() === 'select' || gm() === 'edit' || gm() === 'boundary') {
-        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+        shapes.filter(shape => shape.isSelected).forEach(shape => {
             switch (shape.type) {
                 case 'line':
                     if (shape.isinGripStart(mouse) || shape.isinGripEnd(mouse)) {
@@ -106,7 +106,7 @@ export function editModeObserver(mouse) {
 
 }
 
-export function boundaryModeObserver(mouse) {
+export function boundaryModeObserver(mouse,shapes) {
     if (a.isMouseDown) {
         return;
     }
@@ -131,7 +131,7 @@ export function boundaryModeObserver(mouse) {
     }
 
     else if (['select','boundary','break'].includes(gm())) {
-        const isinSelectBoundary = a.shapes.filter(shape => checkFunction(shape, 'isinSelectBoundary', mouse));
+        const isinSelectBoundary = shapes.filter(shape => checkFunction(shape, 'isinSelectBoundary', mouse));
         if (isinSelectBoundary.length > 0) {
             if (gm()!=='break') {
                 setMode(mode_elem, 'boundary');

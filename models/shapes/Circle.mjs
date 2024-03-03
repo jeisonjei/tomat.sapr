@@ -85,6 +85,19 @@ export class Circle extends BasicShape {
 
         return false;
     }
+    isinSelectFrameAtLeast(frame) {
+        if (
+            isPointInsideFrame(frame, this.center.x, this.center.y) ||
+            isPointInsideFrame(frame, this.quad1.x, this.quad1.y) ||
+            isPointInsideFrame(frame, this.quad2.x, this.quad2.y) ||
+            isPointInsideFrame(frame, this.quad3.x, this.quad3.y) ||
+            isPointInsideFrame(frame, this.quad4.x, this.quad4.y)
+        ) {
+            return true;
+        }
+
+        return false;
+    }
     isinSelectBoundary(mouse) {
         const radiusX = this.radius;
         const radiusY = this.radius;

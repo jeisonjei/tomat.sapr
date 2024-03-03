@@ -53,6 +53,19 @@ export class Text extends BasicShape {
 
         return false;
     }
+    isinSelectFrameAtLeast(frame) {
+        this.update(this.textArray);
+        if (
+            isPointInsideFrame(frame, this.p1.x, this.p1.y) ||
+            isPointInsideFrame(frame, this.p2.x, this.p2.y) ||
+            isPointInsideFrame(frame, this.p3.x, this.p3.y) ||
+            isPointInsideFrame(frame, this.p4.x, this.p4.y)
+        ) {
+            return true;
+        }
+
+        return false;
+    }
 
     isinSelectBoundary(mouse, pixels=false) {
         /**

@@ -79,6 +79,25 @@ export class Line extends BasicShape {
 
         return false;
     }
+    isinSelectFrameAtLeast(frame) {
+        const angle = Math.atan2(this.end.y - this.start.y, this.end.x - this.start.x);
+        const offsetX = s.tolerance * Math.sin(angle) ;
+        const offsetY = s.tolerance * Math.cos(angle);
+        const point1 = new Point(this.start.x - offsetX, this.start.y + offsetY);
+        const point2 = new Point(this.end.x - offsetX, this.end.y + offsetY);
+        const point3 = new Point(this.end.x + offsetX, this.end.y - offsetY);
+        const point4 = new Point(this.start.x + offsetX, this.start.y - offsetY);
+        if (
+            isPointInsideFrame(frame, point1.x, point1.y) ||
+            isPointInsideFrame(frame, point2.x, point2.y) ||
+            isPointInsideFrame(frame, point3.x, point3.y) ||
+            isPointInsideFrame(frame, point4.x, point4.y)
+        ) {
+            return true;
+        }
+
+        return false;
+    }
 
     isinSelectBoundary(mouse) {
         return isinSelectBoundaryLine(mouse, this.start, this.end);

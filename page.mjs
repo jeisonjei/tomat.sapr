@@ -1,5 +1,5 @@
 import { fromEvent } from "rxjs";
-import { a, canvas, deleteShapes, deleteText, drawShapes, drawSingle, drawText, gl } from "./main.js";
+import { a, canvas, deleteShapes, deleteText, drawShapes, drawSingle, drawText, gl, updateActiveShapes } from "./main.js";
 import { canvasGetWebglCoordinates, checkFunction, convertWebGLToCanvas2DPoint } from "./shared/common.mjs";
 import { generateDXFContent } from "./shared/export/dxf.mjs";
 import { t } from "./main.js";
@@ -189,6 +189,7 @@ keyDown$.subscribe(event => {
         case 'Delete':
             deleteShapes();
             drawShapes();
+            updateActiveShapes();
 
             // --- text
             deleteText();
@@ -566,6 +567,9 @@ function reset() {
     a.clickMirrorStart = null;
     a.magnetPosition = null;
     a.anglePosition = null;
+    
+    a.clickScaleStart1 = null;
+    a.clickScaleStart2 = null;
 }
 
 
