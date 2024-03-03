@@ -1299,7 +1299,7 @@ function handleMouseUp(mouse) {
 }
 
 function handleMouseWheel(ev) {
-    a.zl = ev.deltaY > 0 ? 0.95 : 1.05;
+    a.zl = ev.deltaY > 0 ? 0.90 : 1.1;
     a.zlc *= a.zl;
     updateShapes('zoom');
     drawShapes();

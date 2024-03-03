@@ -132,7 +132,7 @@ export class Line extends BasicShape {
                     }
                     else {
                         for (let point of intersectionPoints) {
-                            if (!bs) {
+                            if (!bs) { 
                                 bs = point;
                             } else {
                                 be = point;
