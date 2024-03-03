@@ -123,28 +123,31 @@ export class Line extends BasicShape {
         const shapesLine = shapes_.filter(shape => shape.type === 'line');
 
         for (const shape of shapesCircle) {
-            const intersectionPoints = this.findCircleLineIntersections(shape, this);
-            if (intersectionPoints.length > 0) {
-                if (intersectionPoints.length === 1) {
-                    bs = intersectionPoints[0];
-                    be = null;
-                }
-                else {
-                    for (let point of intersectionPoints) {
-                        if (!bs) {
-                            bs = point;
-                        } else {
-                            be = point;
+            if (this.isinCircle(shape,mouse)) {
+                const intersectionPoints = this.findCircleLineIntersections(shape, this);
+                if (intersectionPoints.length > 0) {
+                    if (intersectionPoints.length === 1) {
+                        bs = intersectionPoints[0];
+                        be = null;
+                    }
+                    else {
+                        for (let point of intersectionPoints) {
+                            if (!bs) {
+                                bs = point;
+                            } else {
+                                be = point;
+                            }
                         }
                     }
+    
                 }
-
+                else {
+                    continue;
+                }
+    
+                return { bs, be }; // Return immediately if circle condition is met
+    
             }
-            else {
-                continue;
-            }
-
-            return { bs, be }; // Return immediately if circle condition is met
         }
 
         let closest = this.findClosest(mouse, shapesLine, 1);

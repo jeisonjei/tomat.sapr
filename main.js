@@ -24,14 +24,14 @@ import { Line } from "./models/shapes/Line.mjs";
 import { drawPrintArea, gm, magnetsCheckbox, mode_elem, outputCheckbox, setMode } from "./page.mjs";
 import { editModeObserver, boundaryModeObserver, colorMagnetsObserver } from "./services/moveObservers";
 import { AbstractFrame } from "./models/frames/AbstractFrame.mjs";
-import { getMirrorMatrix, getMoveMatrix, getRotateMatrix } from "./shared/transform.mjs";
+import { getMirrorMatrix, getMoveMatrix, getRotateMatrix, getScaleMatrix } from "./shared/transform.mjs";
 import { observeMagnet, magnetState$, getExtensionCoordDraw, getAnglePosition } from "./shared/magnets.mjs";
 import { mat3 } from 'gl-matrix';
 import { getNewVertices, pushVertices, replaceVertices } from "./shared/webgl/reshape.mjs";
 import { s } from './shared/settings.mjs';
 
 // rxjs
-import { Subject, filter, fromEvent, map } from "rxjs";
+import { Subject, filter, fromEvent, map, share } from "rxjs";
 import { Rectangle } from "./models/shapes/Rectangle.mjs";
 import { Circle } from "./models/shapes/Circle.mjs";
 import { SymLine } from "./models/shapes/SymLine.mjs";
@@ -71,11 +71,13 @@ const u_color = gl.getUniformLocation(program, 'u_color');
 const u_pan = gl.getUniformLocation(program, 'u_pan');
 const u_move = gl.getUniformLocation(program, 'u_move');
 const u_rotate = gl.getUniformLocation(program, 'u_rotate');
+const u_scale = gl.getUniformLocation(program, 'u_scale');
 const u_resolution = gl.getUniformLocation(program, 'u_resolution');
 gl.uniform4f(u_color, 1, 0, 0, 1);
 gl.uniformMatrix3fv(u_move, false, mat3.create());
 gl.uniformMatrix3fv(u_pan, false, mat3.create());
 gl.uniformMatrix3fv(u_rotate, false, mat3.create());
+gl.uniformMatrix3fv(u_scale, false, mat3.create());
 gl.uniform2f(u_resolution, gl.canvas.width, gl.canvas.height);
 // --------- WEBGL ---------
 
@@ -102,7 +104,12 @@ export const a = {
     clickCopyStart: null,
     clickRotateStart: null,
     clickMirrorStart: null,
-    clickScaleStart: null,
+    clickScaleStart1: null,
+    clickScaleStart2: null,
+    clickScaleBaseDistanceX: null,
+    clickScaleBaseDistanceY: null,
+    clickScaleBaseDistance: null,
+    clickScaleShapeDistance: null,
 
     start: null,
     end: null,
@@ -567,22 +574,101 @@ function handleMouseDown(mouse) {
             }
             break;
         case 'scale':
-            const scale_mat = getScaleMatrix(a.clickScaleStart, mouse);
-            a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                switch (shape.type) {
-                    case 'line':
-                        
-                        break;
-                    case 'rectangle':
+            if (!a.clickScaleStart1 && !a.clickScaleStart2) {
+                a.clickScaleStart1 = { ...a.start };
+            }
+            else if (a.clickScaleStart1 && !a.clickScaleStart2) {
+                a.clickScaleStart2 = { ...a.start };
+                a.clickScaleBaseDistanceX = a.clickScaleStart2.x - a.clickScaleStart1.x;
+                a.clickScaleBaseDistanceY = a.clickScaleStart2.y - a.clickScaleStart1.y;
+                a.clickScaleBaseDistance = Math.hypot(a.clickScaleBaseDistanceX, a.clickScaleBaseDistanceY);
+                let minX = 10000;
+                let maxX = 0;
 
-                        break;
-                    case 'circle':
+                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                    switch (shape.constructor.name) {
+                        case 'Line':
+                            if (shape.start.x < minX) {
+                                minX = shape.start.x;
+                            }
+                            if (shape.end.x < minX) {
+                                minX = shape.end.x;
+                            }
+                            if (shape.start.x > maxX) {
+                                maxX = shape.start.x;
+                            }
+                            if (shape.end.x > maxX) {
+                                maxX = shape.end.x;
+                            }
+                            break;
+                        case 'Rectangle':
+                            let points = [shape.p1, shape.p2, shape.p3, shape.p4];
+                            points.forEach(point => {
+                                if (point.x < minX) {
+                                    minX = point.x;
+                                }
+                                if (point.x > maxX) {
+                                    maxX = point.x;
+                                }
+                            });
+                            break;
+                        case 'Circle':
+                            let circleMinX = shape.center.x - shape.radius;
+                            let circleMaxX = shape.center.x + shape.radius;
+                            if (circleMinX < minX) {
+                                minX = circleMinX;
+                            }
+                            if (circleMaxX > maxX) {
+                                maxX = circleMaxX;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                });
+                a.clickScaleShapeDistance = maxX - minX;
+                console.log('a.clickScaleShapeDistance', a.clickScaleShapeDistance);
+            }
 
-                        break;
-                    default:
-                        break;
-                }
-            })
+            else if (a.clickScaleStart1 && a.clickScaleStart2) {
+                const dx = (mouse.x - a.clickScaleStart2.x);
+                const dy = (mouse.y - a.clickScaleStart2.y);
+
+                const distX = a.clickScaleBaseDistanceX + dx;
+                const distY = a.clickScaleBaseDistanceY + dy;
+
+
+                const scale_mat = getScaleMatrix(a.clickScaleStart1, distX, distY, a.clickScaleBaseDistance, a.clickScaleShapeDistance);
+                gl.uniformMatrix3fv(u_scale, false, scale_mat);
+                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                    switch (shape.type) {
+                        case 'line':
+                            shape.start = transformPointByMatrix3(scale_mat, shape.start);
+                            shape.end = transformPointByMatrix3(scale_mat, shape.end);
+                            break;
+                        case 'rectangle':
+                            shape.p1 = transformPointByMatrix3(scale_mat, shape.p1);
+                            shape.p2 = transformPointByMatrix3(scale_mat, shape.p2);
+                            shape.p3 = transformPointByMatrix3(scale_mat, shape.p3);
+                            shape.p4 = transformPointByMatrix3(scale_mat, shape.p4);
+                            shape.updateCenter();
+                            break;
+                        case 'circle':
+                            shape.center = transformPointByMatrix3(scale_mat, shape.center);
+                            shape.quad1 = transformPointByMatrix3(scale_mat, shape.quad1);
+                            shape.radius = shape.center.y - shape.quad1.y;
+
+                            break;
+                        default:
+
+                            break;
+                    }
+                })
+
+                a.clickScaleStart1 = null;
+                a.clickScaleStart2 = null;
+                gl.uniformMatrix3fv(u_scale, false, mat3.create());
+            }
         case 'edit':
             a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                 switch (shape.type) {
@@ -1021,8 +1107,25 @@ function handleMouseMove(mouse) {
                         })
                     }
                     break;
+                case 'scale':
+                    if (a.clickScaleStart1 && a.clickScaleStart2) {
+                        const dx = (mouse.x - a.clickScaleStart2.x);
+                        const dy = (mouse.y - a.clickScaleStart2.y);
+
+                        const distX = a.clickScaleBaseDistanceX + dx;
+                        const distY = a.clickScaleBaseDistanceY + dy;
+
+
+                        const scale_mat = getScaleMatrix(a.clickScaleStart1, distX, distY, a.clickScaleBaseDistance, a.clickScaleShapeDistance);
+                        gl.uniformMatrix3fv(u_scale, false, scale_mat);
+                        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
+                            drawSingle(shape);
+                        })
+                    }
+                    break;
                 default:
                     break;
+
             }
         }
 
@@ -1328,8 +1431,15 @@ export function deleteText(text) {
 
 
 export function drawShapes() {
+
+    // это для того, чтобы фигуры раздваивались
     gl.uniformMatrix3fv(u_move, false, mat3.create());
     gl.uniformMatrix3fv(u_rotate, false, mat3.create());
+    gl.uniformMatrix3fv(u_scale, false, mat3.create());
+
+
+
+
     // НЕ УДАЛЯТЬ !!!
     // if (a.vertices.length === 0) {
     //     return;
@@ -1337,6 +1447,8 @@ export function drawShapes() {
     // gl.uniform4f(u_color, 1, 0, 0, 1);
     // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a.vertices), gl.DYNAMIC_DRAW);
     // gl.drawArrays(gl.LINES, 0, a.vertices.length / 2);
+
+
 
     gl.clearColor(1, 1, 1, 1);
     // закомментировать если где-то нужно нарисовать что-то локально, ручку например функцией drawSingle()

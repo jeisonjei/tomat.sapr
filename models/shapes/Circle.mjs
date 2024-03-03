@@ -23,8 +23,7 @@ export class Circle extends BasicShape {
     get radius() {
         return this._radius;
     }
-
-
+    
     constructor(aspectRatio, center, radius, color) {
         super(aspectRatio);
         this.type = 'circle';

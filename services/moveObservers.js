@@ -13,7 +13,7 @@ export function colorMagnetsObserver(mouse) {
         return;
     }
 
-    else if (['move', 'copy', 'rotate', 'rotatecopy', 'mirror'].includes(gm())) {
+    else if (['move', 'copy', 'rotate', 'rotatecopy', 'mirror','scale'].includes(gm())) {
         const color = getColor(212, 39, 216,1);
         a.shapes.filter(shape => shape.isSelected).forEach(shape => {
             switch (shape.type) {
