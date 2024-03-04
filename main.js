@@ -1893,3 +1893,11 @@ function getPoint(mouseEvent) {
 // --------- HELPERS ---------
 
 
+// --------- VUE ---------
+var app = new Vue({
+    el: '#app',
+    data: {
+        message:'Hello, Vue!'
+    }
+})
+// --------- VUE ---------

@@ -9,193 +9,193 @@
 </head>
 
 <body>
-  <div class="row">
-    <div class="flex-row cont">
-      <div>
-        <div class="tools" style="z-index: 100;">
-          <div class="flex-row">
-            <div><button id="text">Текст</button></div>
-            <div><select name="" id="fontSize">
-                <option value="6">6</option>
-                <option value="12">12</option>
-                <option value="18">18</option>
-                <option value="24">24</option>
-                <option value="30">30</option>
-                <option value="36" selected>36</option>
-                <option value="42">42</option>
-                <option value="48">48</option>
-                <option value="54">54</option>
-                <option value="60">60</option>
-                <option value="66">66</option>
-                <option value="72">72</option>
-                <option value="78">78</option>
-                <option value="84">84</option>
-                <option value="90">90</option>
-                <option value="96">96</option>
-                <option value="102">102</option>
-              </select></div>
-            <span class="mx-1">|</span>
-            <div><button id="line">Линия</button></div>
-            <div><button id="rectangle">Прямоуг.</button></div>
-            <div><button id="circle">Круг</button></div>
-            <span class="mx-1">|</span>
-            <div><button id="select">Выбор</button></div>
-            <div><button id="delete">Удал.</button></div>
-            <span class="mx-1">|</span>
-            <div><button id="move">Перемест.</button></div>
-            <div><button id="copy">Копир.</button></div>
-            <div><button id="rotate">Поворот</button></div>
-            <div><button id="mirror">Зеркально</button></div>
-            <div><button id="scale">Масштаб.</button></div>
-            <span class="mx-1">|</span>
-            <div><button id="saveDxf">DXF</button></div>
-            <div><button id="savePdf">PDF</button></div>
-            <div><select name="" id="format">
-                <option value="A4">A4</option>
-                <option value="A3">A3</option>
-                <option value="A2">A2</option>
-                <option value="A1">A1</option>
-              </select></div>
-            <span class="mx-1">|</span>
-
-            <div class="flex-row align-center">
+  <div id="app">
+    <div class="row">
+      <div class="flex-row cont">
+        <div>
+          <div class="tools" style="z-index: 100;">
+            <div class="flex-row">
+              
+              <div><button id="text">Текст</button></div>
+              <div><select name="" id="fontSize">
+                  <option value="6">6</option>
+                  <option value="12">12</option>
+                  <option value="18">18</option>
+                  <option value="24">24</option>
+                  <option value="30">30</option>
+                  <option value="36" selected>36</option>
+                  <option value="42">42</option>
+                  <option value="48">48</option>
+                  <option value="54">54</option>
+                  <option value="60">60</option>
+                  <option value="66">66</option>
+                  <option value="72">72</option>
+                  <option value="78">78</option>
+                  <option value="84">84</option>
+                  <option value="90">90</option>
+                  <option value="96">96</option>
+                  <option value="102">102</option>
+                </select></div>
+              <span class="mx-1">|</span>
+              <div><button id="line">Линия</button></div>
+              <div><button id="rectangle">Прямоуг.</button></div>
+              <div><button id="circle">Круг</button></div>
+              <span class="mx-1">|</span>
+              <div><button id="select">Выбор</button></div>
+              <div><button id="delete">Удал.</button></div>
+              <span class="mx-1">|</span>
+              <div><button id="move">Перемест.</button></div>
+              <div><button id="copy">Копир.</button></div>
+              <div><button id="rotate">Поворот</button></div>
+              <div><button id="mirror">Зеркально</button></div>
+              <div><button id="scale">Масштаб.</button></div>
+              <span class="mx-1">|</span>
+              <div><button id="saveDxf">DXF</button></div>
+              <div><button id="savePdf">PDF</button></div>
+              <div><select name="" id="format">
+                  <option value="A4">A4</option>
+                  <option value="A3">A3</option>
+                  <option value="A2">A2</option>
+                  <option value="A1">A1</option>
+                </select></div>
+              <span class="mx-1">|</span>
               <div class="flex-row align-center">
-                <input type="checkbox" name="angleSnap" id="angleSnap">
-                <label for="angleSnap">Угл.</label>
-              </div>
-              <div class="flex-row align-center">
-                <input type="checkbox" name="magnets" id="magnets" checked="true">
-                <label for="magnets">Маг.</label>
-              </div>
-              <div class="flex-row align-center">
-                <input type="checkbox" name="output" id="output">
-                <label for="output">Рамка</label>
-              </div>
-              <div class="flex-row align-center">
-                <input type="checkbox" name="ctrl" id="ctrl">
-                <label for="ctrl">Мод.</label>
+                <div class="flex-row align-center">
+                  <input type="checkbox" name="angleSnap" id="angleSnap">
+                  <label for="angleSnap">Угл.</label>
+                </div>
+                <div class="flex-row align-center">
+                  <input type="checkbox" name="magnets" id="magnets" checked="true">
+                  <label for="magnets">Маг.</label>
+                </div>
+                <div class="flex-row align-center">
+                  <input type="checkbox" name="output" id="output">
+                  <label for="output">Рамка</label>
+                </div>
+                <div class="flex-row align-center">
+                  <input type="checkbox" name="ctrl" id="ctrl">
+                  <label for="ctrl">Мод.</label>
+                </div>
               </div>
             </div>
-
           </div>
+          <div id="info" class="absolute-div" style="width: 250px;">
+            <div>
+              <table>
+                <tbody>
+                  <tr>
+                    <td>SHIFT</td>
+                    <td>Угловая привязка</td>
+                  </tr>
+                  <tr>
+                    <td>F1</td>
+                    <td>Показать или скрыть область печати</td>
+                  </tr>
+                  <tr>
+                    <td>F3</td>
+                    <td>Включение и выключение магнитов</td>
+                  </tr>
+                  <tr>
+                    <td>SPACE</td>
+                    <td>Панорамирование</td>
+                  </tr>
+                  <tr>
+                    <td>Колесо</td>
+                    <td>Зуммирование</td>
+                  </tr>
+                  <tr>
+                    <td>L</td>
+                    <td>Линия</td>
+                  </tr>
+                  <tr>
+                    <td>T</td>
+                    <td>Текст</td>
+                  </tr>
+                  <tr>
+                    <td>Esc</td>
+                    <td>Выход из режима текста</td>
+                  </tr>
+                  <tr>
+                    <td>ALT+L</td>
+                    <td>Симметричная Линия</td>
+                  </tr>
+                  <tr>
+                    <td>K</td>
+                    <td>Прямоугольник</td>
+                  </tr>
+                  <tr>
+                    <td>Q</td>
+                    <td>Квадрат</td>
+                  </tr>
+                  <tr>
+                    <td>E</td>
+                    <td>Круг</td>
+                  </tr>
+                  <tr>
+                    <td>C</td>
+                    <td>Копировать</td>
+                  </tr>
+                  <tr>
+                    <td>M</td>
+                    <td>Переместить</td>
+                  </tr>
+                  <tr>
+                    <td>R</td>
+                    <td>Поворот</td>
+                  </tr>
+                  <tr>
+                    <td>ALT+R</td>
+                    <td>Поворот с копированием</td>
+                  </tr>
+                  <tr>
+                    <td>I</td>
+                    <td>Зеркально отразить</td>
+                  </tr>
+                  <tr>
+                    <td>ESC</td>
+                    <td>Отмена</td>
+                  </tr>
+                  <tr>
+                    <td>S</td>
+                    <td>Выбор</td>
+                  </tr>
+                  <tr>
+                    <td>CTRL</td>
+                    <td>Альтернативный вариант редактирования фигур за ручки</td>
+                  </tr>
+                  <tr>
+                    <td>B</td>
+                    <td>Разрыв линии</td>
+                  </tr>
+                  <tr>
+                    <td>ENTER в режиме текста</td>
+                    <td>Перенос строки</td>
+                  </tr>
+                  <tr>
+                    <td>W</td>
+                    <td>Масштабирование фигур</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="margin-left: 4px">
+              <p id="mode"></p>
+              <p id="tool"></p>
+              <p id="cursor"></p>
+              <p id="message1"></p>
+              <p id="message2"></p>
+              <p id="message3"></p>
+              <p id="error"></p>
+            </div>
+          </div>
+          <canvas class="drawing"></canvas>
+          <canvas class="text"></canvas>
         </div>
-        <div id="info" class="absolute-div" style="width: 250px;">
-          <div>
-            <table>
-              <tbody>
-                <tr>
-                  <td>SHIFT</td>
-                  <td>Угловая привязка</td>
-                </tr>
-                <tr>
-                  <td>F1</td>
-                  <td>Показать или скрыть область печати</td>
-                </tr>
-
-                <tr>
-                  <td>F3</td>
-                  <td>Включение и выключение магнитов</td>
-                </tr>
-                <tr>
-                  <td>SPACE</td>
-                  <td>Панорамирование</td>
-                </tr>
-                <tr>
-                  <td>Колесо</td>
-                  <td>Зуммирование</td>
-                </tr>
-                <tr>
-                  <td>L</td>
-                  <td>Линия</td>
-                </tr>
-                <tr>
-                  <td>T</td>
-                  <td>Текст</td>
-                </tr>
-                <tr>
-                  <td>Esc</td>
-                  <td>Выход из режима текста</td>
-                </tr>
-                <tr>
-                  <td>ALT+L</td>
-                  <td>Симметричная Линия</td>
-                </tr>
-                <tr>
-                  <td>K</td>
-                  <td>Прямоугольник</td>
-                </tr>
-                <tr>
-                  <td>Q</td>
-                  <td>Квадрат</td>
-                </tr>
-                <tr>
-                  <td>E</td>
-                  <td>Круг</td>
-                </tr>
-                <tr>
-                  <td>C</td>
-                  <td>Копировать</td>
-                </tr>
-                <tr>
-                  <td>M</td>
-                  <td>Переместить</td>
-                </tr>
-                <tr>
-                  <td>R</td>
-                  <td>Поворот</td>
-                </tr>
-                <tr>
-                  <td>ALT+R</td>
-                  <td>Поворот с копированием</td>
-                </tr>
-                <tr>
-                  <td>I</td>
-                  <td>Зеркально отразить</td>
-                </tr>
-                <tr>
-                  <td>ESC</td>
-                  <td>Отмена</td>
-                </tr>
-                <tr>
-                  <td>S</td>
-                  <td>Выбор</td>
-                </tr>
-                <tr>
-                  <td>CTRL</td>
-                  <td>Альтернативный вариант редактирования фигур за ручки</td>
-                </tr>
-                <tr>
-                  <td>B</td>
-                  <td>Разрыв линии</td>
-                </tr>
-                <tr>
-                  <td>ENTER в режиме текста</td>
-                  <td>Перенос строки</td>
-                </tr>
-                <tr>
-                  <td>W</td>
-                  <td>Масштабирование фигур</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div style="margin-left: 4px">
-            <p id="mode"></p>
-            <p id="tool"></p>
-            <p id="cursor"></p>
-            <p id="message1"></p>
-            <p id="message2"></p>
-            <p id="message3"></p>
-            <p id="error"></p>
-          </div>
-
-        </div>
-        <canvas class="drawing"></canvas>
-        <canvas class="text"></canvas>
       </div>
     </div>
   </div>
   <!-- <script src="https://hoggman.github.io/webgl-lint/webgl-lint.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
   <script src="dist/bundle.js"></script>
 
 </body>
