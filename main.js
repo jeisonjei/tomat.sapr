@@ -39,6 +39,9 @@ import { filterText } from "./services/textFilter";
 import { Text } from "./models/shapes/Text.mjs";
 import { Grip } from "./models/snaps/Grip.mjs";
 
+// vue
+import Vue from 'vue/dist/vue.esm.js';
+
 /**
  * В этой версии программы попробуем осущещствлять вызовы к webgl только из текущего файла.
  * Когда вызовы к webgl осуществляются из различных классов, возникает серьёзная путаница.
