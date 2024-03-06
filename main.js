@@ -177,8 +177,6 @@ const canvasText = document.querySelector('canvas.text');
 resizeCanvasToDisplaySize(canvasText);
 const context = canvasText.getContext('2d');
 
-context.font = `${t.fontSize}px ${t.fontName}`;
-
 // --------- TEXTCONTEXT ---------
 
 
@@ -195,6 +193,9 @@ function init() {
     s.setWebglContext(gl);
     s.setTextContext(context);
 
+    // --- text
+    context.font = `${t.fontSize}px ${t.fontName}`;
+
 
 }
 init();
@@ -206,8 +207,15 @@ init();
 // --------- MOUSE EVENTS ---------
 function handleMouseDown(mouse) {
     /**
-     * Функция выполняется при нажатии мыши. В зависимости от режима select, move, copy, rotate, mirror, line, circle ...
-     * выполняются разные блоки. 
+     * @desc Функция выполняется при нажатии мыши. В зависимости от режима, который узнаётся через функцию gm(), выполняются разные блоки
+     * @property {Point} a.start - Переменная назначается однажды, в самом начале функции и используется
+     * как начальная точка. В зависимости от того, назначена ли точка a.magnetPosition, может быть или равна
+     * текущему положению мыши, или точке a.magnetPosition
+     * @property {Point} a.magnetPosition - Переменная назначается только в одном месте всей программы
+     * через наблюдатель magnetState$ в функции handleMouseMove.
+     * 
+     * 
+     * 
      */
     if (a.pan) {
         return;
@@ -227,9 +235,6 @@ function handleMouseDown(mouse) {
     switch (gm()) {
 
         case 'break':
-
-
-
             const filteredShapes = a.shapes.filter(shape => shape.isinSelectBoundary(mouse));
 
             // выбрана 1 линия
@@ -243,7 +248,7 @@ function handleMouseDown(mouse) {
                             if (!bs) {
                                 return;
                             }
-                            else if ((bs && !be) || (bs?.isEqual(be))) {
+                            else if ((bs && !be) || (bs?.x === be.x && bs?.y === be.y)) {
                                 const side = getSideOfMouseRelativeToLine(mouse, bs, shape);
                                 if (side === 'start') {
                                     shape.start = bs;
@@ -254,7 +259,6 @@ function handleMouseDown(mouse) {
 
                             }
                             else {
-                                // для случая с кругом, так как там обычно возвращаются две точки
                                 const side = getSideOfMouseRelativeToLine(mouse, bs, shape);
                                 const line1 = shape.getClone();
                                 const line2 = shape.getClone();

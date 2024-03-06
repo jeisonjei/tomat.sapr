@@ -319,10 +319,10 @@ export function getSideOfMouseRelativeToLine(mouse, breakStart, selectedLine) {
   const end = selectedLine.end;
 
   // Определяем вектор, соединяющий начало и конец выбранной линии
-  const lineVector = end.subtract(breakStart);
+  const lineVector = new Point(end.x - breakStart.x, end.y - breakStart.y);
 
   // Определяем вектор, соединяющий начало выбранной линии и точку мыши
-  const mouseVector = mouse.subtract(breakStart);
+  const mouseVector = new Point(mouse.x - breakStart.x,mouse.y-breakStart.y);
 
   // Вычисляем скалярное произведение векторов
   const scalarProduct = lineVector.dot(mouseVector);
@@ -356,7 +356,7 @@ export function getProjection(mouse, line) {
 
 export function findClosestPoints(mouse, points) {
   const result = points.map(p => {
-    const mouseVector = mouse.subtract(p);
+    const mouseVector = new Point(mouse.x - p.x,mouse.y - p.y);
     return { scalar: getScalar(mouse, mouseVector), point: p }
   });
 

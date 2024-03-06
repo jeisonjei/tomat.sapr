@@ -225,9 +225,7 @@ export class Line extends BasicShape {
       
 
     findCircleLineIntersections(circle, line) {
-        const lineVector = line.end.subtract(line.start);
         const circleCenter = circle.center;
-        const angleRad = Math.atan2(circle.center.y - line.start.y, circle.center.x - line.start.x);
     
         const circleRadius = circle.radius;
     
