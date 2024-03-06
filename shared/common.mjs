@@ -325,7 +325,7 @@ export function getSideOfMouseRelativeToLine(mouse, breakStart, selectedLine) {
   const mouseVector = new Point(mouse.x - breakStart.x,mouse.y-breakStart.y);
 
   // Вычисляем скалярное произведение векторов
-  const scalarProduct = lineVector.dot(mouseVector);
+  const scalarProduct = dot(lineVector,mouseVector);
 
   // Если скалярное произведение положительное, то точка мыши находится на одной стороне линии с началом
   if (scalarProduct > 0) {
@@ -387,9 +387,13 @@ export function findClosestPoints(mouse, points) {
 
 
 
+const dot = (currentVector,otherVector) => {
+  return currentVector.x * otherVector.x + currentVector.y * otherVector.y;
+}
 
 export function getScalar(mouse, point) {
-  const result = mouse.dot(point);
+  
+  const result = dot(mouse,point);
   return result;
 }
 

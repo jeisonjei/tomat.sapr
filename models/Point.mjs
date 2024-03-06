@@ -3,8 +3,5 @@ export function Point(x, y) {
     this.y = y;
 
     // ---
-    this.dot = (otherVector) => {
-        return this.x * otherVector.x + this.y * otherVector.y;
-    }
 }
 
