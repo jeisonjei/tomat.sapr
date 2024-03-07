@@ -53,11 +53,10 @@ export function generateDXFContent() {
     t.utext.forEach((textInput, index) => {
         const textString = textInput.text;
         const size = t.fontSize;
-        const webglCoord = canvasGetWebglCoordinates(textInput.start, s.textContext.canvas);
 
-        const a = scalePoint(webglCoord, canvasHeight, canvasWidth);
+        const a = textInput.start;
 
-        dxfContent += `0\nTEXT\n8\n${index}\n10\n${a.x}\n20\n${a.y}\n40\n${size*scaleY*0.1}\n1\n${textString}\n`;
+        dxfContent += `0\nTEXT\n8\n${index}\n10\n${a.x}\n20\n${-a.y}\n40\n${size*0.75}\n1\n${textString}\n`;
     });
 
     dxfContent += `0\nENDSEC\n0\nEOF`; // DXF footer
@@ -74,13 +73,17 @@ function saveDXFFile(dxfContent, fileName) {
 }
 
 function scalePoint(point, canvasWidth, canvasHeight) {
-    const scaledX = (point.x / canvasWidth) * 100; // Scale x-coordinate to fit within 100 units
-    const scaledY = (point.y / canvasHeight) * 100; // Scale y-coordinate to fit within 100 units
+    const scaledX = (point.x / 1); // Scale x-coordinate to fit within 100 units
+    const scaledY = (-point.y / 1); // Scale y-coordinate to fit within 100 units
+    // const scaledX = (point.x / canvasWidth) * 100; // Scale x-coordinate to fit within 100 units
+    // const scaledY = (point.y / canvasHeight) * 100; // Scale y-coordinate to fit within 100 units
     return { x: scaledX, y: scaledY };
 }
 
 function scaleLength(length, canvasWidth, canvasHeight) {
-    const aspectRatio = canvasWidth / canvasHeight;
-    const scaledLength = length / Math.max(canvasWidth, canvasHeight) * 100; // Scale length to fit within 100 units
-    return scaledLength * aspectRatio; // Adjust length based on aspect ratio
+    const aspectRatio = 1 / 1;
+    const scaledLength = length / 1; // Scale length to fit within 100 units
+    // const aspectRatio = canvasWidth / canvasHeight;
+    // const scaledLength = length / Math.max(canvasWidth, canvasHeight) * 100; // Scale length to fit within 100 units
+    return scaledLength * 1; // Adjust length based on aspect ratio
 }
