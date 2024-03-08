@@ -1613,7 +1613,7 @@ function removeText() {
 }
 
 function handleMouseDownText(mouse) {
-
+    t.offset = Number.parseInt(t.fontSize) * 0.2;
 
 
     currentLetterIndex = 0;
