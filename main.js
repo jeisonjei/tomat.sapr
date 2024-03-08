@@ -1751,7 +1751,11 @@ function handleKeyPress(key) {
 
     }
     else if (key === 'Enter') {
-        t.textPosition = new Point(t.textPosition.x, t.textPosition.y + 36);
+        const lineSpace = Number.parseInt(t.fontSize);
+        
+        const positionY = t.textPosition.y + lineSpace;
+        
+        t.textPosition = new Point(t.textPosition.x, positionY);
         const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
 
         t.utext = t.utext.filter(t => t.text !== '');
