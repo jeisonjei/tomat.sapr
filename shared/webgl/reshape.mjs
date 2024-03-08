@@ -32,10 +32,10 @@ export function pushVertices(shape, avertices) {
 
 export function replaceVertices(shape, vertices) {
     /**
- * Функция предназначена для возможного серьёзного улучшения производительности программы,
- * когда функция @type {Function} drawShapes не использует цикл для прохода по всем фигурам,
- * а отрисовывает все вершины за один раз
- */
+     * Функция предназначена для возможного серьёзного улучшения производительности программы,
+     * когда функция @type {Function} drawShapes не использует цикл для прохода по всем фигурам,
+     * а отрисовывает все вершины за один раз
+     */
 
     const id = shape.id;
     const newVertices = shape.getVerticesArray();
