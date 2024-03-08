@@ -27,6 +27,13 @@ export class Text extends BasicShape {
 
     }
 
+    getVerticesArray(){
+        return [
+            this.start.x, this.start.y,
+            this.start.x + this.width, this.start.y - this.height
+        ]
+    }
+
     update(textArray) {
         this.text = this.getText(textArray);
         const metrics = this.context.measureText(this.text);
