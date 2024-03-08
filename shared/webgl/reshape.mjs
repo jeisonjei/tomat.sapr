@@ -8,7 +8,7 @@ export function deconstruct(vertices, shapes) {
 
 export function getNewVertices(shapes) {
     let result = [];
-    for (const shape of shapes.filter(shape=>shape.type!=='text')) {
+    for (const shape of shapes.filter(shape => shape.type !== 'text')) {
         const vertices = shape.getVerticesArray();
         for (const v of vertices) {
             result.push(v);
@@ -18,6 +18,11 @@ export function getNewVertices(shapes) {
 }
 
 export function pushVertices(shape, avertices) {
+    /**
+     * Функция предназначена для возможного серьёзного улучшения производительности программы,
+     * когда функция @type {Function} drawShapes не использует цикл для прохода по всем фигурам,
+     * а отрисовывает все вершины за один раз
+     */
     const vertices = shape.getVerticesArray();
     for (const v of vertices) {
         avertices.push(v);
@@ -26,6 +31,12 @@ export function pushVertices(shape, avertices) {
 }
 
 export function replaceVertices(shape, vertices) {
+    /**
+ * Функция предназначена для возможного серьёзного улучшения производительности программы,
+ * когда функция @type {Function} drawShapes не использует цикл для прохода по всем фигурам,
+ * а отрисовывает все вершины за один раз
+ */
+
     const id = shape.id;
     const newVertices = shape.getVerticesArray();
 
