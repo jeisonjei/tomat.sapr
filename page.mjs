@@ -84,7 +84,7 @@ keyDown$.subscribe(event => {
     }
 
 
-    // --- alt
+    // --- сочетания клавиш с alt
     if (event.altKey) {
         event.preventDefault();
         switch (event.key) {
@@ -104,6 +104,18 @@ keyDown$.subscribe(event => {
     else if (event.ctrlKey) {
         a.ctrl = true;
         ctrlCheckbox.checked = true;
+    }
+
+    // --- сочетания клавиш с SHIFT
+    if (event.shiftKey) {
+        switch (true) {
+            case (event.key === 'F'):
+                magnetsCheckbox.checked = !magnetsCheckbox.checked;
+                break;
+        
+            default:
+                break;
+        }
     }
 
 
