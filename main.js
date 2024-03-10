@@ -39,8 +39,6 @@ import { filterText } from "./services/textFilter";
 import { Text } from "./models/shapes/Text.mjs";
 import { Grip } from "./models/snaps/Grip.mjs";
 
-// vue
-import Vue from 'vue/dist/vue.esm.js';
 
 /**
  * В этой версии программы попробуем осущещствлять вызовы к webgl только из текущего файла.
@@ -1903,42 +1901,3 @@ function getPoint(mouseEvent) {
     return new Point(mouseEvent.clientX - 7, mouseEvent.clientY - 8);
 }
 // --------- HELPERS ---------
-
-
-// --------- VUE ---------
-var app = new Vue({
-    el: '#app',
-    data: {
-        toolButtonClass: 'p-1 rounded bg-slate-100 hover:bg-slate-200 mx-0.5',
-        checkboxClass: 'w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mx-1',   
-        toolIconClass:'h-6 w-6 text-slate-500',
-        message:'Hello, Vue!'
-    },
-    methods: {
-        setMode(mode_elem, mode) {
-
-
-            mode_elem.innerHTML = 'mode: ' + mode;
-            if (!s.textContext) {
-                return;
-            }
-            if (mode === 'select' || mode === 'boundary') {
-                s.textContext.canvas.style.cursor = 'pointer';
-            }
-            else if (mode === 'text') {
-                s.textContext.canvas.style.cursor = 'default';
-            }
-            else if (mode === 'textEdit') {
-                s.textContext.canvas.style.cursor = 'text';
-            }
-            else if (mode === 'break') {
-                s.textContext.canvas.style.cursor = 'cell'
-            }
-            else {
-                s.textContext.canvas.style.cursor = 'crosshair';
-            }
-        
-        }
-    }
-})
-// --------- VUE ---------

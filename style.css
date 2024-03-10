@@ -9,7 +9,7 @@ canvas.drawing {
 canvas.text {
   position: absolute;
   left: 7px;
-  top: 8px;
+  top: 0px;
   width: 99vw;
   height: 97.5vh;
   z-index: 10;
