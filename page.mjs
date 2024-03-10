@@ -242,6 +242,7 @@ fromEvent(document, 'keydown').subscribe(event => {
 
 
 // --------- BUTTONS ---------
+
 const textButton = document.getElementById('text');
 const fontSelect = document.getElementById('fontSize');
 const lineButton = document.getElementById('line');
@@ -253,12 +254,14 @@ const moveButton = document.getElementById('move');
 const copyButton = document.getElementById('copy');
 const rotateButton = document.getElementById('rotate');
 const mirrorButton = document.getElementById('mirror');
+const breakButton = document.getElementById('break');
+const scaleButton = document.getElementById('scale');
 const saveDxfButton = document.getElementById('saveDxf');
 const savePdfButton = document.getElementById('savePdf');
 const formatSelect = document.getElementById('format');
 
 
-const buttons = [lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, saveDxfButton, savePdfButton];
+const buttons = [saveDxfButton, savePdfButton];
 
 buttons.forEach(button => {
     button.addEventListener('mouseover', function () {
@@ -307,6 +310,12 @@ rotateButton.addEventListener('click', function () {
 mirrorButton.addEventListener('click', function () {
     setMode(mode_elem, 'mirror');
 });
+scaleButton.addEventListener('click', function () {
+    setMode(mode_elem, 'scale');
+});
+breakButton.addEventListener('click', function () {
+    setMode(mode_elem, 'break');
+})
 
 saveDxfButton.addEventListener('click', function () {
     generateDXFContent();
@@ -416,7 +425,6 @@ savePdfButton.addEventListener('click', function () {
         filteredShapes.forEach(shape => {
 
             const verticesPixels = shape.getVerticesArray();
-            console.log(verticesPixels);
             switch (shape.type) {
                 case 'line':
                     // TODO
