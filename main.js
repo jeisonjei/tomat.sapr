@@ -637,7 +637,6 @@ function handleMouseDown(mouse) {
                     }
                 });
                 a.clickScaleShapeDistance = maxX - minX;
-                console.log('a.clickScaleShapeDistance', a.clickScaleShapeDistance);
             }
 
             else if (a.clickScaleStart1 && a.clickScaleStart2) {

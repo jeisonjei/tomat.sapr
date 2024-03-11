@@ -112,7 +112,7 @@ keyDown$.subscribe(event => {
             case (event.key === 'F'):
                 magnetsCheckbox.checked = !magnetsCheckbox.checked;
                 break;
-        
+
             default:
                 break;
         }
@@ -265,15 +265,21 @@ const toggleHelp = document.getElementById('toggle-help');
 const helpTable = document.querySelector('table');
 
 
-const buttons = [saveDxfButton, savePdfButton, toggleHelp];
+const buttons = [textButton, fontSelect, lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, breakButton, scaleButton, saveDxfButton, savePdfButton];
 
 buttons.forEach(button => {
+    const id = button.id;
     button.addEventListener('mouseover', function () {
         setMode(mode_elem, 'none');
     });
-    button.setAttribute('tabindex', '-1');
     button.addEventListener('mouseleave', function () {
         button.blur();
+        if (['text','line','rectangle','circle','select','delete','move','copy','rotate','mirror','break','scale'].includes(id)) {
+            setMode(mode_elem,id);
+        }
+        else {
+            setMode(mode_elem,'select');
+        }
     })
 })
 
@@ -326,7 +332,7 @@ saveDxfButton.addEventListener('click', function () {
 });
 
 toggleHelp.addEventListener('click', function (event) {
-    
+
     if (helpTable.classList.contains('hidden')) {
         helpTable.classList.remove('hidden')
     }
@@ -445,23 +451,23 @@ savePdfButton.addEventListener('click', function () {
                     /**
                      * к линиям относится то же самое, что и к прямоугольникам
                      */
-                    pdf.line(verticesPixels[0]/scaleX, verticesPixels[1]/scaleX, verticesPixels[2]/scaleX, verticesPixels[3]/scaleX);
+                    pdf.line(verticesPixels[0] / scaleX, verticesPixels[1] / scaleX, verticesPixels[2] / scaleX, verticesPixels[3] / scaleX);
                     break;
                 case 'rectangle':
                     /**
                      * при операциях поворота и зеркального отображения прямоугольника нужно переназначать точки p1,p2,p3,p4
                      * чтобы точка p1 была всегда в верхнем левом углу
                      */
-                    const width = (shape.p3.x-shape.p1.x) /  scaleX;
+                    const width = (shape.p3.x - shape.p1.x) / scaleX;
                     const height = (shape.p1.y - shape.p4.y) / scaleX;
-                    pdf.rect(verticesPixels[6]/scaleX, verticesPixels[7]/scaleX, width, height);
+                    pdf.rect(verticesPixels[6] / scaleX, verticesPixels[7] / scaleX, width, height);
 
                     break;
                 case 'circle':
                     const center = shape.center;
                     const x = center.x / scaleX;
                     const y = center.y / scaleX;
-                    const radius = shape.radius  /  scaleX;
+                    const radius = shape.radius / scaleX;
                     pdf.circle(x, y, radius);
 
                     break;
@@ -601,7 +607,7 @@ function reset() {
     a.clickMirrorStart = null;
     a.magnetPosition = null;
     a.anglePosition = null;
-    
+
     a.clickScaleStart1 = null;
     a.clickScaleStart2 = null;
 }
