@@ -86,21 +86,10 @@ align-items: center;
 .absolute-div {
   position: absolute;
   left: 1rem;
-  top: 2rem;
+  top: 3rem;
   user-select: none;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif
 }
 
-td:first-child {
-  padding-right: 10px;
-  color: rgb(0, 85, 134);
-  font-weight: bold;
-
-}
-
-table {
-  font-size: small;
-}
 
 @font-face {
   font-family: 'gost_type_a';

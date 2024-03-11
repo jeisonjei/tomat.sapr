@@ -260,8 +260,12 @@ const saveDxfButton = document.getElementById('saveDxf');
 const savePdfButton = document.getElementById('savePdf');
 const formatSelect = document.getElementById('format');
 
+const toggleHelp = document.getElementById('toggle-help');
 
-const buttons = [saveDxfButton, savePdfButton];
+const helpTable = document.querySelector('table');
+
+
+const buttons = [saveDxfButton, savePdfButton, toggleHelp];
 
 buttons.forEach(button => {
     button.addEventListener('mouseover', function () {
@@ -320,6 +324,16 @@ breakButton.addEventListener('click', function () {
 saveDxfButton.addEventListener('click', function () {
     generateDXFContent();
 });
+
+toggleHelp.addEventListener('click', function (event) {
+    
+    if (helpTable.classList.contains('hidden')) {
+        helpTable.classList.remove('hidden')
+    }
+    else {
+        helpTable.classList.add('hidden')
+    }
+})
 
 
 
