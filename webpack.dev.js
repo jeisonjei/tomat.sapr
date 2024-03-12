@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-    entry: './main.js',
+    entry: ['./svelteApp.js','./main.js'],
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist')
@@ -9,6 +9,10 @@ module.exports = {
     watch: true,
     module: {
         rules: [
+            {
+                test: /\.svelte$/,
+                use: 'svelte-loader'
+            },
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
