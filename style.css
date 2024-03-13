@@ -90,6 +90,91 @@ align-items: center;
   user-select: none;
 }
 
+/* my styles */
+
+.m-flex{
+  display: flex;
+}
+.m-justify-end{
+  justify-content: end;
+}
+.m-alert{
+  padding: 1rem;
+  background-color: rgb(238, 255, 65);
+  margin: 1rem;
+  border-radius: 5px;
+}
+
+:root{
+  --woodsmoke-50: #f6f6f6;
+--woodsmoke-100: #e7e7e7;
+--woodsmoke-200: #d1d1d1;
+--woodsmoke-300: #b0b0b0;
+--woodsmoke-400: #888888;
+--woodsmoke-500: #6d6d6d;
+--woodsmoke-600: #5d5d5d;
+--woodsmoke-700: #4f4f4f;
+--woodsmoke-800: #454545;
+--woodsmoke-900: #3d3d3d;
+--woodsmoke-950: #171717;
+--haiti-50: #eff0fe;
+--haiti-100: #e1e4fe;
+--haiti-200: #c9ccfc;
+--haiti-300: #a8abf9;
+--haiti-400: #8985f4;
+--haiti-500: #7668ec;
+--haiti-600: #674cdf;
+--haiti-700: #593dc5;
+--haiti-800: #49349f;
+--haiti-900: #3e317e;
+--haiti-950: #1a1433;
+--east-bay-50: #f3f5fb;
+--east-bay-100: #e5e7f4;
+--east-bay-200: #d1d7ec;
+--east-bay-300: #b0bce0;
+--east-bay-400: #8b99cf;
+--east-bay-500: #6f7cc2;
+--east-bay-600: #5c63b4;
+--east-bay-700: #5154a4;
+--east-bay-800: #464686;
+--east-bay-900: #3c3d6c;
+--east-bay-950: #282843;
+
+
+
+}
+
+
+.m-btn-accept{
+  padding: 0.75rem;
+  border-radius: 6px;
+  background-color: var(--east-bay-700);
+  color: white;
+}
+
+.m-btn-accept:hover{
+  background-color: var(--east-bay-500);
+}
+.m-mx-1{
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+.m-mx-2{
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+.m-my-1{
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.m-my-2{
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+.m-px-1{
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
 
 @font-face {
   font-family: 'gost_type_a';
