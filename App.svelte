@@ -1,13 +1,15 @@
 <script>
     import HelpComponent from "./components/tomat/HelpComponent.svelte";
+    import Stamp from "./components/tomat/Stamp.svelte";
 
     let color = 'blue';
     let toolButtonClass='p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold mx-0.5';
     let toolIconClass='h-6 w-6 text-slate-500';
-    let helpHidden = false;
+    let helpHidden = true;
+    let stampHidden = true;
 
 </script>
-
+<Stamp hidden={stampHidden}></Stamp>
 <div class="row">
     <div class="flex-row cont">
       <div>
@@ -187,6 +189,10 @@
 
                 </svg>
               </button>
+            </div>
+            <div>
+              <button tabindex="-1" id="stamp" class={toolButtonClass} on:click={()=>stampHidden=!stampHidden}>
+                <svg class={toolIconClass}  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <rect x="4" y="4" width="16" height="16" rx="2" />  <line x1="4" y1="15" x2="20" y2="15" /></svg></button>
             </div>
             <div>
               <button tabindex="-1" id="savePdf" class={toolButtonClass}>

@@ -1,13 +1,15 @@
 <script>
+  import { fade } from "svelte/transition";
+
     let td1Class='border border-slate-200 px-2 bg-slate-200 font-bold text-slate-600 w-1/4';
     let td2Class='border border-slate-200 px-2 w-3/4';
     export let hidden=false;
 
-    $: console.log('hidden',hidden);
+   
 </script>
 
 {#if !hidden}
-<table class="table-fixed border-separate border-slate-200 text-sm">
+<table transition:fade={{delay: 0, duration: 200}} class="table-fixed border-separate border-slate-200 text-sm">
     <tbody>
       <tr>
         <td class={td1Class}>SHIFT</td>
