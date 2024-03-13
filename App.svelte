@@ -9,7 +9,7 @@
     let stampHidden = true;
 
 </script>
-<Stamp hidden={stampHidden}></Stamp>
+<Stamp bind:hidden={stampHidden}></Stamp>
 <div class="row">
     <div class="flex-row cont">
       <div>
