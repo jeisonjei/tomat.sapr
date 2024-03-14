@@ -9,6 +9,10 @@ import { font } from "./fonts/GOST type A-normal.js";
 import { Line } from "./models/shapes/Line.mjs";
 import { Point } from "./models/Point.mjs";
 
+// rxdb
+import { createRxDatabase } from "rxdb";
+import { getRxStorageDexie } from "rxdb/plugins/storage-dexie";
+
 
 export const mode_elem = document.getElementById('mode');
 setMode(mode_elem, 'select');
@@ -272,11 +276,11 @@ buttons.forEach(button => {
     });
     button.addEventListener('mouseleave', function () {
         button.blur();
-        if (['text','line','rectangle','circle','select','delete','move','copy','rotate','mirror','break','scale'].includes(id)) {
-            setMode(mode_elem,id);
+        if (['text', 'line', 'rectangle', 'circle', 'select', 'delete', 'move', 'copy', 'rotate', 'mirror', 'break', 'scale'].includes(id)) {
+            setMode(mode_elem, id);
         }
         else {
-            setMode(mode_elem,'select');
+            setMode(mode_elem, 'select');
         }
     })
 })
@@ -401,187 +405,219 @@ export function removePrintArea() {
 // --------- PDF ---------
 
 savePdfButton.addEventListener('click', function () {
-    const pdf = new jsPDF({
-        unit: 'mm',
-        format: format,
-        orientation: "l",
-    });
 
-    const pdfMock = new jsPDF({
-        unit: 'px',
-        format: format,
-        orientation: 'landscape'
-    });
+    const stamps = s.myDatabase.stamps;
 
-    const pdfMockWidth = pdfMock.internal.pageSize.getWidth();
+    const doc = stamps.findOne({
+        selector: {
+            id: 'stamp1'
+        }
+    }).exec();
 
-    // draw shapes from a.shapes to canvas2d
-    pdf.setDrawColor(0, 0, 0);
-    pdf.setLineWidth(0.5);
+    doc.then((v) => {
 
+        const designer = v.get('designer');
+        const checker = v.get('checker');
+        const normChecker = v.get('norm_checker');
+        const gip = v.get('gip');
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const scaleX = s.canvasWidth / pdfWidth;
-    const scaleY = s.canvasHeight / pdfHeight;
-
-    const mmtopx = pdfMockWidth / pdfWidth;
-
-
-    const filteredShapes = a.shapes.filter(shape => shape.type !== 'text');
-    if (filteredShapes.length > 0) {
-        filteredShapes.forEach(shape => {
-
-            const verticesPixels = shape.getVerticesArray();
-            switch (shape.type) {
-                case 'line':
-                    // TODO
-                    /**
-                     * к линиям относится то же самое, что и к прямоугольникам
-                     */
-                    pdf.line(verticesPixels[0] / scaleX, verticesPixels[1] / scaleX, verticesPixels[2] / scaleX, verticesPixels[3] / scaleX);
-                    break;
-                case 'rectangle':
-                    /**
-                     * при операциях поворота и зеркального отображения прямоугольника нужно переназначать точки p1,p2,p3,p4
-                     * чтобы точка p1 была всегда в верхнем левом углу
-                     */
-                    const width = (shape.p3.x - shape.p1.x) / scaleX;
-                    const height = (shape.p1.y - shape.p4.y) / scaleX;
-                    pdf.rect(verticesPixels[6] / scaleX, verticesPixels[7] / scaleX, width, height);
-
-                    break;
-                case 'circle':
-                    const center = shape.center;
-                    const x = center.x / scaleX;
-                    const y = center.y / scaleX;
-                    const radius = shape.radius / scaleX;
-                    pdf.circle(x, y, radius);
-
-                    break;
-                default:
-                    break;
-            }
+        const pdf = new jsPDF({
+            unit: 'mm',
+            format: format,
+            orientation: "l",
         });
 
-    }
+        const pdfMock = new jsPDF({
+            unit: 'px',
+            format: format,
+            orientation: 'landscape'
+        });
+
+        const pdfMockWidth = pdfMock.internal.pageSize.getWidth();
+
+        // draw shapes from a.shapes to canvas2d
+        pdf.setDrawColor(0, 0, 0);
+        pdf.setLineWidth(0.5);
 
 
-    const f = font;
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const scaleX = s.canvasWidth / pdfWidth;
+        const scaleY = s.canvasHeight / pdfHeight;
+
+        const mmtopx = pdfMockWidth / pdfWidth;
 
 
-    pdf.setFont('GOST type A');
+        const filteredShapes = a.shapes.filter(shape => shape.type !== 'text');
 
-    const mmtopoints = 0.75
+        if (filteredShapes.length > 0) {
+            filteredShapes.forEach(shape => {
 
-    const scaleYmm = (pdfWidth * mmtopx / s.canvasWidth) / mmtopoints;
-    const fontSizemm = t.fontSize * scaleYmm;
-    pdf.setFontSize(fontSizemm);
+                const verticesPixels = shape.getVerticesArray();
+                switch (shape.type) {
+                    case 'line':
+                        // TODO
+                        /**
+                         * к линиям относится то же самое, что и к прямоугольникам
+                         */
+                        pdf.line(verticesPixels[0] / scaleX, verticesPixels[1] / scaleX, verticesPixels[2] / scaleX, verticesPixels[3] / scaleX);
+                        break;
+                    case 'rectangle':
+                        /**
+                         * при операциях поворота и зеркального отображения прямоугольника нужно переназначать точки p1,p2,p3,p4
+                         * чтобы точка p1 была всегда в верхнем левом углу
+                         */
+                        const width = (shape.p3.x - shape.p1.x) / scaleX;
+                        const height = (shape.p1.y - shape.p4.y) / scaleX;
+                        pdf.rect(verticesPixels[6] / scaleX, verticesPixels[7] / scaleX, width, height);
+
+                        break;
+                    case 'circle':
+                        const center = shape.center;
+                        const x = center.x / scaleX;
+                        const y = center.y / scaleX;
+                        const radius = shape.radius / scaleX;
+                        pdf.circle(x, y, radius);
+
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+        }
 
 
-    t.utext.forEach(t => {
-        // TODO текст не масштабируется, нужно брать текущее значение из mouseWheel
-        pdf.text(t.text, t.start.x / scaleX, t.start.y / scaleX);
+        const f = font;
+
+
+        pdf.setFont('GOST type A');
+
+        const mmtopoints = 0.75
+
+        const scaleYmm = (pdfWidth * mmtopx / s.canvasWidth) / mmtopoints;
+        const fontSizemm = t.fontSize * scaleYmm;
+        pdf.setFontSize(fontSizemm);
+
+
+        t.utext.forEach(t => {
+            // TODO текст не масштабируется, нужно брать текущее значение из mouseWheel
+            pdf.text(t.text, t.start.x / scaleX, t.start.y / scaleX);
+        })
+
+
+
+
+
+        // --- border
+        pdf.setDrawColor(0, 0, 0);
+        pdf.setLineWidth(0.75);
+        pdf.setFontSize(fontSizemm * 0.5);
+
+        const topX = pdfWidth - 190;
+        const topY = pdfHeight - 60;
+        const b = 5;
+
+        pdf.text('Разработал', topX + 1, topY + b * 6 - 1);
+        pdf.text('Проверил', topX + 1, topY + b * 7 - 1);
+        pdf.text('Н.контроль', topX + 1, topY + b * 8 - 1);
+        pdf.text('ГИП', topX + 1, topY + b * 9 - 1);
+        pdf.text(designer, topX + b * 4 + 1, topY + b * 6 - 1);
+        pdf.text(checker, topX + b * 4 + 1, topY + b * 7 - 1);
+        pdf.text(normChecker, topX + b * 4 + 1, topY + b * 8 - 1);
+        pdf.text(gip, topX + b * 4 + 1,topY + b* 9 -1);
+
+
+        pdf.rect(0, 0, pdfWidth, pdfHeight, 'S');
+        pdf.rect(20, 5, pdfWidth - 25, pdfHeight - 10, 'S');
+        pdf.rect(topX, topY, 185, 55);
+        // ---
+        pdf.rect(topX, topY, 10, 5);
+        pdf.rect(topX, topY + b, 10, 5);
+        pdf.rect(topX, topY + b * 2, 10, 5);
+        pdf.rect(topX, topY + b * 3, 10, 5);
+        pdf.rect(topX, topY + b * 4, 10, 5);
+
+        // ---
+        pdf.rect(topX + b * 2, topY, 10, 5);
+        pdf.rect(topX + b * 2, topY + b, 10, 5);
+        pdf.rect(topX + b * 2, topY + b * 2, 10, 5);
+        pdf.rect(topX + b * 2, topY + b * 3, 10, 5);
+        pdf.rect(topX + b * 2, topY + b * 4, 10, 5);
+
+        pdf.rect(topX + b * 4, topY, 10, 5);
+        pdf.rect(topX + b * 4, topY + b, 10, 5);
+        pdf.rect(topX + b * 4, topY + b * 2, 10, 5);
+        pdf.rect(topX + b * 4, topY + b * 3, 10, 5);
+        pdf.rect(topX + b * 4, topY + b * 4, 10, 5);
+
+        pdf.rect(topX + b * 6, topY, 10, 5);
+        pdf.rect(topX + b * 6, topY + b, 10, 5);
+        pdf.rect(topX + b * 6, topY + b * 2, 10, 5);
+        pdf.rect(topX + b * 6, topY + b * 3, 10, 5);
+        pdf.rect(topX + b * 6, topY + b * 4, 10, 5);
+        // --- 
+        pdf.rect(topX, topY + b * 5, 20, 5);
+        pdf.rect(topX, topY + b * 6, 20, 5);
+        pdf.rect(topX, topY + b * 7, 20, 5);
+        pdf.rect(topX, topY + b * 8, 20, 5);
+        pdf.rect(topX, topY + b * 9, 20, 5);
+        pdf.rect(topX, topY + b * 10, 20, 5);
+        // ---
+        pdf.rect(topX + b * 4, topY + b * 5, 20, 5);
+        pdf.rect(topX + b * 4, topY + b * 6, 20, 5);
+        pdf.rect(topX + b * 4, topY + b * 7, 20, 5);
+        pdf.rect(topX + b * 4, topY + b * 8, 20, 5);
+        pdf.rect(topX + b * 4, topY + b * 9, 20, 5);
+        pdf.rect(topX + b * 4, topY + b * 10, 20, 5);
+        // ---
+        pdf.rect(topX + b * 8, topY, 15, 5);
+        pdf.rect(topX + b * 8, topY + b, 15, 5);
+        pdf.rect(topX + b * 8, topY + b * 2, 15, 5);
+        pdf.rect(topX + b * 8, topY + b * 3, 15, 5);
+        pdf.rect(topX + b * 8, topY + b * 4, 15, 5);
+        pdf.rect(topX + b * 8, topY + b * 5, 15, 5);
+        pdf.rect(topX + b * 8, topY + b * 6, 15, 5);
+        pdf.rect(topX + b * 8, topY + b * 7, 15, 5);
+        pdf.rect(topX + b * 8, topY + b * 8, 15, 5);
+        pdf.rect(topX + b * 8, topY + b * 9, 15, 5);
+        pdf.rect(topX + b * 8, topY + b * 10, 15, 5);
+        // ---
+        pdf.rect(topX + b * 11, topY, 10, 5);
+        pdf.rect(topX + b * 11, topY + b, 10, 5);
+        pdf.rect(topX + b * 11, topY + b * 2, 10, 5);
+        pdf.rect(topX + b * 11, topY + b * 3, 10, 5);
+        pdf.rect(topX + b * 11, topY + b * 4, 10, 5);
+        pdf.rect(topX + b * 11, topY + b * 5, 10, 5);
+        pdf.rect(topX + b * 11, topY + b * 6, 10, 5);
+        pdf.rect(topX + b * 11, topY + b * 7, 10, 5);
+        pdf.rect(topX + b * 11, topY + b * 8, 10, 5);
+        pdf.rect(topX + b * 11, topY + b * 9, 10, 5);
+        pdf.rect(topX + b * 11, topY + b * 10, 10, 5);
+        // ---
+        pdf.rect(topX + b * 13, topY, 120, 10);
+        pdf.rect(topX + b * 13, topY + b * 2, 120, 15);
+        pdf.rect(topX + b * 13, topY + b * 5, 70, 15);
+        pdf.rect(topX + b * 13, topY + b * 8, 70, 15);
+        // ---
+        pdf.rect(topX + b * 27, topY + b * 5, 15, 5);
+        pdf.rect(topX + b * 27, topY + b * 6, 15, 10);
+        // --- 
+        pdf.rect(topX + b * 30, topY + b * 5, 15, 5);
+        pdf.rect(topX + b * 30, topY + b * 6, 15, 10);
+        // ---
+        pdf.rect(topX + b * 33, topY + b * 5, 20, 5);
+        pdf.rect(topX + b * 33, topY + b * 6, 20, 10);
+
+
+
+
+        // Save the PDF file
+        pdf.save("download.pdf");
+
     })
 
 
-
-
-
-    // --- border
-    pdf.setDrawColor(0, 0, 0);
-    pdf.setLineWidth(0.75);
-
-    const topX = pdfWidth - 190;
-    const topY = pdfHeight - 60;
-    const b = 5;
-
-
-    pdf.rect(0, 0, pdfWidth, pdfHeight, 'S');
-    pdf.rect(20, 5, pdfWidth - 25, pdfHeight - 10, 'S');
-    pdf.rect(topX, topY, 185, 55);
-    // ---
-    pdf.rect(topX, topY, 10, 5);
-    pdf.rect(topX, topY + b, 10, 5);
-    pdf.rect(topX, topY + b * 2, 10, 5);
-    pdf.rect(topX, topY + b * 3, 10, 5);
-    pdf.rect(topX, topY + b * 4, 10, 5);
-    // ---
-    pdf.rect(topX + b * 2, topY, 10, 5);
-    pdf.rect(topX + b * 2, topY + b, 10, 5);
-    pdf.rect(topX + b * 2, topY + b * 2, 10, 5);
-    pdf.rect(topX + b * 2, topY + b * 3, 10, 5);
-    pdf.rect(topX + b * 2, topY + b * 4, 10, 5);
-
-    pdf.rect(topX + b * 4, topY, 10, 5);
-    pdf.rect(topX + b * 4, topY + b, 10, 5);
-    pdf.rect(topX + b * 4, topY + b * 2, 10, 5);
-    pdf.rect(topX + b * 4, topY + b * 3, 10, 5);
-    pdf.rect(topX + b * 4, topY + b * 4, 10, 5);
-
-    pdf.rect(topX + b * 6, topY, 10, 5);
-    pdf.rect(topX + b * 6, topY + b, 10, 5);
-    pdf.rect(topX + b * 6, topY + b * 2, 10, 5);
-    pdf.rect(topX + b * 6, topY + b * 3, 10, 5);
-    pdf.rect(topX + b * 6, topY + b * 4, 10, 5);
-    // --- 
-    pdf.rect(topX, topY + b * 5, 20, 5);
-    pdf.rect(topX, topY + b * 6, 20, 5);
-    pdf.rect(topX, topY + b * 7, 20, 5);
-    pdf.rect(topX, topY + b * 8, 20, 5);
-    pdf.rect(topX, topY + b * 9, 20, 5);
-    pdf.rect(topX, topY + b * 10, 20, 5);
-    // ---
-    pdf.rect(topX + b * 4, topY + b * 5, 20, 5);
-    pdf.rect(topX + b * 4, topY + b * 6, 20, 5);
-    pdf.rect(topX + b * 4, topY + b * 7, 20, 5);
-    pdf.rect(topX + b * 4, topY + b * 8, 20, 5);
-    pdf.rect(topX + b * 4, topY + b * 9, 20, 5);
-    pdf.rect(topX + b * 4, topY + b * 10, 20, 5);
-    // ---
-    pdf.rect(topX + b * 8, topY, 15, 5);
-    pdf.rect(topX + b * 8, topY + b, 15, 5);
-    pdf.rect(topX + b * 8, topY + b * 2, 15, 5);
-    pdf.rect(topX + b * 8, topY + b * 3, 15, 5);
-    pdf.rect(topX + b * 8, topY + b * 4, 15, 5);
-    pdf.rect(topX + b * 8, topY + b * 5, 15, 5);
-    pdf.rect(topX + b * 8, topY + b * 6, 15, 5);
-    pdf.rect(topX + b * 8, topY + b * 7, 15, 5);
-    pdf.rect(topX + b * 8, topY + b * 8, 15, 5);
-    pdf.rect(topX + b * 8, topY + b * 9, 15, 5);
-    pdf.rect(topX + b * 8, topY + b * 10, 15, 5);
-    // ---
-    pdf.rect(topX + b * 11, topY, 10, 5);
-    pdf.rect(topX + b * 11, topY + b, 10, 5);
-    pdf.rect(topX + b * 11, topY + b * 2, 10, 5);
-    pdf.rect(topX + b * 11, topY + b * 3, 10, 5);
-    pdf.rect(topX + b * 11, topY + b * 4, 10, 5);
-    pdf.rect(topX + b * 11, topY + b * 5, 10, 5);
-    pdf.rect(topX + b * 11, topY + b * 6, 10, 5);
-    pdf.rect(topX + b * 11, topY + b * 7, 10, 5);
-    pdf.rect(topX + b * 11, topY + b * 8, 10, 5);
-    pdf.rect(topX + b * 11, topY + b * 9, 10, 5);
-    pdf.rect(topX + b * 11, topY + b * 10, 10, 5);
-    // ---
-    pdf.rect(topX + b * 13, topY, 120, 10);
-    pdf.rect(topX + b * 13, topY + b * 2, 120, 15);
-    pdf.rect(topX + b * 13, topY + b * 5, 70, 15);
-    pdf.rect(topX + b * 13, topY + b * 8, 70, 15);
-    // ---
-    pdf.rect(topX + b * 27, topY + b * 5, 15, 5);
-    pdf.rect(topX + b * 27, topY + b * 6, 15, 10);
-    // --- 
-    pdf.rect(topX + b * 30, topY + b * 5, 15, 5);
-    pdf.rect(topX + b * 30, topY + b * 6, 15, 10);
-    // ---
-    pdf.rect(topX + b * 33, topY + b * 5, 20, 5);
-    pdf.rect(topX + b * 33, topY + b * 6, 20, 10);
-
-
-
-
-    // Save the PDF file
-    pdf.save("download.pdf");
 }, false);
 
 

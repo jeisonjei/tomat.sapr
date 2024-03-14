@@ -5,7 +5,7 @@
     let color = 'blue';
     let toolButtonClass='p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold mx-0.5';
     let toolIconClass='h-6 w-6 text-slate-500';
-    let helpHidden = true;
+    let helpHidden = false;
     let stampHidden = true;
 
 </script>

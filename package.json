@@ -23,6 +23,7 @@
   "dependencies": {
     "gl-matrix": "^3.4.3",
     "jspdf": "^2.5.1",
+    "rxdb": "^15.11.1",
     "rxjs": "^7.8.1",
     "svelte": "^4.2.12",
     "svelte-loader": "^3.2.0",
