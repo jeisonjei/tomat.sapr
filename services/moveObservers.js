@@ -1,6 +1,6 @@
 import { Point } from "../models/Point.mjs";
-import { a } from "../main.js";
-import { t } from "../main.js";
+import { a } from './../shared/globalState/a.js';
+import { t } from './../shared/globalState/t.js';
 import { s } from '../shared/globalState/settings.mjs'
 import { gm, setMode, mode_elem } from "../page.mjs";
 import { checkFunction, getColor } from "../shared/common.mjs";

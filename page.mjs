@@ -1,6 +1,6 @@
 import { fromEvent } from "rxjs";
-import { canvas, deleteShapes, deleteText, drawText, gl, updateActiveShapes } from "./main.js";
-import { drawShapes,drawSingle } from "./shared/render/shapes.js";
+import { canvas, deleteShapes, deleteText, drawText, gl } from "./main.js";
+import { drawShapes,drawSingle,updateActiveShapes } from "./shared/render/shapes.js";
 import { a } from './shared/globalState/a.js';
 import { t } from './shared/globalState/t.js';
 import { s } from "./shared/globalState/settings.mjs";

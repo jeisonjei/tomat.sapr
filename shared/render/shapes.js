@@ -1,14 +1,23 @@
 import { s } from "../globalState/settings.mjs";
+import { g } from "../globalState/g.js";
+import { c } from "../globalState/c.js";
 import { a } from '../globalState/a.js';
 
 import { mat3 } from "gl-matrix";
 
+import { Point } from "../../models/Point.mjs";
+import { AbstractFrame } from "../../models/frames/AbstractFrame.mjs";
+
+import { pushVertices } from "../webgl/reshape.mjs";
+
+let id = 0;
+
 function drawShapes() {
 
     // это для того, чтобы фигуры раздваивались
-    s.webglContext.uniformMatrix3fv(s.u_move, false, mat3.create());
-    s.webglContext.uniformMatrix3fv(s.u_rotate, false, mat3.create());
-    s.webglContext.uniformMatrix3fv(s.u_scale, false, mat3.create());
+    g.context.uniformMatrix3fv(g.u_move, false, mat3.create());
+    g.context.uniformMatrix3fv(g.u_rotate, false, mat3.create());
+    g.context.uniformMatrix3fv(g.u_scale, false, mat3.create());
 
 
 
@@ -23,9 +32,9 @@ function drawShapes() {
 
 
 
-    s.webglContext.clearColor(1, 1, 1, 1);
+    g.context.clearColor(1, 1, 1, 1);
     // закомментировать если где-то нужно нарисовать что-то локально, ручку например функцией drawSingle()
-    s.webglContext.clear(s.webglContext.COLOR_BUFFER_BIT);
+    g.context.clear(g.context.COLOR_BUFFER_BIT);
 
     a.shapes.forEach(shape => {
         drawSingle(shape);
@@ -78,37 +87,37 @@ function drawSingle(shape) {
             default:
                 break;
         }
-        s.webglContext.uniform4f(s.u_color, 0.5, 0.5, 0.5, 1);
+        g.context.uniform4f(g.u_color, 0.5, 0.5, 0.5, 1);
     }
     else {
-        s.webglContext.uniform4f(s.u_color, a, b, c, d);
+        g.context.uniform4f(g.u_color, a, b, c, d);
     }
-    s.webglContext.bufferData(s.webglContext.ARRAY_BUFFER, vertices, s.webglContext.DYNAMIC_DRAW);
+    g.context.bufferData(g.context.ARRAY_BUFFER, vertices, g.context.DYNAMIC_DRAW);
 
     switch (shape.type) {
         case 'select_frame':
-            s.webglContext.drawArrays(s.webglContext.LINE_LOOP, 0, size / 2);
+            g.context.drawArrays(g.context.LINE_LOOP, 0, size / 2);
 
             break;
         case 'selectBoundary':
-            s.webglContext.drawArrays(s.webglContext.LINE_LOOP, 0, size / 2);
+            g.context.drawArrays(g.context.LINE_LOOP, 0, size / 2);
             break;
         case 'm_grip':
-            s.webglContext.drawArrays(s.webglContext.LINE_LOOP, 0, size / 2);
+            g.context.drawArrays(g.context.LINE_LOOP, 0, size / 2);
             break;
         case 'm_triph':
         case 'm_tripv':
-            s.webglContext.drawArrays(s.webglContext.LINES, 0, size / 2);
+            g.context.drawArrays(g.context.LINES, 0, size / 2);
             break;
         case 'line':
         case 'symline':
-            s.webglContext.drawArrays(s.webglContext.LINES, 0, size / 2);
+            g.context.drawArrays(g.context.LINES, 0, size / 2);
             break;
         case 'rectangle':
-            s.webglContext.drawArrays(s.webglContext.LINE_LOOP, 0, size / 2);
+            g.context.drawArrays(g.context.LINE_LOOP, 0, size / 2);
             break;
         case 'circle':
-            s.webglContext.drawArrays(s.webglContext.LINE_LOOP, 0, size / 2);
+            g.context.drawArrays(g.context.LINE_LOOP, 0, size / 2);
 
             break;
         case 'symline':
@@ -125,4 +134,50 @@ function drawSingle(shape) {
     }
 }
 
-export { drawShapes, drawSingle }
+function updateActiveShapes() {
+    /**
+     * Фигура считается активной, если хотя бы какая-то её часть находится в области видимости
+     */
+    const p1 = new Point(0, 0);
+    const p2 = new Point(g.canvas.width, g.canvas.height);
+    const frame = new AbstractFrame(p1, p2, [0, 0, 0, 0]);
+    frame.setPoints();
+    a.shapes.forEach(shape => {
+        if (shape.isinSelectFrameAtLeast(frame)) {
+            shape.isinArea = true;
+        }
+        else {
+            shape.isinArea = false;
+        }
+    });
+    a.activeShapes = a.shapes.filter(shape => shape.isinArea);
+
+}
+
+function addShapes(shape) {
+    shape.id = id++;
+    a.shapes.push(shape);
+    a.vertices = pushVertices(shape, a.vertices);
+}
+
+function updateShapes(mode) {
+    switch (mode) {
+        case 'zoom':
+            a.shapes.forEach(shape => {
+                shape.zoom(a.zl);
+            })
+
+            break;
+        case 'pan':
+            a.shapes.forEach(shape => {
+                shape.pan(a.pan_tx, a.pan_ty);
+            });
+
+            break;
+        default:
+            break;
+    }
+    a.shapes$.next(a.shapes);
+}
+
+export { drawShapes, drawSingle, updateActiveShapes, addShapes, updateShapes }

@@ -1,6 +1,7 @@
 import { canvasGetWebglCoordinates, convertPixelToWebGLCoordinate, getAngleDegrees, getAngleRadians } from "./common.mjs";
 import { mat3 } from "gl-matrix";
 import { s } from './globalState/settings.mjs';
+import { g } from "./globalState/g.js";
 
 export function getRotateSnap(angle_rad) {
     const angleDeg = Math.round(getAngleDegrees(angle_rad));
@@ -24,8 +25,8 @@ export function getRotateSnap(angle_rad) {
 
 export function getMoveMatrix(p1, p2) {
     // матрицы продолжают быть в webgl
-    const point1 = canvasGetWebglCoordinates(p1, s.webglContext.canvas);
-    const point2 = canvasGetWebglCoordinates(p2, s.webglContext.canvas);
+    const point1 = canvasGetWebglCoordinates(p1, g.context.canvas);
+    const point2 = canvasGetWebglCoordinates(p2, g.context.canvas);
     const tx = point2.x - point1.x;
     const ty = point2.y - point1.y;
 
@@ -36,8 +37,10 @@ export function getMoveMatrix(p1, p2) {
 
 export function getRotateMatrix(c, m) {
     // матрицы продолжают быть в webgl
-    const center = canvasGetWebglCoordinates(c, s.webglContext.canvas);
-    const mouse = canvasGetWebglCoordinates(m, s.webglContext.canvas);
+
+    console.log(s.aspectRatio);
+    const center = canvasGetWebglCoordinates(c, g.context.canvas);
+    const mouse = canvasGetWebglCoordinates(m, g.context.canvas);
 
     const mouse_dx = mouse.x - center.x;
     const mouse_dy = mouse.y - center.y;
@@ -64,8 +67,8 @@ export function getRotateMatrix(c, m) {
 
 export function getMirrorMatrix(c, m) {
     // матрицы продолжают быть в webgl
-    const center = canvasGetWebglCoordinates(c, s.webglContext.canvas);
-    const mouse = canvasGetWebglCoordinates(m, s.webglContext.canvas);
+    const center = canvasGetWebglCoordinates(c, g.context.canvas);
+    const mouse = canvasGetWebglCoordinates(m, g.context.canvas);
 
     const mouse_dx = mouse.x - center.x;
     const mouse_dy = mouse.y - center.y;
@@ -97,7 +100,7 @@ export function getMirrorMatrix(c, m) {
 }
 
 export function getScaleMatrix(centerPixels, distX,distY, baseDistancePixels, shapeDistancePixels) {
-    const center = canvasGetWebglCoordinates(centerPixels, s.webglContext.canvas);
+    const center = canvasGetWebglCoordinates(centerPixels, g.canvas);
 
     const ratio = baseDistancePixels / shapeDistancePixels;
 

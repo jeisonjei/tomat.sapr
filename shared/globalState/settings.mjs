@@ -7,9 +7,6 @@ export class s{
     static canvasHeight = null;
     static webglContext = null;
     static textContext = null;
-    static setAspectRatio(width,height) {
-        this.aspectRatio = height / width;
-    }
     static setCanvasSize(width, height) {
         this.canvasWidth = width;
         this.canvasHeight = height;

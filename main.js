@@ -32,6 +32,8 @@ import { getNewVertices, pushVertices, replaceVertices } from "./shared/webgl/re
 import { a } from './shared/globalState/a.js';
 import { t } from './shared/globalState/t.js';
 import { s } from './shared/globalState/settings.mjs';
+import { g } from "./shared/globalState/g.js";
+import { c } from "./shared/globalState/c.js";
 
 // rxjs
 import { Subject, filter, fromEvent, map, share } from "rxjs";
@@ -42,7 +44,13 @@ import { filterText } from "./services/textFilter";
 import { Text } from "./models/shapes/Text.mjs";
 import { Grip } from "./models/snaps/Grip.mjs";
 
-import { drawShapes, drawSingle } from "./shared/render/shapes.js";
+import { drawShapes, drawSingle, updateActiveShapes, updateShapes } from "./shared/render/shapes.js";
+
+// --- mouse
+import { handleMouseDown } from "./handlers/mouse/down.js";
+import { handleMouseMove } from "./handlers/mouse/move.js";
+import { handleMouseUp } from "./handlers/mouse/up.js";
+
 
 
 /**
@@ -55,607 +63,23 @@ import { drawShapes, drawSingle } from "./shared/render/shapes.js";
  * обновляется и массив вершин a.vertices
  */
 
-// --- коммит рабочего состояния перед рефакторингом
-
-// --------- WEBGL ---------
-const canvas = document.querySelector('canvas.drawing');
-resizeCanvasToDisplaySize(canvas);
-const gl = canvas.getContext('webgl2');
-const program = createProgram(gl, getVertexshaderSource(), getFragmentShaderSource());
-gl.useProgram(program);
-gl.viewport(0, 0, canvas.width, canvas.height);
-gl.enable(gl.BLEND);
-gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-const vertex_buffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-
-const a_position = gl.getAttribLocation(program, 'a_position');
-gl.enableVertexAttribArray(a_position);
-gl.vertexAttribPointer(a_position, 2, gl.FLOAT, false, 0, 0);
-
-
-const u_color = gl.getUniformLocation(program, 'u_color');
-const u_pan = gl.getUniformLocation(program, 'u_pan');
-const u_move = gl.getUniformLocation(program, 'u_move');
-const u_rotate = gl.getUniformLocation(program, 'u_rotate');
-const u_scale = gl.getUniformLocation(program, 'u_scale');
-const u_resolution = gl.getUniformLocation(program, 'u_resolution');
-
-gl.uniform4f(u_color, 1, 0, 0, 1);
-gl.uniformMatrix3fv(u_move, false, mat3.create());
-gl.uniformMatrix3fv(u_pan, false, mat3.create());
-gl.uniformMatrix3fv(u_rotate, false, mat3.create());
-gl.uniformMatrix3fv(u_scale, false, mat3.create());
-gl.uniform2f(u_resolution, gl.canvas.width, gl.canvas.height);
-// --------- WEBGL ---------
-
-
-
-
-
-// --------- TEXTCONTEXT ---------
-const canvasText = document.querySelector('canvas.text');
-resizeCanvasToDisplaySize(canvasText);
-const context = canvasText.getContext('2d');
-
-// --------- TEXTCONTEXT ---------
-
+g.init();
+c.init();
 
 // --------- INIT ---------
 (function init() {
     s.tolerance = 10;
-    s.setAspectRatio(canvas.width, canvas.height); // obsolete
-
+    s.aspectRatio = g.canvas.height / g.canvas.width;
 
     const fontSize = document.getElementById('fontSize').value;
     t.fontSize = fontSize;
 
     // --- назначение параметров, которые будут использоваться в других модулях
-    s.setCanvasSize(canvas.width, canvas.height);
-    s.setWebglContext(gl);
-    s.u_color = u_color;
-    s.u_pan = u_pan;
-    s.u_move = u_move;
-    s.u_rotate = u_rotate;
-    s.u_scale = u_scale;
-    s.u_resolution = u_resolution;
-
-    s.setTextContext(context);
-
     // --- text
-    context.font = `${t.fontSize}px ${t.fontName}`;
 
 
 })();
 // --------- INIT ---------
-
-
-
-
-// --------- MOUSE EVENTS ---------
-function handleMouseDown(mouse) {
-    /**
-     * @desc Функция выполняется при нажатии мыши. В зависимости от режима, который узнаётся через функцию gm(), выполняются разные блоки
-     * @property {Point} a.start - Переменная назначается однажды, в самом начале функции и используется
-     * как начальная точка. В зависимости от того, назначена ли точка a.magnetPosition, может быть или равна
-     * текущему положению мыши, или точке a.magnetPosition
-     * @property {Point} a.magnetPosition - Переменная назначается только в одном месте всей программы
-     * через наблюдатель magnetState$ в функции handleMouseMove.
-     * 
-     * 
-     * 
-     */
-    if (a.pan) {
-        return;
-    }
-
-    a.isMouseDown = true;
-
-
-    if (a.magnetPosition) {
-        a.start = { ...a.magnetPosition };
-    }
-    else {
-        a.start = { ...mouse };
-    }
-
-
-    switch (gm()) {
-
-        case 'break':
-            const filteredShapes = a.shapes.filter(shape => shape.isinSelectBoundary(mouse));
-
-            // выбрана 1 линия
-            if (filteredShapes.length === 1) {
-                filteredShapes.forEach(shape => {
-                    // так как массив длиной 1, то этот блок выполняется только один раз
-                    switch (shape.type) {
-                        case 'line':
-                            const { bs, be } = shape.getBreakPoints(mouse, a.shapes);
-
-                            if (!bs) {
-                                return;
-                            }
-                            else if ((bs && !be) || (bs?.x === be.x && bs?.y === be.y)) {
-                                const side = getSideOfMouseRelativeToLine(mouse, bs, shape);
-                                if (side === 'start') {
-                                    shape.start = bs;
-                                }
-                                else if (side === 'end') {
-                                    shape.end = bs;
-                                }
-
-                            }
-                            else {
-                                const side = getSideOfMouseRelativeToLine(mouse, bs, shape);
-                                const line1 = shape.getClone();
-                                const line2 = shape.getClone();
-                                if (side === 'start') {
-                                    line1.end = be;
-                                    line2.start = bs;
-                                }
-                                else if (side === 'end') {
-                                    line1.start = be;
-                                    line2.end = bs;
-                                }
-
-
-
-                                addShapes(line1);
-                                addShapes(line2);
-                                a.shapes = a.shapes.filter(s => s.id !== shape.id);
-                                updateActiveShapes();
-                            }
-                            break;
-
-                        default:
-                            break;
-                    }
-                })
-
-            }
-            // выбрано 2 пересекающихся линии
-            else if (filteredShapes.length === 2) {
-                const [l1, l2] = filteredShapes;
-                const horizontalLine = isHorizontal(l1, l2);
-                const breakPoints = horizontalLine.getBreakPoints(mouse, filteredShapes);
-                const line1 = horizontalLine.getClone();
-                line1.end = new Point(breakPoints.bs.x - s.tolerance, line1.start.y);
-                const line2 = horizontalLine.getClone();
-                line2.start = new Point(breakPoints.bs.x + s.tolerance, line2.end.y);
-                addShapes(line1);
-                addShapes(line2);
-                a.shapes = a.shapes.filter(s => s.id !== horizontalLine.id);
-                updateActiveShapes();
-
-
-            }
-            break;
-
-        case 'select':
-            a.selectFrame.start = a.start;
-            break;
-        case 'boundary':
-            const isinSelectBoundary = a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isinSelectBoundary(mouse));
-            if (isinSelectBoundary.length > 0) {
-                isinSelectBoundary.forEach(shape => {
-                    shape.isSelected = !shape.isSelected;
-                })
-            }
-
-            // --- text
-            const isinSelectBoundaryText = t.utext.filter(t => t.isinSelectBoundary(mouse));
-            if (isinSelectBoundaryText.length > 0) {
-                isinSelectBoundaryText.forEach(t => {
-                    t.isSelected = !t.isSelected;
-                })
-            }
-
-            drawText();
-            break;
-        case 'line':
-            a.line.start = a.start;
-            break;
-        case 'symline':
-            a.symline.start = a.start;
-            break;
-        case 'rectangle':
-            a.rectangle.p1 = a.start;
-            break;
-        case 'square':
-            a.rectangle.p1 = a.start;
-            break;
-        case 'circle':
-            a.circle.center = a.start;
-            break;
-        case 'move':
-            if (!a.clickMoveStart) {
-                a.clickMoveStart = { ...a.start };
-
-                // --- text
-                /**
-                 * так как в отличие от фигур, для которых используется uniformMatrix3fv,
-                 * в операции с текстом меняется позиция самих точек, 
-                 * нужно при первом клике запомнить для каждой строки текста расстояние 
-                 * от позиции текста до щелчка мыши
-                 */
-                t.utext.filter(t => t.isSelected).forEach(t => {
-                    t.moveXclick = t.start.x;
-                    t.moveYclick = t.start.y;
-                })
-            }
-            else if (a.clickMoveStart) {
-                const move_mat = getMoveMatrix(a.clickMoveStart, a.start);
-                a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isSelected).forEach(shape => {
-                    switch (shape.type) {
-                        case 'line':
-                            shape.start = transformPointByMatrix3(move_mat, shape.start);
-                            shape.end = transformPointByMatrix3(move_mat, shape.end);
-                            a.vertices = replaceVertices(shape, a.vertices);
-
-                            break;
-                        case 'rectangle':
-                            shape.p1 = transformPointByMatrix3(move_mat, shape.p1);
-                            shape.p2 = transformPointByMatrix3(move_mat, shape.p2);
-                            shape.p3 = transformPointByMatrix3(move_mat, shape.p3);
-                            shape.p4 = transformPointByMatrix3(move_mat, shape.p4);
-
-                            shape.updateCenter();
-                            // TODO: replaceVertices
-                            break;
-                        case 'circle':
-                            shape.center = transformPointByMatrix3(move_mat, shape.center);
-                            // TODO: replaceVertices
-                            break;
-                        default:
-                            break;
-                    }
-                    shape.isSelected = false;
-                });
-
-                // --- text
-                t.utext.filter(t => t.isSelected).forEach(text => {
-                    const deltaX = a.clickMoveStart.x - a.start.x;
-                    const deltaY = a.clickMoveStart.y - a.start.y;
-                    text.start.x = text.moveXclick - deltaX;
-                    text.start.y = text.moveYclick - deltaY;
-                    text.edit = null;
-                })
-                drawText();
-
-                a.clickMoveStart = null;
-                gl.uniformMatrix3fv(u_move, false, mat3.create());
-            }
-            break;
-        case 'copy':
-            if (!a.clickCopyStart) {
-                a.clickCopyStart = { ...a.start };
-                a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isSelected).forEach(shape => {
-                    addShapes(shape.getClone());
-                });
-
-                // --- text
-                let array = [];
-                t.utext.filter(t => t.isSelected).forEach(t => {
-                    array.push(t.getClone());
-                    t.copyClick = { ...t.start };
-
-                });
-
-                array.forEach(item => {
-                    addText(item);
-                    // это нужно для работы magnetObserver и boundaryModeObserver
-                    a.shapes.push(item);
-                });
-
-            }
-            else if (a.clickCopyStart) {
-                const move_mat = getMoveMatrix(a.clickCopyStart, a.start);
-                a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isSelected).forEach(shape => {
-                    switch (shape.type) {
-                        case 'line':
-                            shape.start = transformPointByMatrix3(move_mat, shape.start);
-                            shape.end = transformPointByMatrix3(move_mat, shape.end);
-                            a.vertices = replaceVertices(shape, a.vertices);
-                            break;
-                        case 'rectangle':
-                            shape.p1 = transformPointByMatrix3(move_mat, shape.p1);
-                            shape.p2 = transformPointByMatrix3(move_mat, shape.p2);
-                            shape.p3 = transformPointByMatrix3(move_mat, shape.p3);
-                            shape.p4 = transformPointByMatrix3(move_mat, shape.p4);
-
-                            shape.updateCenter();
-                            // TODO replaceVertices
-                            break;
-                        case 'circle':
-                            shape.center = transformPointByMatrix3(move_mat, shape.center);
-                            // TODO replaceVertices
-                            break;
-                        default:
-                            break;
-                    }
-                });
-
-                // --- text
-                t.utext.filter(t => t.isSelected).forEach(text => {
-                    const deltaX = a.clickCopyStart.x - a.start.x;
-                    const deltaY = a.clickCopyStart.y - a.start.y;
-                    text.start.x = text.copyClick.x - deltaX;
-                    text.start.y = text.copyClick.y - deltaY;
-                    text.edit = null;
-                })
-                drawText();
-
-
-                a.clickCopyStart = null;
-                gl.uniformMatrix3fv(u_move, false, mat3.create());
-            }
-            break;
-        case 'rotate':
-            if (!a.clickRotateStart) {
-                a.clickRotateStart = { ...a.start };
-            }
-            else {
-                const rotate_mat = getRotateMatrix(a.clickRotateStart, mouse);
-
-                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                    switch (shape.type) {
-                        case 'line':
-                            shape.start = transformPointByMatrix3(rotate_mat, shape.start);
-                            shape.end = transformPointByMatrix3(rotate_mat, shape.end);
-                            a.vertices = replaceVertices(shape, a.vertices);
-
-                            break;
-                        case 'rectangle':
-                            shape.p1 = transformPointByMatrix3(rotate_mat, shape.p1);
-                            shape.p2 = transformPointByMatrix3(rotate_mat, shape.p2);
-                            shape.p3 = transformPointByMatrix3(rotate_mat, shape.p3);
-                            shape.p4 = transformPointByMatrix3(rotate_mat, shape.p4);
-                            // TODO replaceVertices
-                            shape.updatePoints();
-
-                            break;
-                        case 'circle':
-                            shape.center = transformPointByMatrix3(rotate_mat, shape.center);
-                            // TODO replaceVertices
-                            break;
-                        default:
-                            break;
-                    }
-                })
-                a.clickRotateStart = null;
-                gl.uniformMatrix3fv(u_rotate, false, mat3.create());
-            }
-            break;
-        case 'rotatecopy':
-            if (!a.clickRotateStart) {
-                a.clickRotateStart = { ...a.start };
-                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                    addShapes(shape.getClone());
-                });
-
-            }
-            else {
-                const rotate_mat = getRotateMatrix(a.clickRotateStart, mouse);
-
-                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                    switch (shape.type) {
-                        case 'line':
-                            shape.start = transformPointByMatrix3(rotate_mat, shape.start);
-                            shape.end = transformPointByMatrix3(rotate_mat, shape.end);
-                            a.vertices = replaceVertices(shape, a.vertices);
-
-                            break;
-                        case 'rectangle':
-                            shape.p1 = transformPointByMatrix3(rotate_mat, shape.p1);
-                            shape.p2 = transformPointByMatrix3(rotate_mat, shape.p2);
-                            shape.p3 = transformPointByMatrix3(rotate_mat, shape.p3);
-                            shape.p4 = transformPointByMatrix3(rotate_mat, shape.p4);
-                            // TODO replaceVertices
-                            shape.updatePoints();
-
-
-                            break;
-                        case 'circle':
-                            shape.center = transformPointByMatrix3(rotate_mat, shape.center);
-                            // TODO replaceVertices
-                            break;
-                        default:
-                            break;
-                    }
-                })
-                a.clickRotateStart = null;
-                gl.uniformMatrix3fv(u_rotate, false, mat3.create());
-            }
-            break;
-        case 'mirror':
-            if (!a.clickMirrorStart) {
-                a.clickMirrorStart = { ...a.start };
-                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                    addShapes(shape.getClone());
-                });
-
-            }
-            else {
-                const mirror_mat = getMirrorMatrix(a.clickMirrorStart, mouse);
-
-                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                    switch (shape.type) {
-                        case 'line':
-                            shape.start = transformPointByMatrix3(mirror_mat, shape.start);
-                            shape.end = transformPointByMatrix3(mirror_mat, shape.end);
-                            a.vertices = replaceVertices(shape, a.vertices);
-
-                            break;
-                        case 'rectangle':
-                            shape.p1 = transformPointByMatrix3(mirror_mat, shape.p1);
-                            shape.p2 = transformPointByMatrix3(mirror_mat, shape.p2);
-                            shape.p3 = transformPointByMatrix3(mirror_mat, shape.p3);
-                            shape.p4 = transformPointByMatrix3(mirror_mat, shape.p4);
-
-                            // TODO replaceVertices
-                            shape.updatePoints();
-
-
-                            break;
-                        case 'circle':
-                            shape.center = transformPointByMatrix3(mirror_mat, shape.center);
-                            // TODO replaceVertices
-                            break;
-                        default:
-                            break;
-                    }
-                });
-                a.clickMirrorStart = null;
-                gl.uniformMatrix3fv(u_rotate, false, mat3.create());
-            }
-            break;
-        case 'scale':
-            if (!a.clickScaleStart1 && !a.clickScaleStart2) {
-                a.clickScaleStart1 = { ...a.start };
-            }
-            else if (a.clickScaleStart1 && !a.clickScaleStart2) {
-                a.clickScaleStart2 = { ...a.start };
-                a.clickScaleBaseDistanceX = a.clickScaleStart2.x - a.clickScaleStart1.x;
-                a.clickScaleBaseDistanceY = a.clickScaleStart2.y - a.clickScaleStart1.y;
-                a.clickScaleBaseDistance = Math.hypot(a.clickScaleBaseDistanceX, a.clickScaleBaseDistanceY);
-                let minX = 10000;
-                let maxX = 0;
-
-                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                    switch (shape.constructor.name) {
-                        case 'Line':
-                            if (shape.start.x < minX) {
-                                minX = shape.start.x;
-                            }
-                            if (shape.end.x < minX) {
-                                minX = shape.end.x;
-                            }
-                            if (shape.start.x > maxX) {
-                                maxX = shape.start.x;
-                            }
-                            if (shape.end.x > maxX) {
-                                maxX = shape.end.x;
-                            }
-                            break;
-                        case 'Rectangle':
-                            let points = [shape.p1, shape.p2, shape.p3, shape.p4];
-                            points.forEach(point => {
-                                if (point.x < minX) {
-                                    minX = point.x;
-                                }
-                                if (point.x > maxX) {
-                                    maxX = point.x;
-                                }
-                            });
-                            break;
-                        case 'Circle':
-                            let circleMinX = shape.center.x - shape.radius;
-                            let circleMaxX = shape.center.x + shape.radius;
-                            if (circleMinX < minX) {
-                                minX = circleMinX;
-                            }
-                            if (circleMaxX > maxX) {
-                                maxX = circleMaxX;
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                });
-                a.clickScaleShapeDistance = maxX - minX;
-            }
-
-            else if (a.clickScaleStart1 && a.clickScaleStart2) {
-                const dx = (mouse.x - a.clickScaleStart2.x);
-                const dy = (mouse.y - a.clickScaleStart2.y);
-
-                const distX = a.clickScaleBaseDistanceX + dx;
-                const distY = a.clickScaleBaseDistanceY + dy;
-
-
-                const scale_mat = getScaleMatrix(a.clickScaleStart1, distX, distY, a.clickScaleBaseDistance, a.clickScaleShapeDistance);
-                gl.uniformMatrix3fv(u_scale, false, scale_mat);
-                a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                    switch (shape.type) {
-                        case 'line':
-                            shape.start = transformPointByMatrix3(scale_mat, shape.start);
-                            shape.end = transformPointByMatrix3(scale_mat, shape.end);
-                            break;
-                        case 'rectangle':
-                            shape.p1 = transformPointByMatrix3(scale_mat, shape.p1);
-                            shape.p2 = transformPointByMatrix3(scale_mat, shape.p2);
-                            shape.p3 = transformPointByMatrix3(scale_mat, shape.p3);
-                            shape.p4 = transformPointByMatrix3(scale_mat, shape.p4);
-                            shape.updateCenter();
-                            break;
-                        case 'circle':
-                            shape.center = transformPointByMatrix3(scale_mat, shape.center);
-                            // Calculate the new radius based on the scale factor
-                            let distanceFromCenter = Math.hypot(distX, distY);
-                            shape.radius = shape.radius * (distanceFromCenter / a.clickScaleBaseDistance);
-                            break;
-                        default:
-
-                            break;
-                    }
-                })
-
-                a.clickScaleStart1 = null;
-                a.clickScaleStart2 = null;
-                gl.uniformMatrix3fv(u_scale, false, mat3.create());
-            }
-        case 'edit':
-            a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                switch (shape.type) {
-                    case 'line':
-                        if (shape.isinGripStart(mouse)) {
-                            shape.edit = 'start';
-                        }
-                        else if (shape.isinGripEnd(mouse)) {
-                            shape.edit = 'end';
-                        }
-                        break;
-                    case 'rectangle':
-                        if (shape.isinGripP1(mouse)) {
-                            shape.edit = 'p1';
-                        }
-                        else if (shape.isinGripP2(mouse)) {
-                            shape.edit = 'p2';
-                        }
-                        else if (shape.isinGripP3(mouse)) {
-                            shape.edit = 'p3';
-                        }
-                        else if (shape.isinGripP4(mouse)) {
-                            shape.edit = 'p4';
-                        }
-                        break;
-                    case 'circle':
-                        if (shape.isinGripQ1(mouse)) {
-                            shape.edit = 'q1';
-                        }
-                        else if (shape.isinGripQ2(mouse)) {
-                            shape.edit = 'q2';
-                        }
-                        else if (shape.isinGripQ3(mouse)) {
-                            shape.edit = 'q3';
-                        }
-                        else if (shape.isinGripQ4(mouse)) {
-                            shape.edit = 'q4';
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            })
-            break;
-        default:
-            break;
-    }
-
-    drawShapes();
-}
 
 
 
@@ -669,7 +93,6 @@ magnetState$.pipe(
     map(state => {
         const mouse = state.find(object => object.hasOwnProperty('mouse')).mouse;
         const grips = state.filter(magnet => magnet.type === 'm_grip');
-
         if (grips.length > 0) {
             return { mouse, magnet: grips[0] };
         }
@@ -712,555 +135,13 @@ magnetState$.pipe(
 
 
 
-function handleMouseMove(mouse) {
-    /**
-     * Функция выполняется при движении мыши. В зависимости от режима выполняются разные операции.
-     * В то время, как вся отрисовка выполняется в функции drawSingle, в этой функции в зависимости
-     * от режима могут выполняться трансформации.
-     * ДЛЯ УЛУЧШЕНИЯ ПРОИЗВОДИТЕЛЬНОСТИ ОБРАТИТЬСЯ К ЭТОЙ ФУНКЦИИ - НАИБОЛЕЕ ВЕРОЯТНО СПОСОБЫ УЛУЧШЕНИЯ НАХОДЯТСЯ ЗДЕСЬ
-     */
-    requestAnimationFrame(() => {
 
-        drawShapes();
 
-        /**
-         * есть только две глобальные переменные такого рода - вот они, причём a.magnetPosition назначается
-         * только в magnetState$ и больше нигде, а a.anglePosition назначается только в блоке ниже и больше нигде.
-         * Вот что значит хорошая архитектура программы
-         */
-        a.magnetPosition = null;
-        a.anglePosition = null;
 
 
-        // angle snap depends on edit mode
-        if (a.angle_snap) {
-            let start = null;
-            if (gm() === 'edit') {
-                const editShapes = a.shapes.filter(shape => shape.edit !== null);
-                editShapes.forEach(shape => {
-                    switch (shape.type) {
-                        case 'line':
-                            if (shape.edit === 'start') {
-                                start = shape.end;
-                            }
-                            else if (shape.edit === 'end') {
-                                start = shape.start;
-                            }
 
-                            break;
 
-                        default:
-                            break;
-                    }
-                })
-            }
-            else {
-                start = a.start;
-            }
-            a.anglePosition = getAnglePosition(mouse, start);
-        }
 
-
-
-
-        // filter active shapes
-
-        // magnets
-        if (magnetsCheckbox.checked) {
-            if (!['select', 'boundary', 'textEdit', 'none', 'break'].includes(gm())) {
-                if (!a.pan) {
-                    if (!t.editBoundary) {
-                        // disabling magnets for currently edited shape
-                        observeMagnet(a.activeShapes.filter(shape => (shape.edit === null)), mouse).subscribe();
-                    }
-                }
-            }
-        }
-
-
-
-        // pan
-        if (a.pan) {
-            const mouseWebgl = canvasGetWebglCoordinates(mouse, canvas);
-
-            if (a.isPanning) {
-                a.pan_start_x = mouseWebgl.x;
-                a.pan_start_y = mouseWebgl.y;
-                a.isPanning = false;
-            }
-
-            a.pan_tx = mouseWebgl.x - a.pan_start_x;
-            a.pan_ty = mouseWebgl.y - a.pan_start_y;
-
-
-
-            const pan_mat = mat3.fromTranslation(mat3.create(), [a.pan_tx, a.pan_ty, 0]);
-            a.pan_mat = [...pan_mat];
-            mat3.transpose(pan_mat, pan_mat);
-            gl.uniformMatrix3fv(u_pan, false, pan_mat);
-
-            // --- text
-            const scalex = 1 / canvasText.width;
-            const scaley = 1 / canvasText.height;
-            const tx = a.pan_tx / scalex / 2;
-            const ty = a.pan_ty / scaley / 2;
-
-            const matrix = new DOMMatrix([1, 0, 0, 1, tx, -ty]);
-            context.setTransform(matrix);
-            drawText();
-
-
-        }
-
-        // enable edit mode
-        editModeObserver(mouse, a.activeShapes);
-        // color grips on move and copy mode
-        colorMagnetsObserver(mouse, a.activeShapes);
-        // enable boundary mode
-        boundaryModeObserver(mouse, a.activeShapes);
-
-
-        if (a.isMouseDown) {
-            switch (gm()) {
-                case 'edit':
-                    const editShapes = a.shapes.filter(shape => shape.edit !== null);
-                    if (editShapes.length > 0) {
-                        editShapes.forEach(shape => {
-                            switch (shape.type) {
-                                case 'line':
-                                    if (shape.edit === 'start') {
-                                        if (a.angle_snap) {
-                                            shape.start.x = a.anglePosition.x;
-                                            shape.start.y = a.anglePosition.y;
-                                        }
-                                        else {
-
-                                            shape.start = mouse;
-                                        }
-                                    } else if (shape.edit === 'end') {
-                                        if (a.angle_snap) {
-                                            shape.end.x = a.anglePosition.x;
-                                            shape.end.y = a.anglePosition.y;
-                                        }
-                                        else {
-                                            shape.end = mouse;
-
-                                        }
-                                    }
-
-                                    break;
-                                case 'rectangle':
-                                    if (a.ctrl) {
-                                        if (['p1', 'p2', 'p3', 'p4'].includes(shape.edit)) {
-
-                                            const dx = mouse.x - shape.center.x;
-                                            const dy = mouse.y - shape.center.y;
-
-                                            shape.p1.x = shape.center.x - dx;
-                                            shape.p1.y = shape.center.y - dy;
-
-                                            shape.p2.x = shape.center.x + dx;
-                                            shape.p2.y = shape.center.y - dy;
-
-                                            shape.p3.x = shape.center.x + dx;
-                                            shape.p3.y = shape.center.y + dy;
-
-                                            shape.p4.x = shape.center.x - dx;
-                                            shape.p4.y = shape.center.y + dy;
-
-                                            shape.updateMid();
-
-                                        }
-                                    }
-                                    else {
-
-
-                                        if (shape.edit === 'p1') {
-                                            shape.p1 = { ...mouse };
-                                            shape.p4.x = mouse.x;
-                                            shape.p2.y = mouse.y;
-                                        }
-                                        else if (shape.edit === 'p2') {
-                                            shape.p2 = { ...mouse };
-                                            shape.p3.x = mouse.x;
-                                            shape.p1.y = mouse.y;
-                                        }
-                                        else if (shape.edit === 'p3') {
-                                            shape.p3 = { ...mouse };
-                                            shape.p2.x = mouse.x;
-                                            shape.p4.y = mouse.y;
-                                        }
-                                        else if (shape.edit === 'p4') {
-                                            shape.p4 = { ...mouse };
-                                            shape.p1.x = mouse.x;
-                                            shape.p3.y = mouse.y;
-                                        }
-                                        shape.updateMid();
-
-                                    }
-
-                                    break;
-                                case 'circle':
-                                    if (['q1', 'q2', 'q3', 'q4'].includes(shape.edit)) {
-                                        const newRadius = Math.hypot((mouse.x - shape.center.x), mouse.y - shape.center.y);
-                                        shape.radius = newRadius;
-                                    }
-                                default:
-                                    break;
-                            }
-                        });
-                    }
-                    break;
-                case 'select':
-                    a.selectFrame.end = mouse;
-                    drawSingle(a.selectFrame);
-                    break;
-                case 'line':
-
-                    if (a.angle_snap) {
-
-                        a.line.end.x = a.anglePosition.x;
-                        a.line.end.y = a.anglePosition.y;
-                    } else {
-                        a.line.end = mouse;
-                    }
-                    drawSingle(a.line);
-                    break;
-                case 'symline':
-                    if (a.angle_snap) {
-                        a.symline.start = a.start;
-                        a.symline.end.x = a.anglePosition.x;
-                        a.symline.end.y = a.anglePosition.y;
-
-                    }
-                    else {
-                        a.symline.end = mouse;
-                    }
-                    drawSingle(a.symline);
-                    break;
-                case 'rectangle':
-                    a.rectangle.width = mouse.x - a.start.x;
-                    a.rectangle.height = mouse.y - a.start.y;
-
-                    a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
-                    a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
-                    a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
-
-
-
-                    drawSingle(a.rectangle);
-                    break;
-
-                case 'square':
-                    a.rectangle.width = (mouse.x - a.start.x);
-
-                    const height = (mouse.y - a.start.y);
-                    if (height < 0 && a.rectangle.width < 0) {
-                        a.rectangle.height = a.rectangle.width;
-                    } else if (height < 0 && a.rectangle.width > 0) {
-                        a.rectangle.height = -a.rectangle.width;
-                    } else if (height > 0 && a.rectangle.width < 0) {
-                        a.rectangle.height = -a.rectangle.width;
-                    } else if (height > 0 && a.rectangle.width > 0) {
-                        a.rectangle.height = a.rectangle.width;
-                    }
-                    a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
-                    a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
-                    a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
-
-
-                    drawSingle(a.rectangle);
-                    break;
-
-                case 'circle':
-                    a.circle.radius = Math.hypot((mouse.x - a.start.x), mouse.y - a.start.y);
-                    drawSingle(a.circle);
-                    break;
-
-                default:
-                    break;
-            }
-        } else {
-            switch (gm()) {
-                case 'move':
-                    if (a.clickMoveStart) {
-                        const move_mat = getMoveMatrix(a.clickMoveStart, mouse);
-                        gl.uniformMatrix3fv(u_move, false, move_mat);
-                        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                            drawSingle(shape);
-                        });
-
-                        // --- text
-
-                        const tx = move_mat[2] * canvasText.width / 2;
-                        const ty = move_mat[5] * canvasText.height / 2;
-
-                        t.utext.filter(t => t.isSelected).forEach(t => {
-                            t.edit = 1;
-                            t.start.x = t.moveXclick + tx;
-                            t.start.y = t.moveYclick - ty;
-                        });
-
-                        drawText();
-                    }
-                    break;
-                case 'copy':
-                    if (a.clickCopyStart) {
-                        const move_mat = getMoveMatrix(a.clickCopyStart, mouse);
-                        gl.uniformMatrix3fv(u_move, false, move_mat);
-                        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                            drawSingle(shape);
-                        });
-
-                        // --- text
-
-                        const tx = move_mat[2] * canvasText.width / 2;
-                        const ty = move_mat[5] * canvasText.height / 2;
-
-                        t.utext.filter(t => t.isSelected).forEach(t => {
-                            t.edit = 1;
-                            t.start.x = t.copyClick.x + tx;
-                            t.start.y = t.copyClick.y - ty;
-                        });
-
-                        drawText();
-
-
-                    }
-                    break;
-                case 'rotate':
-                case 'rotatecopy':
-                    if (a.clickRotateStart) {
-
-                        const rotate_mat = getRotateMatrix(a.clickRotateStart, mouse);
-                        gl.uniformMatrix3fv(u_rotate, false, rotate_mat);
-                        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                            drawSingle(shape);
-                        })
-                    }
-                    break;
-                case 'mirror':
-                    if (a.clickMirrorStart) {
-                        const mirror_mat = getMirrorMatrix(a.clickMirrorStart, mouse);
-                        gl.uniformMatrix3fv(u_rotate, false, mirror_mat);
-                        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                            drawSingle(shape);
-                        })
-                    }
-                    break;
-                case 'scale':
-                    if (a.clickScaleStart1 && a.clickScaleStart2) {
-                        const dx = (mouse.x - a.clickScaleStart2.x);
-                        const dy = (mouse.y - a.clickScaleStart2.y);
-
-                        const distX = a.clickScaleBaseDistanceX + dx;
-                        const distY = a.clickScaleBaseDistanceY + dy;
-
-
-                        const scale_mat = getScaleMatrix(a.clickScaleStart1, distX, distY, a.clickScaleBaseDistance, a.clickScaleShapeDistance);
-                        gl.uniformMatrix3fv(u_scale, false, scale_mat);
-                        a.shapes.filter(shape => shape.isSelected).forEach(shape => {
-                            drawSingle(shape);
-                        })
-                    }
-                    break;
-                default:
-                    break;
-
-            }
-        }
-
-    });
-}
-
-
-
-
-function handleMouseUp(mouse) {
-    console.log('shapes', a.shapes.length);
-    a.isMouseDown = false;
-
-    if (a.magnetPosition) {
-        a.end = { ...a.magnetPosition };
-    }
-    else if (a.anglePosition) {
-        a.end = { ...a.anglePosition };
-    }
-    else {
-        a.end = mouse;
-    }
-
-
-    switch (gm()) {
-        case 'edit':
-            const editShapes = a.shapes.filter(shape => shape.edit !== null);
-            if (editShapes.length > 0) {
-                editShapes.forEach(shape => {
-                    switch (shape.type) {
-                        case 'line':
-                            if (shape.edit === 'start') {
-                                shape.start = a.end;
-                            }
-                            else if (shape.edit === 'end') {
-                                shape.end = a.end;
-                            }
-                            break;
-                        case 'rectangle':
-                            if (a.ctrl) {
-                                if (['p1', 'p2', 'p3', 'p4'].includes(shape.edit)) {
-
-                                    const dx = a.end.x - shape.center.x;
-                                    const dy = a.end.y - shape.center.y;
-
-                                    shape.p1.x = shape.center.x - dx;
-                                    shape.p1.y = shape.center.y - dy;
-
-                                    shape.p2.x = shape.center.x + dx;
-                                    shape.p2.y = shape.center.y - dy;
-
-                                    shape.p3.x = shape.center.x + dx;
-                                    shape.p3.y = shape.center.y + dy;
-
-                                    shape.p4.x = shape.center.x - dx;
-                                    shape.p4.y = shape.center.y + dy;
-
-                                    shape.updateMid();
-                                    shape.updateCenter();
-                                    shape.setSelectBoundary();
-
-                                }
-                            }
-                            else {
-                                if (shape.edit === 'p1') {
-                                    shape.p1 = a.end;
-                                    shape.p4.x = a.end.x;
-                                    shape.p2.y = a.end.y;
-                                }
-                                else if (shape.edit === 'p2') {
-                                    shape.p2 = a.end;
-                                    shape.p3.x = a.end.x;
-                                    shape.p1.y = a.end.y;
-                                }
-                                else if (shape.edit === 'p3') {
-                                    shape.p3 = a.end;
-                                    shape.p2.x = a.end.x;
-                                    shape.p4.y = a.end.y;
-                                }
-                                else if (shape.edit === 'p4') {
-                                    shape.p4 = a.end;
-                                    shape.p1.x = a.end.x;
-                                    shape.p3.y = a.end.y;
-                                }
-                                shape.updateMid();
-                                shape.updateCenter();
-                                shape.setSelectBoundary();
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                })
-            }
-
-            break;
-        case 'select':
-            a.shapes.forEach(shape => {
-                if (shape.isinSelectFrame(a.selectFrame)) {
-                    shape.isSelected = true;
-                }
-            });
-
-            // --- text
-            a.selectFrame.convertToCanvas2d(canvasText.width, canvasText.height);
-            t.utext.forEach(text => {
-                if (text.isinSelectFrame(a.selectFrame)) {
-                    text.isSelected = !text.isSelected;
-                }
-            });
-            drawText();
-
-            break;
-        case 'line':
-            a.line.end = a.end;
-            addShapes(a.line.getClone());
-            break;
-        case 'symline':
-            a.symline.end = a.end;
-            a.line.start = a.symline.end;
-            a.line.end = a.symline.symend;
-            addShapes(a.line.getClone());
-            break;
-        case 'rectangle':
-
-            a.rectangle.width = a.end.x - a.start.x;
-            a.rectangle.height = a.end.y - a.start.y;
-
-            a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
-            a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
-            a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
-
-            a.rectangle.updateCenter();
-
-            addShapes(a.rectangle.getClone());
-
-            break;
-        case 'square':
-            a.rectangle.width = (a.end.x - a.start.x);
-
-            const height = (a.end.y - a.start.y);
-            if (height < 0 && a.rectangle.width < 0) {
-                a.rectangle.height = a.rectangle.width;
-            } else if (height < 0 && a.rectangle.width > 0) {
-                a.rectangle.height = -a.rectangle.width;
-            } else if (height > 0 && a.rectangle.width < 0) {
-                a.rectangle.height = -a.rectangle.width;
-            } else if (height > 0 && a.rectangle.width > 0) {
-                a.rectangle.height = a.rectangle.width;
-            }
-            a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
-            a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
-            a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
-
-            addShapes(a.rectangle.getClone());
-            break;
-        case 'circle':
-            a.circle.radius = Math.hypot((a.end.x - a.start.x), a.end.y - a.start.y);;
-            addShapes(a.circle.getClone());
-            break;
-        default:
-            break;
-    }
-
-    // reset all edits
-    a.shapes.filter(shape => shape.edit !== null).forEach(shape => shape.edit = null);
-
-
-    drawShapes();
-
-    // проверить какие фигуры находятся в области полотна
-    updateActiveShapes();
-
-
-}
-
-function updateActiveShapes() {
-    /**
-     * Фигура считается активной, если хотя бы какая-то её часть находится в области видимости
-     */
-    const p1 = new Point(0, 0);
-    const p2 = new Point(s.canvasWidth, s.canvasHeight);
-    const frame = new AbstractFrame(p1, p2, [0, 0, 0, 0]);
-    frame.setPoints();
-    a.shapes.forEach(shape => {
-        if (shape.isinSelectFrameAtLeast(frame)) {
-            shape.isinArea = true;
-        }
-        else {
-            shape.isinArea = false;
-        }
-    });
-    a.activeShapes = a.shapes.filter(shape => shape.isinArea);
-}
 
 function handleMouseWheel(ev) {
     a.zl = ev.deltaY > 0 ? 0.90 : 1.1;
@@ -1273,8 +154,8 @@ function handleMouseWheel(ev) {
     // --- text ---
     const scalingMatrix = mat3.fromScaling(mat3.create(), [a.zl, a.zl]);
     const translationMatrix = mat3.fromTranslation(mat3.create(), [
-        -(a.zl - 1) * context.canvas.width / 2,
-        -(a.zl - 1) * context.canvas.height / 2
+        -(a.zl - 1) * c.context.canvas.width / 2,
+        -(a.zl - 1) * c.context.canvas.height / 2
     ]);
     const transformationMatrix = mat3.multiply(mat3.create(), translationMatrix, scalingMatrix);
 
@@ -1283,7 +164,7 @@ function handleMouseWheel(ev) {
     });
 
     t.fontSize = t.fontSize * a.zl;
-    context.font = `${t.fontSize}px ${t.fontName}`;
+    c.context.font = `${t.fontSize}px ${t.fontName}`;
 
     drawText();
     updateActiveShapes();
@@ -1297,12 +178,12 @@ function handleSpacebarDown() {
 }
 function handleSpacebarUp() {
     a.pan = false;
-    gl.uniformMatrix3fv(u_pan, false, mat3.create());
+    g.context.uniformMatrix3fv(g.u_pan, false, mat3.create());
     updateShapes('pan');
 
     // --- text
-    const scalex = 1 / canvasText.width;
-    const scaley = 1 / canvasText.height;
+    const scalex = 1 / c.canvas.width;
+    const scaley = 1 / c.canvas.height;
     const tx = a.pan_tx / scalex / 2;
     const ty = a.pan_ty / scaley / 2;
 
@@ -1311,7 +192,7 @@ function handleSpacebarUp() {
         textLine.start.y = textLine.start.y - ty;
 
     });
-    context.setTransform(new DOMMatrix([1, 0, 0, 1, 0, 0]));
+    c.context.setTransform(new DOMMatrix([1, 0, 0, 1, 0, 0]));
     drawText();
 
     // --- text
@@ -1326,9 +207,9 @@ function handleSpacebarUp() {
 
 }
 
-const mouseDown$ = fromEvent(document, 'mousedown').pipe(map(ev => canvasGetMouse(ev, canvas)));
-const mouseMove$ = fromEvent(document, 'mousemove').pipe(map(ev => canvasGetMouse(ev, canvas)));
-const mouseUp$ = fromEvent(document, 'mouseup').pipe(map(ev => canvasGetMouse(ev, canvas)));
+const mouseDown$ = fromEvent(document, 'mousedown').pipe(map(ev => canvasGetMouse(ev, g.canvas)));
+const mouseMove$ = fromEvent(document, 'mousemove').pipe(map(ev => canvasGetMouse(ev, g.canvas)));
+const mouseUp$ = fromEvent(document, 'mouseup').pipe(map(ev => canvasGetMouse(ev, g.canvas)));
 mouseDown$.subscribe(handleMouseDown);
 mouseMove$.subscribe(handleMouseMove);
 mouseUp$.subscribe(handleMouseUp);
@@ -1360,33 +241,7 @@ a.shapes$.subscribe((shapes) => {
     a.vertices = getNewVertices(shapes);
 });
 
-let id = 0;
 
-function addShapes(shape) {
-    shape.id = id++;
-    a.shapes.push(shape);
-    a.vertices = pushVertices(shape, a.vertices);
-}
-
-function updateShapes(mode) {
-    switch (mode) {
-        case 'zoom':
-            a.shapes.forEach(shape => {
-                shape.zoom(a.zl);
-            })
-
-            break;
-        case 'pan':
-            a.shapes.forEach(shape => {
-                shape.pan(a.pan_tx, a.pan_ty);
-            });
-
-            break;
-        default:
-            break;
-    }
-    a.shapes$.next(a.shapes);
-}
 
 function deleteShapes(shapes) {
     // ...
@@ -1452,32 +307,32 @@ function handleMouseDownText(mouse) {
 
 
     if (a.magnetPosition) {
-        context.strokeStyle = 'orange';
+        c.context.strokeStyle = 'orange';
     }
     else {
-        context.strokeStyle = 'gray';
+        c.context.strokeStyle = 'gray';
     }
 
-    const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
+    const textLine = new Text(s.aspectRatio, t.textPosition, [], c.context);
 
     t.utext = t.utext.filter(t => t.text !== '');
 
     addText(textLine);
 
 
-    const textHeight = context.measureText(textLine.text).fontBoundingBoxAscent;
+    const textHeight = c.context.measureText(textLine.text).fontBoundingBoxAscent;
 
-    context.clearRect(0, 0, canvasText.width, canvasText.height);
-    context.save();
+    c.context.clearRect(0, 0, c.canvas.width, c.canvas.height);
+    c.context.save();
 
-    context.beginPath();
-    context.moveTo(t.textPosition.x, t.textPosition.y);
-    context.lineTo(t.textPosition.x + 100, t.textPosition.y);
-    context.moveTo(t.textPosition.x, t.textPosition.y - textHeight);
-    context.lineTo(t.textPosition.x + 100, t.textPosition.y - textHeight);
-    context.moveTo(t.textPosition.x, t.textPosition.y);
-    context.lineTo(t.textPosition.x, t.textPosition.y - textHeight);
-    context.stroke();
+    c.context.beginPath();
+    c.context.moveTo(t.textPosition.x, t.textPosition.y);
+    c.context.lineTo(t.textPosition.x + 100, t.textPosition.y);
+    c.context.moveTo(t.textPosition.x, t.textPosition.y - textHeight);
+    c.context.lineTo(t.textPosition.x + 100, t.textPosition.y - textHeight);
+    c.context.moveTo(t.textPosition.x, t.textPosition.y);
+    c.context.lineTo(t.textPosition.x, t.textPosition.y - textHeight);
+    c.context.stroke();
 
     drawText(false);
 
@@ -1555,14 +410,14 @@ function handleKeyPress(key) {
         const positionY = t.textPosition.y + lineSpace;
 
         t.textPosition = new Point(t.textPosition.x, positionY);
-        const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
+        const textLine = new Text(s.aspectRatio, t.textPosition, [], c.context);
 
         t.utext = t.utext.filter(t => t.text !== '');
 
         addText(textLine);
 
-        context.clearRect(0, 0, canvasText.width, canvasText.height);
-        context.save();
+        c.context.clearRect(0, 0, c.canvas.width, c.canvas.height);
+        c.context.save();
 
         drawCursor(0, 0);
         drawText(false);
@@ -1588,7 +443,7 @@ function handleKeyPress(key) {
 
 
 
-const mouseDownText$ = fromEvent(canvasText, 'mousedown').pipe(map(ev => getPoint(ev)));
+const mouseDownText$ = fromEvent(c.canvas, 'mousedown').pipe(map(ev => getPoint(ev)));
 const keyPress$ = fromEvent(document, 'keydown').pipe(
     filter(ev => filterText(ev)),
     map(ev => ev.key)
@@ -1598,7 +453,7 @@ mouseDownText$.subscribe(handleMouseDownText);
 keyPress$.subscribe(handleKeyPress);
 
 function getLetterSize(letter) {
-    const measure = context.measureText(letter);
+    const measure = c.context.measureText(letter);
 
 
     return {
@@ -1608,9 +463,9 @@ function getLetterSize(letter) {
 }
 
 function drawCursor(index = 0, id) {
-    context.clearRect(0, 0, canvasText.width, canvasText.height);
-    context.strokeStyle = 'blue';
-    context.lineWidth = 2;
+    c.context.clearRect(0, 0, c.canvas.width, c.canvas.height);
+    c.context.strokeStyle = 'blue';
+    c.context.lineWidth = 2;
 
     const currentTextObject = getCurrentTextObject(id);
     let w, h;
@@ -1621,10 +476,10 @@ function drawCursor(index = 0, id) {
 
 
     const p = new Point(currentTextObject.start.x + w, currentTextObject.start.y);
-    context.beginPath();
-    context.moveTo(p.x, p.y);
-    context.lineTo(p.x, p.y - h);
-    context.stroke();
+    c.context.beginPath();
+    c.context.moveTo(p.x, p.y);
+    c.context.lineTo(p.x, p.y - h);
+    c.context.stroke();
 }
 
 function getStringUpToIndex(text, index) {
@@ -1660,34 +515,34 @@ function getCurrentTextObject(editId) {
 function drawText(clear = true) {
 
     if (clear) {
-        context.clearRect(0, 0, canvasText.width, canvasText.height);
+        c.context.clearRect(0, 0, c.canvas.width, c.canvas.height);
     }
 
-    context.save();
+    c.context.save();
 
     t.utext.forEach(textLine => {
         if (textLine.isSelected) {
-            context.fillStyle = '#7B7272';
+            c.context.fillStyle = '#7B7272';
         }
         else {
-            context.fillStyle = '#000000';
+            c.context.fillStyle = '#000000';
         }
-        context.fillText(textLine.text, textLine.start.x, textLine.start.y);
+        c.context.fillText(textLine.text, textLine.start.x, textLine.start.y);
     });
 
     if (outputCheckbox.checked) {
-        context.resetTransform();
+        c.context.resetTransform();
 
         drawPrintArea();
     }
 
-    context.restore();
+    c.context.restore();
 }
 
 function drawTextSingle(text, point) {
     const textArray = [text];
-    const canvasPoint = convertWebGLToCanvas2DPoint(point, canvasText.width, canvasText.height);
-    const newText = new Text(s.aspectRatio, canvasPoint, textArray, context);
+    const canvasPoint = convertWebGLToCanvas2DPoint(point, c.canvas.width, c.canvas.height);
+    const newText = new Text(s.aspectRatio, canvasPoint, textArray, c.context);
     t.utext.push(newText);
     drawText();
 }
@@ -1702,4 +557,4 @@ function getPoint(mouseEvent) {
 }
 // --------- HELPERS ---------
 
-export { a, t, canvas, deleteShapes, deleteText, drawText, gl, updateActiveShapes, drawCursor }
+export { deleteShapes, deleteText, drawText, drawCursor }

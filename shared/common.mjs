@@ -2,6 +2,7 @@ import { mat3 } from "gl-matrix";
 import { Point } from "../models/Point.mjs";
 import { SelectBoundary } from "../models/frames/SelectBoundary.mjs";
 import { s } from "./globalState/settings.mjs";
+import {g as gl} from "./globalState/g.js"
 
 export function getCos(angleDeg) {
   const angleRad = (angleDeg * Math.PI) / 180;
@@ -100,7 +101,7 @@ export function transformPointByMatrix3(matrix, p) {
   }
   let transformedPoint = new Point(0, 0);
 
-  const point = canvasGetWebglCoordinates(p,s.webglContext.canvas);
+  const point = canvasGetWebglCoordinates(p,gl.canvas);
 
   const x = point.x;
   const y = point.y;
@@ -109,7 +110,7 @@ export function transformPointByMatrix3(matrix, p) {
   transformedPoint.x = matrix[0] * x + matrix[1] * y  + matrix[2] * w;
   transformedPoint.y = matrix[3] * x + matrix[4] * y  + matrix[5] * w;
 
-  transformedPoint = convertWebGLToCanvas2DPoint(transformedPoint,s.canvasWidth,s.canvasHeight);
+  transformedPoint = convertWebGLToCanvas2DPoint(transformedPoint,gl.canvas.width,gl.canvas.height);
 
   return transformedPoint;
 }

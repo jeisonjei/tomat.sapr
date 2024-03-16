@@ -1,5 +1,5 @@
-import { a } from '../../main.js';
-import { t } from '../../main.js';
+import { a } from '../globalState/a.js';
+import { t } from '../globalState/t.js';
 import {s} from '../globalState/settings.mjs';
 import { canvasGetWebglCoordinates } from '../common.mjs';
 import { Point } from '../../models/Point.mjs';
