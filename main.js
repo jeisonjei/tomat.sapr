@@ -51,6 +51,8 @@ import { Grip } from "./models/snaps/Grip.mjs";
  * обновляется и массив вершин a.vertices
  */
 
+// --- коммит рабочего состояния перед рефакторингом
+
 // --------- WEBGL ---------
 const canvas = document.querySelector('canvas.drawing');
 resizeCanvasToDisplaySize(canvas);
