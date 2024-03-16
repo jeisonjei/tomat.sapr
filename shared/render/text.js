@@ -1,5 +1,5 @@
 import { c } from "../globalState/c";
-import {t} from "../globalState/t";
+import { t } from "../globalState/t";
 import { outputCheckbox } from "../../page.mjs";
 import { Point } from "../../models/Point.mjs";
 import { Text } from "../../models/shapes/Text.mjs";
@@ -125,4 +125,4 @@ function getLetterSize(letter) {
 
 
 
-export {drawCursor, drawText,addText,deleteText,getCurrentTextObject, getStringUpToIndex, drawTextSingle}
+export { drawCursor, drawText, addText, deleteText, getCurrentTextObject, getStringUpToIndex, drawTextSingle }
