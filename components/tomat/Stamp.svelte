@@ -13,11 +13,20 @@
 
   export let hidden;
 
+
+
+
+  // --------- STAMP PROPERTIES ---------
+  let разработал_имя, проверил_имя, нормо_контроль_имя, гип_имя, дата_значение, шифр_значение, адрес_значение, объект_значение, имя_листа_значение, номер_листа_значение, всего_листов_значение, компания_значение, кол_уч_значение ;
   let разработал = "Разработал";
   let проверил = "Проверил";
   let нормо_контроль = "Нормо-контроль";
-  let гип = "ГИП";
-  let разработал_имя, проверил_имя, нормо_контроль_имя, гип_имя;
+  let гип = "ГИП"
+
+  // --------- STAMP PROPERTIES ---------
+
+
+
 
   let myDatabase;
 
@@ -25,35 +34,59 @@
     addRxPlugin(RxDBDevModePlugin);
 
     async function createDatabase() {
-      removeRxDatabase("mydatabase", getRxStorageDexie());
+      removeRxDatabase('mydatabase', getRxStorageDexie());
       myDatabase = await createRxDatabase({
-        name: "mydatabase",
+        name: 'mydatabase',
         storage: getRxStorageDexie(),
       });
 
       const stampSchema = {
         version: 0,
-        primaryKey: "id",
-        type: "object",
+        primaryKey: 'id',
+        type: 'object',
         properties: {
           id: {
-            type: "string",
+            type: 'string',
             maxLength: 100,
           },
           designer: {
-            type: "string",
+            type: 'string',
           },
           checker: {
-            type: "string",
+            type: 'string',
           },
           norm_checker: {
-            type: "string",
+            type: 'string',
           },
           gip: {
-            type: "string",
+            type: 'string',
+          },
+          codeNumber:{
+            type: 'string'
+          },
+          address:{
+            type: 'string'
+          },
+          building:{
+            type: 'string'
+          },
+          sheetName:{
+            type: 'string'
+          },
+          sheetNumber:{
+            type: 'string'
+          },
+          sheetsQty:{
+            type: 'string'
+          },
+          company: {
+            type: 'string'
+          },
+          date:{
+            type: 'string'
           },
           isSubmitted: {
-            type: "boolean",
+            type: 'boolean',
           },
         },
       };
@@ -67,10 +100,10 @@
 
       const olderDocuments = await myCollection.stamps.find().exec();
 
-      // for (let i = 0; i < olderDocuments.length; i++) {
-      //     const element = olderDocuments[i];
-      //     element.remove();
-      // }
+    //   for (let i = 0; i < olderDocuments.length; i++) {
+    //       const element = olderDocuments[i];
+    //       element.remove();
+    //   }
 
       s.myDatabase = myDatabase;
     }
@@ -85,19 +118,16 @@
       checker: проверил_имя,
       norm_checker: нормо_контроль_имя,
       gip: гип_имя,
+      n_doc: номер_документа,
+      ch: изм_значение,
+      date: дата_значение,
+      
+      qty_part: кол_уч_значение,
+
+
     });
   }
 
-  function isTextSelected(input) {
-    if (typeof input.selectionStart == "number") {
-      return (
-        input.selectionStart == 0 && input.selectionEnd == input.value.length
-      );
-    } else if (typeof document.selection != "undefined") {
-      input.focus();
-      return document.selection.createRange().text == input.value;
-    }
-  }
 
   function isCaretAtStart(input) {
     return (
