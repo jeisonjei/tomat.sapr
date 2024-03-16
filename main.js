@@ -92,7 +92,7 @@ s.setAspectRatio(canvas.width, canvas.height);
 
 
 // --------- GLOBALS ---------
-export const a = {
+const a = {
 
     shapes: [],
     activeShapes: [],
@@ -146,7 +146,7 @@ export const a = {
     ctrl: false
 }
 
-export const t = {
+const t = {
     utext: [],
     utext$: new Subject(),
     textPosition: new Point(0, 0),
@@ -1316,7 +1316,7 @@ function handleMouseUp(mouse) {
 
 }
 
-export function updateActiveShapes() {
+function updateActiveShapes() {
     /**
      * Фигура считается активной, если хотя бы какая-то её часть находится в области видимости
      */
@@ -1461,18 +1461,18 @@ function updateShapes(mode) {
     a.shapes$.next(a.shapes);
 }
 
-export function deleteShapes(shapes) {
+function deleteShapes(shapes) {
     // ...
     a.shapes = a.shapes.filter(shape => !shape.isSelected);
     a.shapes$.next(a.shapes);
 }
 
-export function deleteText(text) {
+function deleteText(text) {
     t.utext = t.utext.filter(text => !text.isSelected);
 }
 
 
-export function drawShapes() {
+function drawShapes() {
 
     // это для того, чтобы фигуры раздваивались
     gl.uniformMatrix3fv(u_move, false, mat3.create());
@@ -1502,7 +1502,7 @@ export function drawShapes() {
 }
 
 
-export function drawSingle(shape) {
+function drawSingle(shape) {
     /**
      * Предполагается, что основное общение с webgl будет происходить через эту функцию.
      * В то же время трансформации происходят также через функцию handleMouseMove
@@ -1607,9 +1607,7 @@ function addText(textLine) {
     t.utext.push(textLine);
 }
 
-function removeText() {
 
-}
 
 function handleMouseDownText(mouse) {
     t.offset = Number.parseInt(t.fontSize) * 0.2;
@@ -1807,7 +1805,7 @@ function getLetterSize(letter) {
     };
 }
 
-export function drawCursor(index = 0, id) {
+function drawCursor(index = 0, id) {
     context.clearRect(0, 0, canvasText.width, canvasText.height);
     context.strokeStyle = 'blue';
     context.lineWidth = 2;
@@ -1857,7 +1855,7 @@ function getCurrentTextObject(editId) {
     }
 }
 
-export function drawText(clear = true) {
+function drawText(clear = true) {
 
     if (clear) {
         context.clearRect(0, 0, canvasText.width, canvasText.height);
@@ -1901,3 +1899,5 @@ function getPoint(mouseEvent) {
     return new Point(mouseEvent.clientX - 7, mouseEvent.clientY - 8);
 }
 // --------- HELPERS ---------
+
+export {a,t, canvas, deleteShapes, deleteText, drawShapes, drawSingle, drawText, gl, updateActiveShapes, drawCursor}

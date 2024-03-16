@@ -1,10 +1,9 @@
 import { fromEvent } from "rxjs";
-import { a, canvas, deleteShapes, deleteText, drawShapes, drawSingle, drawText, gl, updateActiveShapes } from "./main.js";
+import { a,t, canvas, deleteShapes, deleteText, drawShapes, drawSingle, drawText, gl, updateActiveShapes } from "./main.js";
+import { s } from "./shared/settings.mjs";
 import { canvasGetWebglCoordinates, checkFunction, convertWebGLToCanvas2DPoint } from "./shared/common.mjs";
 import { generateDXFContent } from "./shared/export/dxf.mjs";
-import { t } from "./main.js";
 import jsPDF from "jspdf";
-import { s } from "./shared/settings.mjs";
 import { font } from "./fonts/GOST type A-normal.js";
 import { Line } from "./models/shapes/Line.mjs";
 import { Point } from "./models/Point.mjs";
@@ -14,11 +13,12 @@ import { createRxDatabase } from "rxdb";
 import { getRxStorageDexie } from "rxdb/plugins/storage-dexie";
 
 
-export const mode_elem = document.getElementById('mode');
+const mode_elem = document.getElementById('mode');
+
 setMode(mode_elem, 'select');
 
 
-export function setMode(mode_elem, mode) {
+function setMode(mode_elem, mode) {
 
 
     mode_elem.innerHTML = 'mode: ' + mode;
@@ -43,15 +43,15 @@ export function setMode(mode_elem, mode) {
 
 }
 
-export function gm() {
+function gm() {
     return mode_elem.innerHTML.split(' ')[1];
 }
 
 
 
 // --------- KEY EVENTS ---------
-export const magnetsCheckbox = document.getElementById('magnets');
-export const outputCheckbox = document.getElementById('output');
+const magnetsCheckbox = document.getElementById('magnets');
+const outputCheckbox = document.getElementById('output');
 const angleSnapCheckbox = document.getElementById('angleSnap');
 const ctrlCheckbox = document.getElementById('ctrl');
 
@@ -285,22 +285,11 @@ buttons.forEach(button => {
     })
 })
 
-textButton.addEventListener('click', function () {
-    setMode(mode_elem, 'text');
-})
-
-lineButton.addEventListener('click', function () {
-    setMode(mode_elem, 'line');
-});
-rectangleButton.addEventListener('click', function () {
-    setMode(mode_elem, 'rectangle');
-});
-circleButton.addEventListener('click', function () {
-    setMode(mode_elem, 'circle');
-});
-selectButton.addEventListener('click', function () {
-    setMode(mode_elem, 'select');
-});
+textButton.addEventListener('click', () => setMode(mode_elem, 'text'))
+lineButton.addEventListener('click', () => setMode(mode_elem, 'line'));
+rectangleButton.addEventListener('click', () => setMode(mode_elem, 'rectangle'));
+circleButton.addEventListener('click', () => setMode(mode_elem, 'circle'));
+selectButton.addEventListener('click', () => setMode(mode_elem, 'select'));
 deleteButton.addEventListener('click', function () {
     deleteShapes();
     drawShapes();
@@ -310,28 +299,13 @@ deleteButton.addEventListener('click', function () {
     drawText();
 
 });
-moveButton.addEventListener('click', function () {
-    setMode(mode_elem, 'move');
-});
-copyButton.addEventListener('click', function () {
-    setMode(mode_elem, 'copy');
-});
-rotateButton.addEventListener('click', function () {
-    setMode(mode_elem, 'rotate');
-});
-mirrorButton.addEventListener('click', function () {
-    setMode(mode_elem, 'mirror');
-});
-scaleButton.addEventListener('click', function () {
-    setMode(mode_elem, 'scale');
-});
-breakButton.addEventListener('click', function () {
-    setMode(mode_elem, 'break');
-})
-
-saveDxfButton.addEventListener('click', function () {
-    generateDXFContent();
-});
+moveButton.addEventListener('click',()=>setMode(mode_elem, 'move'));
+copyButton.addEventListener('click',()=>setMode(mode_elem, 'copy'));
+rotateButton.addEventListener('click', ()=>setMode(mode_elem, 'rotate'));
+mirrorButton.addEventListener('click', ()=>setMode(mode_elem, 'mirror'));
+scaleButton.addEventListener('click', ()=>setMode(mode_elem, 'scale'));
+breakButton.addEventListener('click', ()=>setMode(mode_elem, 'break'))
+saveDxfButton.addEventListener('click', generateDXFContent);
 
 
 
@@ -349,7 +323,7 @@ formatSelect.addEventListener('change', (event) => {
     formatSelect.blur();
 })
 
-export function drawPrintArea() {
+function drawPrintArea() {
     const pdf = new jsPDF({
         unit: 'mm',
         format: format,
@@ -396,7 +370,7 @@ export function drawPrintArea() {
 
 }
 
-export function removePrintArea() {
+function removePrintArea() {
     s.textContext.clearRect(0, 0, s.canvasWidth, s.canvasHeight);
     drawText();
 }
@@ -504,28 +478,43 @@ savePdfButton.addEventListener('click', function () {
             // TODO текст не масштабируется, нужно брать текущее значение из mouseWheel
             pdf.text(t.text, t.start.x / scaleX, t.start.y / scaleX);
         })
-
-
-
-
-
         // --- border
         pdf.setDrawColor(0, 0, 0);
         pdf.setLineWidth(0.75);
-        pdf.setFontSize(fontSizemm * 0.5);
+        pdf.setFontSize(12);
 
         const topX = pdfWidth - 190;
         const topY = pdfHeight - 60;
-        const b = 5;
+        const row = 5;
+        const col = row * 2;
+        const of = 0.5;
 
-        pdf.text('Разработал', topX + 1, topY + b * 6 - 1);
-        pdf.text('Проверил', topX + 1, topY + b * 7 - 1);
-        pdf.text('Н.контроль', topX + 1, topY + b * 8 - 1);
-        pdf.text('ГИП', topX + 1, topY + b * 9 - 1);
-        pdf.text(designer, topX + b * 4 + 1, topY + b * 6 - 1);
-        pdf.text(checker, topX + b * 4 + 1, topY + b * 7 - 1);
-        pdf.text(normChecker, topX + b * 4 + 1, topY + b * 8 - 1);
-        pdf.text(gip, topX + b * 4 + 1,topY + b* 9 -1);
+        // Define points for cells in rows 1 to 11 and columns 1 to 6
+        const cellPoints = [];
+        for (let i = 1; i <= 11; i++) {
+            for (let j = 1; j <= 10; j++) {
+                const cell = new Point(topX + col * (j - 1) + of, topY + row * i - of);
+                cellPoints.push(cell);
+                const cellVariable = `cell_${i}_${j}`;
+                cellPoints[cellVariable] = cell;
+
+            }
+        }
+
+        pdf.text('Разработал', cellPoints['cell_6_1'].x, cellPoints['cell_6_1'].y);
+        pdf.text('Проверил', cellPoints['cell_7_1'].x, cellPoints['cell_7_1'].y);
+        pdf.text('Н.контроль', cellPoints['cell_8_1'].x, cellPoints['cell_8_1'].y);
+        pdf.text('ГИП', cellPoints['cell_9_1'].x, cellPoints['cell_9_1'].y);
+        pdf.text(designer, cellPoints['cell_6_3'].x, cellPoints['cell_6_3'].y);
+        pdf.text(checker, cellPoints['cell_7_3'].x, cellPoints['cell_7_3'].y);
+        pdf.text(normChecker, cellPoints['cell_8_3'].x, cellPoints['cell_8_3'].y);
+        pdf.text(gip, cellPoints['cell_9_3'].x, cellPoints['cell_9_3'].y);
+        pdf.text('Изм.', cellPoints['cell_5_1'].x, cellPoints['cell_5_1'].y);
+        pdf.text('Кол.уч.', cellPoints['cell_5_2'].x, cellPoints['cell_5_2'].y);
+        pdf.text('Лист', cellPoints['cell_5_3'].x, cellPoints['cell_5_3'].y);
+        pdf.text('№ док.', cellPoints['cell_5_4'].x, cellPoints['cell_5_4'].y);
+        pdf.text('Подпись', cellPoints['cell_5_5'].x, cellPoints['cell_5_5'].y);
+        pdf.text('Дата', cellPoints['cell_5_6'].x + row, cellPoints['cell_5_6'].y);
 
 
         pdf.rect(0, 0, pdfWidth, pdfHeight, 'S');
@@ -533,81 +522,81 @@ savePdfButton.addEventListener('click', function () {
         pdf.rect(topX, topY, 185, 55);
         // ---
         pdf.rect(topX, topY, 10, 5);
-        pdf.rect(topX, topY + b, 10, 5);
-        pdf.rect(topX, topY + b * 2, 10, 5);
-        pdf.rect(topX, topY + b * 3, 10, 5);
-        pdf.rect(topX, topY + b * 4, 10, 5);
+        pdf.rect(topX, topY + row, 10, 5);
+        pdf.rect(topX, topY + row * 2, 10, 5);
+        pdf.rect(topX, topY + row * 3, 10, 5);
+        pdf.rect(topX, topY + row * 4, 10, 5);
 
         // ---
-        pdf.rect(topX + b * 2, topY, 10, 5);
-        pdf.rect(topX + b * 2, topY + b, 10, 5);
-        pdf.rect(topX + b * 2, topY + b * 2, 10, 5);
-        pdf.rect(topX + b * 2, topY + b * 3, 10, 5);
-        pdf.rect(topX + b * 2, topY + b * 4, 10, 5);
+        pdf.rect(topX + row * 2, topY, 10, 5);
+        pdf.rect(topX + row * 2, topY + row, 10, 5);
+        pdf.rect(topX + row * 2, topY + row * 2, 10, 5);
+        pdf.rect(topX + row * 2, topY + row * 3, 10, 5);
+        pdf.rect(topX + row * 2, topY + row * 4, 10, 5);
 
-        pdf.rect(topX + b * 4, topY, 10, 5);
-        pdf.rect(topX + b * 4, topY + b, 10, 5);
-        pdf.rect(topX + b * 4, topY + b * 2, 10, 5);
-        pdf.rect(topX + b * 4, topY + b * 3, 10, 5);
-        pdf.rect(topX + b * 4, topY + b * 4, 10, 5);
+        pdf.rect(topX + row * 4, topY, 10, 5);
+        pdf.rect(topX + row * 4, topY + row, 10, 5);
+        pdf.rect(topX + row * 4, topY + row * 2, 10, 5);
+        pdf.rect(topX + row * 4, topY + row * 3, 10, 5);
+        pdf.rect(topX + row * 4, topY + row * 4, 10, 5);
 
-        pdf.rect(topX + b * 6, topY, 10, 5);
-        pdf.rect(topX + b * 6, topY + b, 10, 5);
-        pdf.rect(topX + b * 6, topY + b * 2, 10, 5);
-        pdf.rect(topX + b * 6, topY + b * 3, 10, 5);
-        pdf.rect(topX + b * 6, topY + b * 4, 10, 5);
+        pdf.rect(topX + row * 6, topY, 10, 5);
+        pdf.rect(topX + row * 6, topY + row, 10, 5);
+        pdf.rect(topX + row * 6, topY + row * 2, 10, 5);
+        pdf.rect(topX + row * 6, topY + row * 3, 10, 5);
+        pdf.rect(topX + row * 6, topY + row * 4, 10, 5);
         // --- 
-        pdf.rect(topX, topY + b * 5, 20, 5);
-        pdf.rect(topX, topY + b * 6, 20, 5);
-        pdf.rect(topX, topY + b * 7, 20, 5);
-        pdf.rect(topX, topY + b * 8, 20, 5);
-        pdf.rect(topX, topY + b * 9, 20, 5);
-        pdf.rect(topX, topY + b * 10, 20, 5);
+        pdf.rect(topX, topY + row * 5, 20, 5);
+        pdf.rect(topX, topY + row * 6, 20, 5);
+        pdf.rect(topX, topY + row * 7, 20, 5);
+        pdf.rect(topX, topY + row * 8, 20, 5);
+        pdf.rect(topX, topY + row * 9, 20, 5);
+        pdf.rect(topX, topY + row * 10, 20, 5);
         // ---
-        pdf.rect(topX + b * 4, topY + b * 5, 20, 5);
-        pdf.rect(topX + b * 4, topY + b * 6, 20, 5);
-        pdf.rect(topX + b * 4, topY + b * 7, 20, 5);
-        pdf.rect(topX + b * 4, topY + b * 8, 20, 5);
-        pdf.rect(topX + b * 4, topY + b * 9, 20, 5);
-        pdf.rect(topX + b * 4, topY + b * 10, 20, 5);
+        pdf.rect(topX + row * 4, topY + row * 5, 20, 5);
+        pdf.rect(topX + row * 4, topY + row * 6, 20, 5);
+        pdf.rect(topX + row * 4, topY + row * 7, 20, 5);
+        pdf.rect(topX + row * 4, topY + row * 8, 20, 5);
+        pdf.rect(topX + row * 4, topY + row * 9, 20, 5);
+        pdf.rect(topX + row * 4, topY + row * 10, 20, 5);
         // ---
-        pdf.rect(topX + b * 8, topY, 15, 5);
-        pdf.rect(topX + b * 8, topY + b, 15, 5);
-        pdf.rect(topX + b * 8, topY + b * 2, 15, 5);
-        pdf.rect(topX + b * 8, topY + b * 3, 15, 5);
-        pdf.rect(topX + b * 8, topY + b * 4, 15, 5);
-        pdf.rect(topX + b * 8, topY + b * 5, 15, 5);
-        pdf.rect(topX + b * 8, topY + b * 6, 15, 5);
-        pdf.rect(topX + b * 8, topY + b * 7, 15, 5);
-        pdf.rect(topX + b * 8, topY + b * 8, 15, 5);
-        pdf.rect(topX + b * 8, topY + b * 9, 15, 5);
-        pdf.rect(topX + b * 8, topY + b * 10, 15, 5);
+        pdf.rect(topX + row * 8, topY, 15, 5);
+        pdf.rect(topX + row * 8, topY + row, 15, 5);
+        pdf.rect(topX + row * 8, topY + row * 2, 15, 5);
+        pdf.rect(topX + row * 8, topY + row * 3, 15, 5);
+        pdf.rect(topX + row * 8, topY + row * 4, 15, 5);
+        pdf.rect(topX + row * 8, topY + row * 5, 15, 5);
+        pdf.rect(topX + row * 8, topY + row * 6, 15, 5);
+        pdf.rect(topX + row * 8, topY + row * 7, 15, 5);
+        pdf.rect(topX + row * 8, topY + row * 8, 15, 5);
+        pdf.rect(topX + row * 8, topY + row * 9, 15, 5);
+        pdf.rect(topX + row * 8, topY + row * 10, 15, 5);
         // ---
-        pdf.rect(topX + b * 11, topY, 10, 5);
-        pdf.rect(topX + b * 11, topY + b, 10, 5);
-        pdf.rect(topX + b * 11, topY + b * 2, 10, 5);
-        pdf.rect(topX + b * 11, topY + b * 3, 10, 5);
-        pdf.rect(topX + b * 11, topY + b * 4, 10, 5);
-        pdf.rect(topX + b * 11, topY + b * 5, 10, 5);
-        pdf.rect(topX + b * 11, topY + b * 6, 10, 5);
-        pdf.rect(topX + b * 11, topY + b * 7, 10, 5);
-        pdf.rect(topX + b * 11, topY + b * 8, 10, 5);
-        pdf.rect(topX + b * 11, topY + b * 9, 10, 5);
-        pdf.rect(topX + b * 11, topY + b * 10, 10, 5);
+        pdf.rect(topX + row * 11, topY, 10, 5);
+        pdf.rect(topX + row * 11, topY + row, 10, 5);
+        pdf.rect(topX + row * 11, topY + row * 2, 10, 5);
+        pdf.rect(topX + row * 11, topY + row * 3, 10, 5);
+        pdf.rect(topX + row * 11, topY + row * 4, 10, 5);
+        pdf.rect(topX + row * 11, topY + row * 5, 10, 5);
+        pdf.rect(topX + row * 11, topY + row * 6, 10, 5);
+        pdf.rect(topX + row * 11, topY + row * 7, 10, 5);
+        pdf.rect(topX + row * 11, topY + row * 8, 10, 5);
+        pdf.rect(topX + row * 11, topY + row * 9, 10, 5);
+        pdf.rect(topX + row * 11, topY + row * 10, 10, 5);
         // ---
-        pdf.rect(topX + b * 13, topY, 120, 10);
-        pdf.rect(topX + b * 13, topY + b * 2, 120, 15);
-        pdf.rect(topX + b * 13, topY + b * 5, 70, 15);
-        pdf.rect(topX + b * 13, topY + b * 8, 70, 15);
+        pdf.rect(topX + row * 13, topY, 120, 10);
+        pdf.rect(topX + row * 13, topY + row * 2, 120, 15);
+        pdf.rect(topX + row * 13, topY + row * 5, 70, 15);
+        pdf.rect(topX + row * 13, topY + row * 8, 70, 15);
         // ---
-        pdf.rect(topX + b * 27, topY + b * 5, 15, 5);
-        pdf.rect(topX + b * 27, topY + b * 6, 15, 10);
+        pdf.rect(topX + row * 27, topY + row * 5, 15, 5);
+        pdf.rect(topX + row * 27, topY + row * 6, 15, 10);
         // --- 
-        pdf.rect(topX + b * 30, topY + b * 5, 15, 5);
-        pdf.rect(topX + b * 30, topY + b * 6, 15, 10);
+        pdf.rect(topX + row * 30, topY + row * 5, 15, 5);
+        pdf.rect(topX + row * 30, topY + row * 6, 15, 10);
         // ---
-        pdf.rect(topX + b * 33, topY + b * 5, 20, 5);
-        pdf.rect(topX + b * 33, topY + b * 6, 20, 10);
+        pdf.rect(topX + row * 33, topY + row * 5, 20, 5);
+        pdf.rect(topX + row * 33, topY + row * 6, 20, 10);
 
 
 
@@ -635,6 +624,8 @@ function reset() {
     a.clickScaleStart1 = null;
     a.clickScaleStart2 = null;
 }
+
+export { mode_elem, setMode, gm, magnetsCheckbox, outputCheckbox, drawPrintArea, removePrintArea }
 
 
 
