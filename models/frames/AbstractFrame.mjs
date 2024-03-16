@@ -66,6 +66,7 @@ export class AbstractFrame {
         this.point2 = convertWebGLToCanvas2DPoint(this.point2, canvasWidth, canvasHeight);
         this.point3 = convertWebGLToCanvas2DPoint(this.point3, canvasWidth, canvasHeight);
         this.point4 = convertWebGLToCanvas2DPoint(this.point4, canvasWidth, canvasHeight);
+
     }
 
     deconvert(canvasWidth, canvasHeight) {

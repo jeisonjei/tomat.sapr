@@ -1,16 +1,21 @@
-import { drawText } from "../../main.js";
-import {drawShapes, updateActiveShapes, updateShapes } from "../../shared/render/shapes.js";
+import {text} from "../../shared/render/text";
+import {drawShapes, updateActiveShapes, updateShapesPanZoom } from "../../shared/render/shapes";
 import { mat3 } from "gl-matrix";
-import { g } from "../../shared/globalState/g.js";
-import { c } from "../../shared/globalState/c.js";
-import { a } from "../../shared/globalState/a.js";
-import { t } from "../../shared/globalState/t.js";
+import { g } from "../../shared/globalState/g";
+import { c } from "../../shared/globalState/c";
+import { a } from "../../shared/globalState/a";
+import { t } from "../../shared/globalState/t";
 import { applyTransformationToPoint } from "../../shared/common.mjs";
+
+import {drawText} from "../../shared/render/text";
+
+// --- rxjs
+import { fromEvent } from "rxjs";
 
 function handleMouseWheel(ev) {
     a.zl = ev.deltaY > 0 ? 0.90 : 1.1;
     a.zlc *= a.zl;
-    updateShapes('zoom');
+    updateShapesPanZoom('zoom');
     drawShapes();
 
 
@@ -36,6 +41,9 @@ function handleMouseWheel(ev) {
 
 }
 
-document.addEventListener('wheel', handleMouseWheel);
+function registerMouseWheelEvent() {
+    const wheel$ = fromEvent(document, 'wheel');
+    wheel$.subscribe(handleMouseWheel);
+}
 
-export {handleMouseWheel}
+export {handleMouseWheel, registerMouseWheelEvent}

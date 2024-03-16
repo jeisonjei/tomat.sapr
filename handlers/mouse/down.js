@@ -1,14 +1,16 @@
 import { a } from "../../shared/globalState/a";
 import { t } from "../../shared/globalState/t";
-import { gm } from "../../page.mjs";
-import { drawShapes, drawSingle,addShapes,updateActiveShapes,updateShapes } from "../../shared/render/shapes";
-import { transformPointByMatrix3 } from "../../shared/common.mjs";
 import { g } from "../../shared/globalState/g";
+import { c } from "../../shared/globalState/c.js";
+import { s } from "../../shared/globalState/settings.mjs";
+
+import { gm } from "../../page.mjs";
+import { drawShapes, drawSingle, addShapes, updateActiveShapes, updateShapesPanZoom } from "../../shared/render/shapes";
+import { transformPointByMatrix3 } from "../../shared/common.mjs";
 import { getMoveMatrix } from "../../shared/transform.mjs";
 import { getRotateMatrix } from "../../shared/transform.mjs";
 import { getScaleMatrix } from "../../shared/transform.mjs";
 import { getMirrorMatrix } from "../../shared/transform.mjs";
-import { drawText } from "../../main.js";
 
 import { mat3 } from "gl-matrix";
 
@@ -17,6 +19,11 @@ import { fromEvent, map } from "rxjs";
 
 import { getSideOfMouseRelativeToLine, canvasGetMouse } from "../../shared/common.mjs";
 import { replaceVertices } from "../../shared/webgl/reshape.mjs";
+
+import { Point } from "../../models/Point.mjs";
+
+import { drawText, addText } from "../../shared/render/text.js";
+import { Text } from "../../models/shapes/Text.mjs";
 
 function handleMouseDown(mouse) {
     /**
@@ -35,7 +42,6 @@ function handleMouseDown(mouse) {
     }
 
     a.isMouseDown = true;
-
 
     if (a.magnetPosition) {
         a.start = { ...a.magnetPosition };
@@ -119,6 +125,7 @@ function handleMouseDown(mouse) {
 
         case 'select':
             a.selectFrame.start = a.start;
+            
             break;
         case 'boundary':
             const isinSelectBoundary = a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isinSelectBoundary(mouse));
@@ -541,7 +548,89 @@ function handleMouseDown(mouse) {
     drawShapes();
 }
 
-const mouseDown$ = fromEvent(document, 'mousedown').pipe(map(ev => canvasGetMouse(ev, g.canvas)));
-mouseDown$.subscribe(handleMouseDown);
+function handleMouseDownText(mouse) {
+    t.offset = Number.parseInt(t.fontSize) * 0.2;
 
-export {handleMouseDown};
+
+    t.currentLetterIndex = 0;
+
+
+
+
+    if (!['text'].includes(gm())) {
+        return;
+    }
+
+
+    for (const textLine of t.utext) {
+        if (textLine.isinSelectBoundary(mouse)) {
+            t.editId = textLine.id;
+            t.textPosition = { ...textLine.start };
+            drawCursor(0, t.editId);
+            drawText(false);
+            t.utext = t.utext.filter(t => t.text !== '');
+
+            return;
+        }
+        t.editId = null;
+
+    }
+
+    if (a.magnetPosition) {
+        t.textPosition = { ...a.magnetPosition };
+    }
+    else {
+        t.textPosition = new Point(mouse.x, mouse.y);
+    }
+
+    t.textPosition.y = t.textPosition.y - t.offset;
+    t.textPosition.x = t.textPosition.x + t.offset;
+
+
+    if (a.magnetPosition) {
+        c.context.strokeStyle = 'orange';
+    }
+    else {
+        c.context.strokeStyle = 'gray';
+    }
+
+    const textLine = new Text(s.aspectRatio, t.textPosition, [], c.context);
+
+    t.utext = t.utext.filter(t => t.text !== '');
+    addText(textLine);
+
+
+    const textHeight = c.context.measureText(textLine.text).fontBoundingBoxAscent;
+
+    c.context.clearRect(0, 0, c.canvas.width, c.canvas.height);
+    c.context.save();
+
+    c.context.beginPath();
+    c.context.moveTo(t.textPosition.x, t.textPosition.y);
+    c.context.lineTo(t.textPosition.x + 100, t.textPosition.y);
+    c.context.moveTo(t.textPosition.x, t.textPosition.y - textHeight);
+    c.context.lineTo(t.textPosition.x + 100, t.textPosition.y - textHeight);
+    c.context.moveTo(t.textPosition.x, t.textPosition.y);
+    c.context.lineTo(t.textPosition.x, t.textPosition.y - textHeight);
+    c.context.stroke();
+
+    drawText(false);
+
+    a.shapes = a.shapes.filter(t => (t.type !== 'text' || t.text !== ''));
+
+    // только для magnetsObserver, также используется в boundaryModeObserver для отрисовки рамки
+    a.shapes.push(...t.utext);
+
+
+
+}
+
+
+function registerMouseDownEvent() {
+    const mouseDown$ = fromEvent(document, 'mousedown').pipe(map(ev => canvasGetMouse(ev, g.canvas)));
+    mouseDown$.subscribe(handleMouseDown);
+    mouseDown$.subscribe(handleMouseDownText);
+
+
+}
+export { handleMouseDown, registerMouseDownEvent };

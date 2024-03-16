@@ -8,7 +8,7 @@ import { mat3 } from "gl-matrix";
 import { Point } from "../../models/Point.mjs";
 import { AbstractFrame } from "../../models/frames/AbstractFrame.mjs";
 
-import { pushVertices } from "../webgl/reshape.mjs";
+import { getNewVertices, pushVertices } from "../webgl/reshape.mjs";
 
 let id = 0;
 
@@ -160,7 +160,7 @@ function addShapes(shape) {
     a.vertices = pushVertices(shape, a.vertices);
 }
 
-function updateShapes(mode) {
+function updateShapesPanZoom(mode) {
     switch (mode) {
         case 'zoom':
             a.shapes.forEach(shape => {
@@ -180,4 +180,14 @@ function updateShapes(mode) {
     a.shapes$.next(a.shapes);
 }
 
-export { drawShapes, drawSingle, updateActiveShapes, addShapes, updateShapes }
+a.shapes$.subscribe((shapes) => {
+    a.vertices = getNewVertices(shapes);
+});
+
+function deleteShapes(shapes) {
+    // ...
+    a.shapes = a.shapes.filter(shape => !shape.isSelected);
+    a.shapes$.next(a.shapes);
+}
+
+export { drawShapes, drawSingle, updateActiveShapes, addShapes, updateShapesPanZoom, deleteShapes }

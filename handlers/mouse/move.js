@@ -17,7 +17,7 @@ import { boundaryModeObserver } from "../../services/moveObservers";
 import { observeMagnet } from "../../shared/magnets.mjs";
 
 import { drawShapes, drawSingle } from "../../shared/render/shapes";
-import { addShapes, updateShapes } from "../../shared/render/shapes";
+import { addShapes, updateShapesPanZoom } from "../../shared/render/shapes";
 
 import { Point } from "../../models/Point.mjs";
 
@@ -26,7 +26,7 @@ import { canvasGetWebglCoordinates, canvasGetMouse } from "../../shared/common.m
 import { getAnglePosition } from "../../shared/magnets.mjs";
 
 import { mat3 } from "gl-matrix";
-import { drawText } from "../../main.js";
+import {drawText} from "../../shared/render/text";
 
 // --- rxjs
 import { fromEvent, map } from "rxjs";
@@ -392,8 +392,10 @@ function handleMouseMove(mouse) {
     });
 }
 
-const mouseMove$ = fromEvent(document, 'mousemove').pipe(map(ev => canvasGetMouse(ev, g.canvas)));
-mouseMove$.subscribe(handleMouseMove);
+function registerMouseMoveEvent() {
+    const mouseMove$ = fromEvent(document, 'mousemove').pipe(map(ev => canvasGetMouse(ev, g.canvas)));
+    mouseMove$.subscribe(handleMouseMove);
+}
 
 
-export { handleMouseMove }
+export { handleMouseMove, registerMouseMoveEvent }

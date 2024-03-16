@@ -307,7 +307,6 @@ export const getSideOfMouse = (mouseCoords, lineCoords) => {
   } else if (dotProduct < 0) {
     return 'END';
   } else {
-    console.log('On the line');
     return null;
   };
 };

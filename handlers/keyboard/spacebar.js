@@ -1,5 +1,5 @@
-import { drawShapes, drawSingle, updateShapes, updateActiveShapes } from "../../shared/render/shapes";
-import { drawText } from "../../main";
+import { drawShapes, drawSingle, updateShapesPanZoom, updateActiveShapes } from "../../shared/render/shapes";
+import { drawText } from "../../shared/render/text";
 
 import { a } from "../../shared/globalState/a";
 import { t } from "../../shared/globalState/t";
@@ -16,7 +16,7 @@ function handleSpacebarDown() {
 function handleSpacebarUp() {
     a.pan = false;
     g.context.uniformMatrix3fv(g.u_pan, false, mat3.create());
-    updateShapes('pan');
+    updateShapesPanZoom('pan');
 
     // --- text
     const scalex = 1 / c.canvas.width;
@@ -47,18 +47,20 @@ function handleSpacebarUp() {
 
 let spacebarPressed = false;
 
-document.addEventListener('keydown', (ev) => {
-    if (ev.key === ' ' && !spacebarPressed) {
-        handleSpacebarDown();
-        spacebarPressed = true;
-    }
-});
+function registerSpacebarEvents() {
+    document.addEventListener('keydown', (ev) => {
+        if (ev.key === ' ' && !spacebarPressed) {
+            handleSpacebarDown();
+            spacebarPressed = true;
+        }
+    });
+    
+    document.addEventListener('keyup', (ev) => {
+        if (ev.key === ' ') {
+            handleSpacebarUp();
+            spacebarPressed = false;
+        }
+    });
+}
 
-document.addEventListener('keyup', (ev) => {
-    if (ev.key === ' ') {
-        handleSpacebarUp();
-        spacebarPressed = false;
-    }
-});
-
-export { handleSpacebarDown, handleSpacebarUp }
+export { handleSpacebarDown, handleSpacebarUp, registerSpacebarEvents }

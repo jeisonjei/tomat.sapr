@@ -38,7 +38,6 @@ export function getMoveMatrix(p1, p2) {
 export function getRotateMatrix(c, m) {
     // матрицы продолжают быть в webgl
 
-    console.log(s.aspectRatio);
     const center = canvasGetWebglCoordinates(c, g.context.canvas);
     const mouse = canvasGetWebglCoordinates(m, g.context.canvas);
 

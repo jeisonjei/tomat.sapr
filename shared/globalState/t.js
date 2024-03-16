@@ -21,9 +21,10 @@ const t = {
     offset: 6,
 
     editId: null,
-    editBoundary: false /**эта переменная нужна чтобы отключить магниты
+    editBoundary: false, /**эта переменная нужна чтобы отключить магниты
                             если указатель наведён на текст в режиме text */
+    currentLetterIndex: null,
 
 }
 
-export {t}
+export { t }

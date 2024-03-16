@@ -1,19 +1,15 @@
 import { fromEvent } from "rxjs";
-import { canvas, deleteShapes, deleteText, drawText, gl } from "./main.js";
-import { drawShapes,drawSingle,updateActiveShapes } from "./shared/render/shapes.js";
+import { drawText, deleteText } from "./shared/render/text.js";
+import { drawShapes,updateActiveShapes,deleteShapes } from "./shared/render/shapes.js";
 import { a } from './shared/globalState/a.js';
 import { t } from './shared/globalState/t.js';
 import { s } from "./shared/globalState/settings.mjs";
-import { canvasGetWebglCoordinates, checkFunction, convertWebGLToCanvas2DPoint } from "./shared/common.mjs";
 import { generateDXFContent } from "./shared/export/dxf.mjs";
 import jsPDF from "jspdf";
 import { font } from "./fonts/GOST type A-normal.js";
-import { Line } from "./models/shapes/Line.mjs";
 import { Point } from "./models/Point.mjs";
 
 // rxdb
-import { createRxDatabase } from "rxdb";
-import { getRxStorageDexie } from "rxdb/plugins/storage-dexie";
 
 
 const mode_elem = document.getElementById('mode');

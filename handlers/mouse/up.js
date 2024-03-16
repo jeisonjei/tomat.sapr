@@ -7,12 +7,12 @@ import { c } from "../../shared/globalState/c";
 import { getMoveMatrix } from "../../shared/transform.mjs";
 import { getRotateMatrix } from "../../shared/transform.mjs";
 import { getScaleMatrix } from "../../shared/transform.mjs";
-import { drawText } from "../../main.js";
+import {drawText} from "../../shared/render/text";
 
 import { s } from "../../shared/globalState/settings.mjs";
 import { Point } from "../../models/Point.mjs";
 
-import { drawShapes, drawSingle, addShapes, updateActiveShapes, updateShapes } from "../../shared/render/shapes";
+import { drawShapes, drawSingle, addShapes, updateActiveShapes, updateShapesPanZoom } from "../../shared/render/shapes";
 
 // --- rxjs
 import { fromEvent, map } from "rxjs";
@@ -110,7 +110,7 @@ function handleMouseUp(mouse) {
                     shape.isSelected = true;
                 }
             });
-
+            
             // --- text
             a.selectFrame.convertToCanvas2d(c.canvas.width, c.canvas.height);
             t.utext.forEach(text => {
@@ -184,10 +184,10 @@ function handleMouseUp(mouse) {
 
 }
 
-const mouseUp$ = fromEvent(document, 'mouseup').pipe(map(ev => canvasGetMouse(ev, g.canvas)));
+function registerMouseUpEvent() {
+    const mouseUp$ = fromEvent(document, 'mouseup').pipe(map(ev => canvasGetMouse(ev, g.canvas)));
+    mouseUp$.subscribe(handleMouseUp);
+}
 
 
-mouseUp$.subscribe(handleMouseUp);
-
-
-export {handleMouseUp}
+export { handleMouseUp, registerMouseUpEvent }

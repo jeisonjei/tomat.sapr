@@ -6,7 +6,7 @@ import { a } from "./globalState/a.js";
 import { Point } from "../models/Point.mjs";
 import { getRotateSnap } from "./transform.mjs";
 
-import { drawSingle, drawShapes, updateActiveShapes, updateShapes, addShapes } from "./render/shapes.js";
+import { drawSingle, drawShapes, updateActiveShapes, updateShapesPanZoom, addShapes } from "./render/shapes.js";
 
 // --------- MAGNETS ---------
 export const magnetState$ = new ReplaySubject();
