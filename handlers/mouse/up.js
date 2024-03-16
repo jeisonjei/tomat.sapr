@@ -1,7 +1,7 @@
 import { a } from "../../shared/globalState/a";
 import { t } from "../../shared/globalState/t";
 import { gm } from "../../page.mjs";
-import { transformPointByMatrix3 } from "../../shared/common.mjs";
+import { transformPointByMatrix3, canvasGetMouse } from "../../shared/common.mjs";
 import { g } from "../../shared/globalState/g";
 import { c } from "../../shared/globalState/c";
 import { getMoveMatrix } from "../../shared/transform.mjs";
@@ -13,6 +13,9 @@ import { s } from "../../shared/globalState/settings.mjs";
 import { Point } from "../../models/Point.mjs";
 
 import { drawShapes, drawSingle, addShapes, updateActiveShapes, updateShapes } from "../../shared/render/shapes";
+
+// --- rxjs
+import { fromEvent, map } from "rxjs";
 
 function handleMouseUp(mouse) {
     console.log('shapes', a.shapes.length);
@@ -180,5 +183,11 @@ function handleMouseUp(mouse) {
 
 
 }
+
+const mouseUp$ = fromEvent(document, 'mouseup').pipe(map(ev => canvasGetMouse(ev, g.canvas)));
+
+
+mouseUp$.subscribe(handleMouseUp);
+
 
 export {handleMouseUp}

@@ -21,12 +21,15 @@ import { addShapes, updateShapes } from "../../shared/render/shapes";
 
 import { Point } from "../../models/Point.mjs";
 
-import { canvasGetWebglCoordinates } from "../../shared/common.mjs";
+import { canvasGetWebglCoordinates, canvasGetMouse } from "../../shared/common.mjs";
 
 import { getAnglePosition } from "../../shared/magnets.mjs";
 
 import { mat3 } from "gl-matrix";
 import { drawText } from "../../main.js";
+
+// --- rxjs
+import { fromEvent, map } from "rxjs";
 
 function handleMouseMove(mouse) {
     /**
@@ -388,5 +391,9 @@ function handleMouseMove(mouse) {
 
     });
 }
+
+const mouseMove$ = fromEvent(document, 'mousemove').pipe(map(ev => canvasGetMouse(ev, g.canvas)));
+mouseMove$.subscribe(handleMouseMove);
+
 
 export { handleMouseMove }

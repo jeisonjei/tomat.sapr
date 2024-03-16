@@ -12,7 +12,10 @@ import { drawText } from "../../main.js";
 
 import { mat3 } from "gl-matrix";
 
-import { getSideOfMouseRelativeToLine } from "../../shared/common.mjs";
+// --- rxjs
+import { fromEvent, map } from "rxjs";
+
+import { getSideOfMouseRelativeToLine, canvasGetMouse } from "../../shared/common.mjs";
 import { replaceVertices } from "../../shared/webgl/reshape.mjs";
 
 function handleMouseDown(mouse) {
@@ -537,5 +540,8 @@ function handleMouseDown(mouse) {
 
     drawShapes();
 }
+
+const mouseDown$ = fromEvent(document, 'mousedown').pipe(map(ev => canvasGetMouse(ev, g.canvas)));
+mouseDown$.subscribe(handleMouseDown);
 
 export {handleMouseDown};

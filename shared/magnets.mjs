@@ -1,10 +1,12 @@
 import { filter, from, tap, ReplaySubject } from "rxjs";
-import { scan } from "rxjs";
+import { scan, map } from "rxjs";
 import { checkFunction } from "./common.mjs";
 import { s } from './globalState/settings.mjs';
 import { a } from "./globalState/a.js";
 import { Point } from "../models/Point.mjs";
 import { getRotateSnap } from "./transform.mjs";
+
+import { drawSingle, drawShapes, updateActiveShapes, updateShapes, addShapes } from "./render/shapes.js";
 
 // --------- MAGNETS ---------
 export const magnetState$ = new ReplaySubject();
@@ -331,3 +333,49 @@ export function getAnglePosition(mouse, start) {
 }
 
 
+
+magnetState$.pipe(
+    /**
+     * Функция получает начальную или конечную привязку.
+     * Переменная a.gripPosition назначается только здесь
+     */
+    map(state => {
+        const mouse = state.find(object => object.hasOwnProperty('mouse')).mouse;
+        const grips = state.filter(magnet => magnet.type === 'm_grip');
+        if (grips.length > 0) {
+            return { mouse, magnet: grips[0] };
+        }
+
+        // If grips.length <= 0, return tripsH or tripsV if available
+        const tripsH = state.filter(magnet => magnet.type === 'm_triph');
+        const tripsV = state.filter(magnet => magnet.type === 'm_tripv');
+
+        if (tripsH.length > 0 && tripsV.length > 0) {
+            return { mouse, magnet: [tripsH[0], tripsV[0]] };
+        }
+        else if (tripsH.length > 0) {
+            return { mouse, magnet: tripsH[0] };
+        }
+        else if (tripsV.length > 0) {
+            return { mouse, magnet: tripsV[0] };
+        }
+
+        // If no valid magnets found, return null or handle as needed
+        return null;
+    })
+)
+    .subscribe(magnet => {
+        if (magnet && a.start) {
+            if (magnet.magnet instanceof Array) {
+                a.magnetPosition = getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
+                magnet.magnet.forEach(magnet => drawSingle(magnet));
+            }
+            else {
+
+                a.magnetPosition = magnet.magnet.center ?? getExtensionCoordDraw(magnet.magnet, a.start, magnet.mouse);
+
+                drawSingle(magnet.magnet);
+
+            }
+        }
+    });
