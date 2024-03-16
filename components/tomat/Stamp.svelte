@@ -1,7 +1,7 @@
 <script>
   import { afterUpdate, beforeUpdate, onMount } from "svelte";
   import { fade } from "svelte/transition";
-  import { s } from "../../shared/settings.mjs";
+  import { s } from "../../shared/globalState/settings.mjs";
 
   import { createRxDatabase } from "rxdb";
   import { getRxStorageDexie } from "rxdb/plugins/storage-dexie";

@@ -1,7 +1,7 @@
 import { mat3 } from "gl-matrix";
 import { Point } from "../models/Point.mjs";
 import { SelectBoundary } from "../models/frames/SelectBoundary.mjs";
-import { s } from "./settings.mjs";
+import { s } from "./globalState/settings.mjs";
 
 export function getCos(angleDeg) {
   const angleRad = (angleDeg * Math.PI) / 180;

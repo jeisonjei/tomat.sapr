@@ -6,7 +6,7 @@ import { Point } from "../Point.mjs";
 import { mat3 } from "gl-matrix";
 import { BasicMagnet } from "../BasicMagnet.mjs";
 
-import { s } from "../../shared/settings.mjs";
+import { s } from "../../shared/globalState/settings.mjs";
 
 export class Line extends BasicShape {
 

@@ -1,5 +1,5 @@
 import { BasicMagnet } from "../BasicMagnet.mjs";
-import { s } from "../../shared/settings.mjs";
+import { s } from "../../shared/globalState/settings.mjs";
 
 export class Grip extends BasicMagnet {
 

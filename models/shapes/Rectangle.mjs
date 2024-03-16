@@ -3,7 +3,7 @@ import { convertWebGLToCanvas2DPoint, getMid, getSelectBoundaryRectangle, isPoin
 import { Point } from "../Point.mjs";
 import { mat3 } from "gl-matrix";
 import { transformPointByMatrix3 } from "../../shared/common.mjs";
-import { s } from '../../shared/settings.mjs';
+import { s } from '../../shared/globalState/settings.mjs';
 // --- rxjs
 import { min } from "rxjs";
 

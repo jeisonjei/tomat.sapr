@@ -1,6 +1,9 @@
 import { fromEvent } from "rxjs";
-import { a,t, canvas, deleteShapes, deleteText, drawShapes, drawSingle, drawText, gl, updateActiveShapes } from "./main.js";
-import { s } from "./shared/settings.mjs";
+import { canvas, deleteShapes, deleteText, drawText, gl, updateActiveShapes } from "./main.js";
+import { drawShapes,drawSingle } from "./shared/render/shapes.js";
+import { a } from './shared/globalState/a.js';
+import { t } from './shared/globalState/t.js';
+import { s } from "./shared/globalState/settings.mjs";
 import { canvasGetWebglCoordinates, checkFunction, convertWebGLToCanvas2DPoint } from "./shared/common.mjs";
 import { generateDXFContent } from "./shared/export/dxf.mjs";
 import jsPDF from "jspdf";

@@ -16,7 +16,6 @@
  * модуль отопления
  */
 
-'use strict'
 import { Point } from "./models/Point.mjs"
 import { createProgram } from "./shared/webgl/program.mjs";
 import { getFragmentShaderSource, getVertexshaderSource } from "./shared/webgl/shaders.mjs";
@@ -29,7 +28,10 @@ import { getMirrorMatrix, getMoveMatrix, getRotateMatrix, getScaleMatrix } from 
 import { observeMagnet, magnetState$, getExtensionCoordDraw, getAnglePosition } from "./shared/magnets.mjs";
 import { mat3 } from 'gl-matrix';
 import { getNewVertices, pushVertices, replaceVertices } from "./shared/webgl/reshape.mjs";
-import { s } from './shared/settings.mjs';
+
+import { a } from './shared/globalState/a.js';
+import { t } from './shared/globalState/t.js';
+import { s } from './shared/globalState/settings.mjs';
 
 // rxjs
 import { Subject, filter, fromEvent, map, share } from "rxjs";
@@ -39,6 +41,8 @@ import { SymLine } from "./models/shapes/SymLine.mjs";
 import { filterText } from "./services/textFilter";
 import { Text } from "./models/shapes/Text.mjs";
 import { Grip } from "./models/snaps/Grip.mjs";
+
+import { drawShapes, drawSingle } from "./shared/render/shapes.js";
 
 
 /**
@@ -77,6 +81,7 @@ const u_move = gl.getUniformLocation(program, 'u_move');
 const u_rotate = gl.getUniformLocation(program, 'u_rotate');
 const u_scale = gl.getUniformLocation(program, 'u_scale');
 const u_resolution = gl.getUniformLocation(program, 'u_resolution');
+
 gl.uniform4f(u_color, 1, 0, 0, 1);
 gl.uniformMatrix3fv(u_move, false, mat3.create());
 gl.uniformMatrix3fv(u_pan, false, mat3.create());
@@ -85,95 +90,8 @@ gl.uniformMatrix3fv(u_scale, false, mat3.create());
 gl.uniform2f(u_resolution, gl.canvas.width, gl.canvas.height);
 // --------- WEBGL ---------
 
-s.setAspectRatio(canvas.width, canvas.height);
 
 
-
-
-
-
-
-// --------- GLOBALS ---------
-const a = {
-
-    shapes: [],
-    activeShapes: [],
-    shapes$: new Subject(),
-    selected: false,
-
-    isMouseDown: false,
-    magnetPosition: null,
-    anglePosition: null,
-
-    clickMoveStart: null,
-    clickCopyStart: null,
-    clickRotateStart: null,
-    clickMirrorStart: null,
-    clickScaleStart1: null,
-    clickScaleStart2: null,
-    clickScaleBaseDistanceX: null,
-    clickScaleBaseDistanceY: null,
-    clickScaleBaseDistance: null,
-    clickScaleShapeDistance: null,
-
-    start: null,
-    end: null,
-
-    // shapes
-    line: new Line(s.aspectRatio, new Point(0, 0), new Point(0, 0), [1, 0, 0, 1]),
-    symline: new SymLine(s.aspectRatio, new Point(0, 0), new Point(0, 0), [1, 0, 0, 1]),
-    circle: new Circle(s.aspectRatio, new Point(0, 0), 0, [1, 0, 0, 1]),
-    rectangle: new Rectangle(s.aspectRatio, new Point(0, 0), new Point(0, 0), new Point(0, 0), new Point(0, 0), 0, 0, [1, 0, 0, 1]),
-    selectFrame: new AbstractFrame(new Point(0, 0), new Point(0, 0), [0, 1, 0, 1]),
-
-    // zoom
-    zl: null,
-    zlc: 1,
-
-    // pan
-    pan: false,
-    isPanning: false,
-    pan_tx: null,
-    pan_ty: null,
-    pan_start_x: null,
-    pan_start_y: null,
-    pan_mat: null,
-
-    // angle snap
-    angle_snap: false,
-
-    vertices: [],
-
-    // ctrl
-    ctrl: false
-}
-
-const t = {
-    utext: [],
-    utext$: new Subject(),
-    textPosition: new Point(0, 0),
-
-    translateX: 0,
-    translateY: 0,
-    scale: 1,
-
-    mouseClick: false,
-
-    isPanning: false,
-    panStartPoint: new Point(0, 0),
-
-    fontSize: 36,
-    fontName: 'gost_type_a',
-
-    offset: 6,
-
-    editId: null,
-    editBoundary: false /**эта переменная нужна чтобы отключить магниты
-                            если указатель наведён на текст в режиме text */
-
-}
-
-// --------- GLOBALS ---------
 
 
 // --------- TEXTCONTEXT ---------
@@ -185,8 +103,9 @@ const context = canvasText.getContext('2d');
 
 
 // --------- INIT ---------
-function init() {
+(function init() {
     s.tolerance = 10;
+    s.setAspectRatio(canvas.width, canvas.height); // obsolete
 
 
     const fontSize = document.getElementById('fontSize').value;
@@ -195,14 +114,20 @@ function init() {
     // --- назначение параметров, которые будут использоваться в других модулях
     s.setCanvasSize(canvas.width, canvas.height);
     s.setWebglContext(gl);
+    s.u_color = u_color;
+    s.u_pan = u_pan;
+    s.u_move = u_move;
+    s.u_rotate = u_rotate;
+    s.u_scale = u_scale;
+    s.u_resolution = u_resolution;
+
     s.setTextContext(context);
 
     // --- text
     context.font = `${t.fontSize}px ${t.fontName}`;
 
 
-}
-init();
+})();
 // --------- INIT ---------
 
 
@@ -1474,131 +1399,6 @@ function deleteText(text) {
 }
 
 
-function drawShapes() {
-
-    // это для того, чтобы фигуры раздваивались
-    gl.uniformMatrix3fv(u_move, false, mat3.create());
-    gl.uniformMatrix3fv(u_rotate, false, mat3.create());
-    gl.uniformMatrix3fv(u_scale, false, mat3.create());
-
-
-
-
-    // НЕ УДАЛЯТЬ !!!
-    // if (a.vertices.length === 0) {
-    //     return;
-    // }
-    // gl.uniform4f(u_color, 1, 0, 0, 1);
-    // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a.vertices), gl.DYNAMIC_DRAW);
-    // gl.drawArrays(gl.LINES, 0, a.vertices.length / 2);
-
-
-
-    gl.clearColor(1, 1, 1, 1);
-    // закомментировать если где-то нужно нарисовать что-то локально, ручку например функцией drawSingle()
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    a.shapes.forEach(shape => {
-        drawSingle(shape);
-    })
-}
-
-
-function drawSingle(shape) {
-    /**
-     * Предполагается, что основное общение с webgl будет происходить через эту функцию.
-     * В то же время трансформации происходят также через функцию handleMouseMove
-     * @param {Line, Grip, Projection, Circle, Rectangle} shape - фигура, которую нужно отрисовать.
-     * В качестве фигуры также могут выступать и магниты
-    */
-
-    if (shape.type === 'text') {
-        return;
-    }
-    const vertices = shape.getVertices();
-    const size = vertices.length;
-    const [a, b, c, d] = shape.color;
-    if (shape.isSelected) {
-        switch (shape.type) {
-            case 'line':
-                shape.grip.center = shape.start;
-                drawSingle(shape.grip);
-                shape.grip.center = shape.end;
-                drawSingle(shape.grip);
-                break;
-            case 'rectangle':
-                shape.grip.center = shape.p1;
-                drawSingle(shape.grip);
-                shape.grip.center = shape.p2;
-                drawSingle(shape.grip);
-                shape.grip.center = shape.p3;
-                drawSingle(shape.grip);
-                shape.grip.center = shape.p4;
-                drawSingle(shape.grip);
-                break;
-            case 'circle':
-                shape.grip.center = shape.quad1;
-                drawSingle(shape.grip);
-                shape.grip.center = shape.quad2;
-                drawSingle(shape.grip);
-                shape.grip.center = shape.quad3;
-                drawSingle(shape.grip);
-                shape.grip.center = shape.quad4;
-                drawSingle(shape.grip);
-                break;
-            default:
-                break;
-        }
-        gl.uniform4f(u_color, 0.5, 0.5, 0.5, 1);
-    }
-    else {
-        gl.uniform4f(u_color, a, b, c, d);
-    }
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
-
-    switch (shape.type) {
-        case 'select_frame':
-            gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
-
-            break;
-        case 'selectBoundary':
-            gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
-            break;
-        case 'm_grip':
-            gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
-            break;
-        case 'm_triph':
-        case 'm_tripv':
-            gl.drawArrays(gl.LINES, 0, size / 2);
-            break;
-        case 'line':
-        case 'symline':
-            gl.drawArrays(gl.LINES, 0, size / 2);
-            break;
-        case 'rectangle':
-            gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
-            break;
-        case 'circle':
-            gl.drawArrays(gl.LINE_LOOP, 0, size / 2);
-
-            break;
-        case 'symline':
-
-            break;
-        case 'rectangle':
-
-            break;
-        case 'circle':
-
-            break;
-        default:
-            break;
-    }
-}
-// --------- SHAPES ---------
-
-
-
 // --------- UTEXT ---------
 let currentLetterIndex;
 let editId = 1;
@@ -1751,9 +1551,9 @@ function handleKeyPress(key) {
     }
     else if (key === 'Enter') {
         const lineSpace = Number.parseInt(t.fontSize);
-        
+
         const positionY = t.textPosition.y + lineSpace;
-        
+
         t.textPosition = new Point(t.textPosition.x, positionY);
         const textLine = new Text(s.aspectRatio, t.textPosition, [], context);
 
@@ -1902,4 +1702,4 @@ function getPoint(mouseEvent) {
 }
 // --------- HELPERS ---------
 
-export {a,t, canvas, deleteShapes, deleteText, drawShapes, drawSingle, drawText, gl, updateActiveShapes, drawCursor}
+export { a, t, canvas, deleteShapes, deleteText, drawText, gl, updateActiveShapes, drawCursor }

@@ -1,5 +1,5 @@
 import { BasicMagnet } from "../BasicMagnet.mjs";
-import {s} from '../../shared/settings.mjs';
+import {s} from '../../shared/globalState/settings.mjs';
 import { convertVerticesToPoints } from "../../shared/common.mjs";
 import { Point } from "../Point.mjs";
 

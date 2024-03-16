@@ -1,9 +1,10 @@
 import { Point } from "../models/Point.mjs";
-import { a, t } from '../main.js';
-import { s } from '../shared/settings.mjs'
+import { a } from "../main.js";
+import { t } from "../main.js";
+import { s } from '../shared/globalState/settings.mjs'
 import { gm, setMode, mode_elem } from "../page.mjs";
 import { checkFunction, getColor } from "../shared/common.mjs";
-import { drawSingle } from "../main.js";
+import { drawSingle } from "../shared/render/shapes.js";
 
 export function colorMagnetsObserver(mouse, shapes) {
     /**

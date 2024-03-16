@@ -1,6 +1,6 @@
 <script>
-    import HelpComponent from "./components/tomat/HelpComponent.svelte";
-    import Stamp from "./components/tomat/Stamp.svelte";
+    import HelpComponent from "../components/tomat/HelpComponent.svelte";
+    import Stamp from "../components/tomat/Stamp.svelte";
 
     let color = 'blue';
     let toolButtonClass='p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold mx-0.5';

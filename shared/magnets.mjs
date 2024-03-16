@@ -1,7 +1,7 @@
 import { filter, from, tap, ReplaySubject } from "rxjs";
 import { scan } from "rxjs";
 import { checkFunction } from "./common.mjs";
-import { s } from './settings.mjs';
+import { s } from './globalState/settings.mjs';
 import { a } from '../main.js';
 import { Point } from "../models/Point.mjs";
 import { getRotateSnap } from "./transform.mjs";

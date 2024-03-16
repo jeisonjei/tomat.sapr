@@ -3,7 +3,7 @@ import { BasicShape } from "../BasicShape.mjs";
 import { Point } from "../Point.mjs";
 import { mat3 } from "gl-matrix";
 import { transformPointByMatrix3 } from "../../shared/common.mjs";
-import { s } from "../../shared/settings.mjs";
+import { s } from "../../shared/globalState/settings.mjs";
 
 export class Circle extends BasicShape {
     set center(point) {
