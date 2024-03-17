@@ -148,13 +148,22 @@ canvas.text {
 
 .m-btn-accept {
   padding: 0.75rem;
-  border-radius: 6px;
-  background-color: var(--east-bay-700);
+  border-radius: 5px;
+  background-color: var(--east-bay-600);
   color: white;
 }
 
 .m-btn-accept:hover {
   background-color: var(--east-bay-500);
+}
+.m-btn-cancel {
+  padding: 0.75rem;
+  border-radius: 5px;
+  background-color: var(--woodsmoke-200);
+}
+
+.m-btn-cancel:hover {
+  background-color: var(--woodsmoke-100);
 }
 
 .m-mx-1 {

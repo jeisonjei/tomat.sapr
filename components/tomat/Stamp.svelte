@@ -17,15 +17,35 @@
 
 
   // --------- STAMP PROPERTIES ---------
-  let разработал_имя, проверил_имя, нормо_контроль_имя, гип_имя, дата_значение, шифр_значение, адрес_значение, объект_значение, имя_листа_значение, номер_листа_значение, всего_листов_значение, компания_значение, кол_уч_значение ;
+  let разработал_имя, проверил_имя, нормо_контроль_имя, гип_имя, дата_значение, шифр_значение, адрес_значение, объект_значение, имя_листа_значение, номер_листа_значение, всего_листов_значение, компания_значение, кол_уч_значение, стадия_значение, изм_значение, изм_документ_значение, изм_лист_значение, дата1, дата2, дата3, дата4, 
+  изм_номер, изм_колуч, изм_лист, изм_документ,
+  стадия, лист, листов ;
   let разработал = "Разработал";
   let проверил = "Проверил";
   let нормо_контроль = "Нормо-контроль";
   let гип = "ГИП"
 
+  
+  стадия = "Стадия";
+  лист = "Лист";
+  листов = "Листов";
+  изм_номер = "Изм.";
+  изм_колуч = "Кол.уч.";
+  изм_лист = "Лист";
+  изм_документ = "№ док.";
+
   // --------- STAMP PROPERTIES ---------
 
+  afterUpdate(function(){
+    const modeElem = document.getElementById('mode');
 
+    if(!hidden){
+      modeElem.innerHTML = 'mode: none';
+    }
+    else{
+      modeElem.innerHTML = 'mode: select';
+    }
+  });
 
 
   let myDatabase;
@@ -100,10 +120,10 @@
 
       const olderDocuments = await myCollection.stamps.find().exec();
 
-    //   for (let i = 0; i < olderDocuments.length; i++) {
-    //       const element = olderDocuments[i];
-    //       element.remove();
-    //   }
+      for (let i = 0; i < olderDocuments.length; i++) {
+          const element = olderDocuments[i];
+          element.remove();
+      }
 
       s.myDatabase = myDatabase;
     }
@@ -118,14 +138,26 @@
       checker: проверил_имя,
       norm_checker: нормо_контроль_имя,
       gip: гип_имя,
-      n_doc: номер_документа,
-      ch: изм_значение,
-      date: дата_значение,
-      
+      change_doc: изм_документ_значение,
+      change_sheet: изм_лист_значение,
+      change: изм_значение,
+      date1: дата1,
+      date2: дата2,
+      date3: дата3,
+      date4: дата4,
       qty_part: кол_уч_значение,
+      project_code: шифр_значение,
+      address: адрес_значение,
+      building: объект_значение,
+      sheetName: имя_листа_значение,
+      sheetNumber: номер_листа_значение,
+      sheets_qty: всего_листов_значение,
+      project_stage: стадия_значение,
+      company: компания_значение,
 
 
     });
+    hidden = true;
   }
 
 
@@ -328,12 +360,6 @@
       </button>
     </div>
     <h1>Заполнение основной надписи</h1>
-    <div class="m-alert">
-      <p>
-        ВНИМАНИЕ! Функция в разработке, заполнение этой формы ни к чему не
-        приведёт
-      </p>
-    </div>
     <table class="iksweb">
       <tbody>
         <tr>
@@ -395,6 +421,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={шифр_значение}
               type="text"
               name=""
               id="cell-12-78910"
@@ -516,6 +543,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={адрес_значение}
               type="text"
               name=""
               id="cell-345-78910"
@@ -527,6 +555,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={изм_значение}
               type="text"
               name=""
               id="cell-4-1"
@@ -536,6 +565,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={кол_уч_значение}
               type="text"
               name=""
               id="cell-4-2"
@@ -545,6 +575,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={изм_лист_значение}
               type="text"
               name=""
               id="cell-4-3"
@@ -554,6 +585,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={изм_документ_значение}
               type="text"
               name=""
               id="cell-4-4"
@@ -583,6 +615,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={изм_номер}
               type="text"
               name=""
               id="cell-5-1"
@@ -592,6 +625,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={изм_колуч}
               type="text"
               name=""
               id="cell-5-2"
@@ -601,6 +635,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={изм_лист}
               type="text"
               name=""
               id="cell-5-3"
@@ -610,6 +645,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={изм_документ}
               type="text"
               name=""
               id="cell-5-4"
@@ -668,6 +704,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={дата1}
               type="text"
               name=""
               id="cell-6-6"
@@ -677,6 +714,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={объект_значение}
               type="text"
               name=""
               id="cell-678-7"
@@ -686,6 +724,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={стадия}
               type="text"
               name=""
               id="cell-6-8"
@@ -695,6 +734,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={лист}
               type="text"
               name=""
               id="cell-6-9"
@@ -704,6 +744,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={листов}
               type="text"
               name=""
               id="cell-6-10"
@@ -744,6 +785,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={дата2}
               type="text"
               name=""
               id="cell-7-6"
@@ -753,6 +795,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={стадия_значение}
               type="text"
               name=""
               id="cell-78-8"
@@ -762,6 +805,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={номер_листа_значение}
               type="text"
               name=""
               id="cell-78-9"
@@ -771,6 +815,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={всего_листов_значение}
               type="text"
               name=""
               id="cell-78-10"
@@ -811,6 +856,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={дата3}
               type="text"
               name=""
               id="cell-8-6"
@@ -851,6 +897,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={дата4}
               type="text"
               name=""
               id="cell-9-6"
@@ -860,6 +907,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={имя_листа_значение}
               type="text"
               name=""
               id="cell-91011-7"
@@ -869,6 +917,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={компания_значение}
               type="text"
               name=""
               id="cell-91011-8910"
@@ -959,7 +1008,10 @@
         перемещение по таблице</span
       >
     </div>
-    <button class="m-btn-accept m-mb-1" on:click={saveStamp}>Сохранить</button>
+    <div>
+      <button class="m-btn-accept m-mb-1" on:click={saveStamp}>Сохранить</button>
+      <button class="m-btn-cancel m-mb-1" on:click={()=>hidden=true}>Отмена</button>
+    </div>
   </div>
 {/if}
 
@@ -973,6 +1025,7 @@
     transform: translate(-50%, -50%);
     padding: 1rem;
     width: 75%;
+    background-color: white;
   }
   textarea {
     position: absolute;

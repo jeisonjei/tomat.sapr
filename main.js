@@ -28,6 +28,7 @@ import { registerMouseWheelEvent } from "./handlers/mouse/wheel.js";
 import { registerSpacebarEvents } from "./handlers/keyboard/spacebar.js";
 import { registerMouseDownEvent } from "./handlers/mouse/down.js";
 import {registerKeyboardAnyTextEvent} from "./handlers/keyboard/anyText";
+import { registerButtonSavePdfEvent } from './handlers/buttons/pdf.js';
 
 
 /**
@@ -46,6 +47,7 @@ c.init();
 (function init() {
     s.tolerance = 10;
     s.aspectRatio = g.canvas.height / g.canvas.width;
+    s.format = 'a4';
 
     t.fontSize = document.getElementById('fontSize').value;
 
@@ -59,3 +61,6 @@ registerMouseUpEvent();
 registerMouseWheelEvent();
 registerSpacebarEvents();
 registerKeyboardAnyTextEvent();
+
+// --- buttons
+registerButtonSavePdfEvent();

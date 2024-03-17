@@ -3,6 +3,7 @@ import { t } from "../globalState/t";
 import { outputCheckbox } from "../../page.mjs";
 import { Point } from "../../models/Point.mjs";
 import { Text } from "../../models/shapes/Text.mjs";
+import { drawPrintArea } from "../../page.mjs";
 
 function drawCursor(index = 0, id) {
     c.context.clearRect(0, 0, c.canvas.width, c.canvas.height);

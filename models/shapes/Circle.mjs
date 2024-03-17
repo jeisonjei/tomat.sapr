@@ -1,4 +1,4 @@
-import { getSelectBoundaryRectangle, isPointInsideFrame, isinSelectBoundaryLine } from "../../shared/common.mjs";
+import { getSelectBoundaryCircle, getSelectBoundaryRectangle, isPointInsideFrame, isinSelectBoundaryLine } from "../../shared/common.mjs";
 import { BasicShape } from "../BasicShape.mjs";
 import { Point } from "../Point.mjs";
 import { mat3 } from "gl-matrix";
@@ -121,7 +121,7 @@ export class Circle extends BasicShape {
 
         const { p1, p2, p3, p4 } = this.getBoundary(radiusX, radiusY);
 
-        this.selectBoundary = getSelectBoundaryRectangle(p1,p2,p3,p4);
+        this.selectBoundary = getSelectBoundaryCircle(p1,p2,p3,p4);
 
         
     }
