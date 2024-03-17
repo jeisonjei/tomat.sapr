@@ -1,31 +1,49 @@
 <script>
-  import { afterUpdate, beforeUpdate, onMount } from "svelte";
+  import { afterUpdate, onMount } from "svelte";
   import { fade } from "svelte/transition";
   import { s } from "../../shared/globalState/settings.mjs";
 
-  import { createRxDatabase } from "rxdb";
-  import { getRxStorageDexie } from "rxdb/plugins/storage-dexie";
   import { addRxPlugin } from "rxdb";
-  import { RxDBDevModePlugin } from "rxdb/plugins/dev-mode";
-  import { removeRxDatabase } from "rxdb";
-  import { fromEvent } from "rxjs";
-  import { ColdObservable } from "rxjs/internal/testing/ColdObservable";
 
   export let hidden;
 
-
-
-
   // --------- STAMP PROPERTIES ---------
-  let разработал_имя, проверил_имя, нормо_контроль_имя, гип_имя, дата_значение, шифр_значение, адрес_значение, объект_значение, имя_листа_значение, номер_листа_значение, всего_листов_значение, компания_значение, кол_уч_значение, стадия_значение, изм_значение, изм_документ_значение, изм_лист_значение, дата1, дата2, дата3, дата4, 
-  изм_номер, изм_колуч, изм_лист, изм_документ,
-  стадия, лист, листов ;
+  let designerValue,
+    checkerValue,
+    normCheckerValue,
+    gipValue,
+    дата_значение,
+    projectCodeValue,
+    adressValue,
+    buildingValue,
+    sheetNameValue,
+    sheetNumberValue,
+    sheetsQtyValue,
+    companyValue,
+    changeQtyPartsValue,
+    projectStageValue,
+    changeNumbValue,
+    changeDocValue,
+    changeSheetValue,
+    date1,
+    date2,
+    date3,
+    date4,
+    изм_номер,
+    изм_колуч,
+    изм_лист,
+    изм_документ,
+    стадия,
+    лист,
+    листов,
+    подпись,
+    дата;
+
   let разработал = "Разработал";
   let проверил = "Проверил";
   let нормо_контроль = "Нормо-контроль";
-  let гип = "ГИП"
+  let гип = "ГИП";
 
-  
   стадия = "Стадия";
   лист = "Лист";
   листов = "Листов";
@@ -33,133 +51,73 @@
   изм_колуч = "Кол.уч.";
   изм_лист = "Лист";
   изм_документ = "№ док.";
+  подпись = "Подпись";
+  дата = "Дата";
 
   // --------- STAMP PROPERTIES ---------
 
-  afterUpdate(function(){
-    const modeElem = document.getElementById('mode');
+  afterUpdate(function () {
+    const modeElem = document.getElementById("mode");
 
-    if(!hidden){
-      modeElem.innerHTML = 'mode: none';
-    }
-    else{
-      modeElem.innerHTML = 'mode: select';
+    if (!hidden) {
+      modeElem.innerHTML = "mode: none";
+    } else {
+      modeElem.innerHTML = "mode: select";
     }
   });
-
 
   let myDatabase;
 
   onMount(function (params) {
-    addRxPlugin(RxDBDevModePlugin);
 
-    async function createDatabase() {
-      removeRxDatabase('mydatabase', getRxStorageDexie());
-      myDatabase = await createRxDatabase({
-        name: 'mydatabase',
-        storage: getRxStorageDexie(),
-      });
+    designerValue = localStorage.designerValue ?? '';
+    checkerValue = localStorage.checkerValue ?? '';
+    normCheckerValue = localStorage.normCheckerValue ?? '';
+    gipValue = localStorage.gipValue ?? '';
+    changeDocValue = localStorage.changeDocValue ?? '';
+    changeSheetValue = localStorage.changeSheetValue ?? '';
+    changeNumbValue = localStorage.changeNumbValue ?? '';
+    date1 = localStorage.date1 ?? '';
+    date2 = localStorage.date2 ?? '';
+    date3 = localStorage.date3 ?? '';
+    date4 = localStorage.date4 ?? '';
+    changeQtyPartsValue = localStorage.changeQtyPartsValue ?? '';
+    projectCodeValue = localStorage.projectCodeValue ?? '';
+    adressValue = localStorage.adressValue ?? '';
+    buildingValue = localStorage.buildingValue ?? '';
+    sheetNameValue = localStorage.sheetNameValue ?? '';
+    sheetNumberValue = localStorage.sheetNumberValue ?? '';
+    sheetsQtyValue = localStorage.sheetsQtyValue ?? '';
+    projectStageValue = localStorage.projectStageValue ?? '';
+    companyValue = localStorage.companyValue ?? '';
 
-      const stampSchema = {
-        version: 0,
-        primaryKey: 'id',
-        type: 'object',
-        properties: {
-          id: {
-            type: 'string',
-            maxLength: 100,
-          },
-          designer: {
-            type: 'string',
-          },
-          checker: {
-            type: 'string',
-          },
-          norm_checker: {
-            type: 'string',
-          },
-          gip: {
-            type: 'string',
-          },
-          codeNumber:{
-            type: 'string'
-          },
-          address:{
-            type: 'string'
-          },
-          building:{
-            type: 'string'
-          },
-          sheetName:{
-            type: 'string'
-          },
-          sheetNumber:{
-            type: 'string'
-          },
-          sheetsQty:{
-            type: 'string'
-          },
-          company: {
-            type: 'string'
-          },
-          date:{
-            type: 'string'
-          },
-          isSubmitted: {
-            type: 'boolean',
-          },
-        },
-      };
-
-      const myCollection = await myDatabase.addCollections({
-        // коллекция - это то же, что и таблица в других базах данных
-        stamps: {
-          schema: stampSchema,
-        },
-      });
-
-      const olderDocuments = await myCollection.stamps.find().exec();
-
-      for (let i = 0; i < olderDocuments.length; i++) {
-          const element = olderDocuments[i];
-          element.remove();
-      }
-
-      s.myDatabase = myDatabase;
-    }
-    createDatabase();
   });
 
   async function saveStamp() {
-    // document - это то же самое, что строка в таблице в других базах данных
-    const myDocument = await myDatabase.stamps.insert({
-      id: "stamp1",
-      designer: разработал_имя,
-      checker: проверил_имя,
-      norm_checker: нормо_контроль_имя,
-      gip: гип_имя,
-      change_doc: изм_документ_значение,
-      change_sheet: изм_лист_значение,
-      change: изм_значение,
-      date1: дата1,
-      date2: дата2,
-      date3: дата3,
-      date4: дата4,
-      qty_part: кол_уч_значение,
-      project_code: шифр_значение,
-      address: адрес_значение,
-      building: объект_значение,
-      sheetName: имя_листа_значение,
-      sheetNumber: номер_листа_значение,
-      sheets_qty: всего_листов_значение,
-      project_stage: стадия_значение,
-      company: компания_значение,
+    localStorage.designerValue =designerValue;
+    localStorage.checkerValue = checkerValue;
+    localStorage.normCheckerValue = normCheckerValue;
+    localStorage.gipValue = gipValue;
+    localStorage.changeDocValue = changeDocValue;
+    localStorage.changeSheetValue = changeSheetValue;
+    localStorage.changeNumbValue = changeNumbValue;
+    localStorage.date1 = date1;
+    localStorage.date2 = date2;
+    localStorage.date3 = date3;
+    localStorage.date4 = date4;
+    localStorage.changeQtyPartsValue = changeQtyPartsValue;
+    localStorage.projectCodeValue = projectCodeValue;
+    localStorage.adressValue = adressValue;
+    localStorage.buildingValue = buildingValue;
+    localStorage.sheetNameValue = sheetNameValue;
+    localStorage.sheetNumberValue = sheetNumberValue;
+    localStorage.sheetsQtyValue = sheetsQtyValue;
+    localStorage.projectStageValue = projectStageValue;
+    localStorage.companyValue = companyValue;
 
-
-    });
     hidden = true;
-  }
 
+  }
 
   function isCaretAtStart(input) {
     return (
@@ -421,7 +379,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={шифр_значение}
+              bind:value={projectCodeValue}
               type="text"
               name=""
               id="cell-12-78910"
@@ -543,7 +501,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={адрес_значение}
+              bind:value={adressValue}
               type="text"
               name=""
               id="cell-345-78910"
@@ -555,7 +513,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={изм_значение}
+              bind:value={changeNumbValue}
               type="text"
               name=""
               id="cell-4-1"
@@ -565,7 +523,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={кол_уч_значение}
+              bind:value={changeQtyPartsValue}
               type="text"
               name=""
               id="cell-4-2"
@@ -575,7 +533,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={изм_лист_значение}
+              bind:value={changeSheetValue}
               type="text"
               name=""
               id="cell-4-3"
@@ -585,7 +543,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={изм_документ_значение}
+              bind:value={changeDocValue}
               type="text"
               name=""
               id="cell-4-4"
@@ -655,6 +613,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={подпись}
               type="text"
               name=""
               id="cell-5-5"
@@ -664,6 +623,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
+              bind:value={дата}
               type="text"
               name=""
               id="cell-5-6"
@@ -688,7 +648,7 @@
               type="text"
               name=""
               id="cell-6-34"
-              bind:value={разработал_имя}
+              bind:value={designerValue}
             /></td
           >
           <td class="cell-6-5"
@@ -704,7 +664,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={дата1}
+              bind:value={date1}
               type="text"
               name=""
               id="cell-6-6"
@@ -714,7 +674,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={объект_значение}
+              bind:value={buildingValue}
               type="text"
               name=""
               id="cell-678-7"
@@ -769,7 +729,7 @@
               type="text"
               name=""
               id="cell-7-34"
-              bind:value={проверил_имя}
+              bind:value={checkerValue}
             /></td
           >
           <td class="cell-7-5"
@@ -785,7 +745,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={дата2}
+              bind:value={date2}
               type="text"
               name=""
               id="cell-7-6"
@@ -795,7 +755,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={стадия_значение}
+              bind:value={projectStageValue}
               type="text"
               name=""
               id="cell-78-8"
@@ -805,7 +765,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={номер_листа_значение}
+              bind:value={sheetNumberValue}
               type="text"
               name=""
               id="cell-78-9"
@@ -815,7 +775,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={всего_листов_значение}
+              bind:value={sheetsQtyValue}
               type="text"
               name=""
               id="cell-78-10"
@@ -840,7 +800,7 @@
               type="text"
               name=""
               id="cell-8-34"
-              bind:value={нормо_контроль_имя}
+              bind:value={normCheckerValue}
             /></td
           >
           <td class="cell-8-5"
@@ -856,7 +816,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={дата3}
+              bind:value={date3}
               type="text"
               name=""
               id="cell-8-6"
@@ -881,7 +841,7 @@
               type="text"
               name=""
               id="cell-9-34"
-              bind:value={гип_имя}
+              bind:value={gipValue}
             /></td
           >
           <td class="cell-9-5"
@@ -897,7 +857,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={дата4}
+              bind:value={date4}
               type="text"
               name=""
               id="cell-9-6"
@@ -907,7 +867,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={имя_листа_значение}
+              bind:value={sheetNameValue}
               type="text"
               name=""
               id="cell-91011-7"
@@ -917,7 +877,7 @@
             ><textarea
               on:keyup={handleTextareaKeyup}
               on:focus={updateCurrId}
-              bind:value={компания_значение}
+              bind:value={companyValue}
               type="text"
               name=""
               id="cell-91011-8910"
@@ -1009,8 +969,11 @@
       >
     </div>
     <div>
-      <button class="m-btn-accept m-mb-1" on:click={saveStamp}>Сохранить</button>
-      <button class="m-btn-cancel m-mb-1" on:click={()=>hidden=true}>Отмена</button>
+      <button class="m-btn-accept m-mb-1" on:click={saveStamp}>Сохранить</button
+      >
+      <button class="m-btn-cancel m-mb-1" on:click={() => (hidden = true)}
+        >Отмена</button
+      >
     </div>
   </div>
 {/if}
@@ -1019,13 +982,14 @@
   .dialog-center {
     border: 1px solid slategray;
     position: absolute;
-    z-index: 20;
+    z-index: 30;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     padding: 1rem;
     width: 75%;
     background-color: white;
+    box-shadow: 0px 10px 15px -3px rgba(0,0,0,0.1);
   }
   textarea {
     position: absolute;

@@ -64,3 +64,5 @@ registerKeyboardAnyTextEvent();
 
 // --- buttons
 registerButtonSavePdfEvent();
+
+
