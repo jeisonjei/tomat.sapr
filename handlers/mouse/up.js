@@ -119,6 +119,9 @@ function handleMouseUp(mouse) {
                 }
             });
             drawText();
+            a.selectFrame.start = 0;
+            a.selectFrame.end = 0;
+                
 
             break;
         case 'line':
