@@ -1,260 +1,457 @@
 <script>
-    import HelpComponent from "../components/tomat/HelpComponent.svelte";
-    import Stamp from "../components/tomat/Stamp.svelte";
+  import { beforeUpdate, onMount } from "svelte";
+  import HelpComponent from "../components/tomat/HelpComponent.svelte";
+  import Stamp from "../components/tomat/Stamp.svelte";
 
-    let color = 'blue';
-    let toolButtonClass='p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold mx-0.5';
-    let toolIconClass='h-6 w-6 text-slate-500';
-    let helpHidden = false;
-    let stampHidden = true;
+  let color = "blue";
+  let toolButtonClass =
+    "p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold mx-0.5";
+  let toolIconClass = "h-6 w-6 text-slate-500";
+  let helpHidden = false;
+  let stampHidden = true;
 
-    $: helpHidden = !stampHidden;
-
+  onMount(function () {
+    
+    if (localStorage.helpHidden) {
+      helpHidden = (/true/.test(localStorage.helpHidden) ? true : false);
+    }
+  });
 </script>
+
 <Stamp bind:hidden={stampHidden}></Stamp>
 <div class="row">
-    <div class="flex-row cont">
-      <div>
-        <div class="tools z-50">
-          <div class="flex-row">
-
-            <div>
-              <button tabindex="-1" id="text" class={toolButtonClass}>
-                <svg class={toolIconClass} width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                  stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <circle cx="18" cy="16" r="3" />
-                  <line x1="21" y1="13" x2="21" y2="19" />
-                  <path d="M3 19l5 -13l5 13" />
-                  <line x1="5" y1="14" x2="11" y2="14" />
-                </svg>
-              </button>
-            </div>
-            <div>
-              <select tabindex="-1" name="" id="fontSize" class={toolButtonClass}>
-                <option value="6">6</option>
-                <option value="12">12</option>
-                <option value="18">18</option>
-                <option value="24">24</option>
-                <option value="30">30</option>
-                <option value="36" selected>36</option>
-                <option value="42">42</option>
-                <option value="48">48</option>
-                <option value="54">54</option>
-                <option value="60">60</option>
-                <option value="66">66</option>
-                <option value="72">72</option>
-                <option value="78">78</option>
-                <option value="84">84</option>
-                <option value="90">90</option>
-                <option value="96">96</option>
-                <option value="102">102</option>
-              </select>
-            </div>
-            
-            <div>
-              <button tabindex="-1" id="line" class={toolButtonClass}>
-                <svg class={toolIconClass} width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                  stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <circle cx="6" cy="18" r="2" />
-                  <circle cx="18" cy="6" r="2" />
-                  <line x1="7.5" y1="16.5" x2="16.5" y2="7.5" />
-                </svg>
-              </button>
-            </div>
-            <div>
-              <button tabindex="-1" id="rectangle" class={toolButtonClass}>
-                <svg class={toolIconClass} width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                  stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <circle cx="6" cy="6" r="2" />
-                  <circle cx="18" cy="6" r="2" />
-                  <circle cx="6" cy="18" r="2" />
-                  <circle cx="18" cy="18" r="2" />
-                  <line x1="6" y1="8" x2="6" y2="16" />
-                  <line x1="8" y1="6" x2="16" y2="6" />
-                  <line x1="8" y1="18" x2="16" y2="18" />
-                  <line x1="18" y1="8" x2="18" y2="16" />
-                </svg>
-              </button>
-            </div>
-            <div>
-              <button tabindex="-1" id="circle" class={toolButtonClass}>
-                <svg class={toolIconClass} width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                  stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <circle cx="12" cy="12" r="9" />
-                </svg>
-              </button>
-            </div>
-            
-            <div>
-              <button tabindex="-1" id="select" class={toolButtonClass}>
-                <svg class={toolIconClass} width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                  stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
-                  <path d="M4 16v2a2 2 0 0 0 2 2h2" />
-                  <path d="M16 4h2a2 2 0 0 1 2 2v2" />
-                  <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
-                </svg>
-              </button>
-            </div>
-            <div>
-              <button tabindex="-1" id="delete" class={toolButtonClass}>
-                <svg class={toolIconClass} width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                  stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <line x1="4" y1="7" x2="20" y2="7" />
-                  <line x1="10" y1="11" x2="10" y2="17" />
-                  <line x1="14" y1="11" x2="14" y2="17" />
-                  <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                  <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                </svg>
-              </button>
-            </div>
-            
-            <div>
-              <button tabindex="-1" id="move" class={toolButtonClass}>
-                <svg class={toolIconClass} width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                  stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <rect x="7" y="4" width="10" height="16" rx="4" />
-                  <line x1="12" y1="8" x2="12" y2="11" />
-                </svg>
-              </button>
-            </div>
-            <div>
-              <button tabindex="-1" id="copy" class={toolButtonClass}>
-                <svg class={toolIconClass} width="24" height="24" viewBox="0 0 24 24"
-                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <rect x="8" y="8" width="12" height="12" rx="2" />
-                  <path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2" />
-                </svg>
-              </button>
-            </div>
-            <div>
-              <button tabindex="-1" id="rotate" class={toolButtonClass}>
-                <svg class={toolIconClass} width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                  stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <path d="M9 4.55a8 8 0 0 1 6 14.9m0 -4.45v5h5" />
-                  <path d="M11 19.95a8 8 0 0 1 -5.3 -12.8" stroke-dasharray=".001 4.13" />
-                </svg>
-              </button>
-            </div>
-            <div>
-              <button tabindex="-1" id="mirror" class={toolButtonClass}>
-                <svg class={toolIconClass} width="24" height="24" viewBox="0 0 24 24"
-                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <path d="M15 19v-2a2 2 0 0 1 2 -2h2" />
-                  <path d="M15 5v2a2 2 0 0 0 2 2h2" />
-                  <path d="M5 15h2a2 2 0 0 1 2 2v2" />
-                  <path d="M5 9h2a2 2 0 0 0 2 -2v-2" />
-                </svg>
-              </button>
-            </div>
-            <div>
-              <button tabindex="-1" id="scale" class={toolButtonClass}>
-                <svg class={toolIconClass} width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                  stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" />
-                  <path d="M10 12h-7l3 -3m0 6l-3 -3" />
-                  <path d="M14 12h7l-3 -3m0 6l3 -3" />
-                  <path d="M3 6v-3h18v3" />
-                  <path d="M3 18v3h18v-3" />
-                </svg>
-              </button>
-            </div>
-            <button tabindex="-1" id="break" class={toolButtonClass}>
-              <svg class={toolIconClass} width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <div class="flex-row cont">
+    <div>
+      <div class="tools z-50">
+        <div class="flex-row">
+          <div>
+            <button tabindex="-1" id="text" class={toolButtonClass}>
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <path stroke="none" d="M0 0h24v24H0z" />
-                <path d="M3 19l15 -15l3 3l-6 6l2 2a14 14 0 0 1 -14 4" />
+                <circle cx="18" cy="16" r="3" />
+                <line x1="21" y1="13" x2="21" y2="19" />
+                <path d="M3 19l5 -13l5 13" />
+                <line x1="5" y1="14" x2="11" y2="14" />
               </svg>
             </button>
-            
-            <div>
-              <button tabindex="-1" id="saveDxf" class={toolButtonClass}>
-                <svg class={toolIconClass} width="24" height="24" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg">
-
-                  <g id="layer1">
-
-                    <path
-                      d="M 3 0 L 3 20 L 17 20 L 17 19 L 16 19 L 4 19 L 4 1 L 12 1 L 12 4 L 12 5 L 16 5 L 16 12 L 17 12 L 17 5 L 17 4 L 13 0 L 12 0 L 3 0 z M 13 1.3535156 L 15.646484 4 L 13 4 L 13 1.3535156 z M 5 13 L 5 18 L 7 18 L 7.1835938 17.992188 L 7.3671875 17.964844 L 7.546875 17.923828 L 7.7226562 17.865234 L 7.8925781 17.791016 L 8.0527344 17.699219 L 8.2050781 17.595703 L 8.3476562 17.478516 L 8.4785156 17.347656 L 8.5957031 17.205078 L 8.6992188 17.052734 L 8.7910156 16.890625 L 8.8652344 16.722656 L 8.9238281 16.546875 L 8.9648438 16.367188 L 8.9921875 16.183594 L 9 16 L 9 15 L 8.9921875 14.816406 L 8.9648438 14.632812 L 8.9238281 14.451172 L 8.8652344 14.277344 L 8.7910156 14.107422 L 8.6992188 13.947266 L 8.5957031 13.794922 L 8.4785156 13.652344 L 8.3476562 13.521484 L 8.2050781 13.404297 L 8.0527344 13.298828 L 7.8925781 13.208984 L 7.7226562 13.134766 L 7.546875 13.076172 L 7.3671875 13.033203 L 7.1835938 13.007812 L 7 13 L 5 13 z M 10 13 L 10 14 A 0.50005 0.50005 0 0 0 10.146484 14.353516 L 11.292969 15.5 L 10.146484 16.646484 A 0.50005 0.50005 0 0 0 10 17 L 10 18 L 11 18 L 11 17.207031 L 12 16.207031 L 13 17.207031 L 13 18 L 14 18 L 14 17 A 0.50005 0.50005 0 0 0 13.853516 16.646484 L 12.707031 15.5 L 13.853516 14.353516 A 0.50005 0.50005 0 0 0 14 14 L 14 13 L 13 13 L 13 13.792969 L 12 14.792969 L 11 13.792969 L 11 13 L 10 13 z M 15 13 L 15 18 L 16 18 L 16 16 L 18 16 L 18 15 L 16 15 L 16 14 L 19 14 L 19 13 L 15 13 z M 6 14 L 7 14 L 7.1308594 14.007812 L 7.2597656 14.033203 L 7.3828125 14.076172 L 7.5 14.134766 L 7.609375 14.207031 L 7.7070312 14.292969 L 7.7929688 14.390625 L 7.8652344 14.5 L 7.9238281 14.617188 L 7.9667969 14.740234 L 7.9921875 14.869141 L 8 15 L 8 16 L 7.9921875 16.130859 L 7.9667969 16.257812 L 7.9238281 16.382812 L 7.8652344 16.5 L 7.7929688 16.607422 L 7.7070312 16.707031 L 7.609375 16.792969 L 7.5 16.865234 L 7.3828125 16.923828 L 7.2597656 16.964844 L 7.1308594 16.992188 L 7 17 L 6 17 L 6 14 z "
-                      style="fill: #647486; fill-opacity:1; stroke:none; stroke-width:0px;" />
-
-                  </g>
-
-                </svg>
-              </button>
-            </div>
-            <div>
-              <button tabindex="-1" id="stamp" class={toolButtonClass} on:click={()=>stampHidden=!stampHidden}>
-                <svg class={toolIconClass}  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <rect x="4" y="4" width="16" height="16" rx="2" />  <line x1="4" y1="15" x2="20" y2="15" /></svg></button>
-            </div>
-            <div>
-              <button tabindex="-1" id="savePdf" class={toolButtonClass}>
-                <svg  class={toolIconClass} width="24" height="24" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M2.5 6.5V6H2V6.5H2.5ZM6.5 6.5V6H6V6.5H6.5ZM6.5 10.5H6V11H6.5V10.5ZM13.5 3.5H14V3.29289L13.8536 3.14645L13.5 3.5ZM10.5 0.5L10.8536 0.146447L10.7071 0H10.5V0.5ZM2.5 7H3.5V6H2.5V7ZM3 11V8.5H2V11H3ZM3 8.5V6.5H2V8.5H3ZM3.5 8H2.5V9H3.5V8ZM4 7.5C4 7.77614 3.77614 8 3.5 8V9C4.32843 9 5 8.32843 5 7.5H4ZM3.5 7C3.77614 7 4 7.22386 4 7.5H5C5 6.67157 4.32843 6 3.5 6V7ZM6 6.5V10.5H7V6.5H6ZM6.5 11H7.5V10H6.5V11ZM9 9.5V7.5H8V9.5H9ZM7.5 6H6.5V7H7.5V6ZM9 7.5C9 6.67157 8.32843 6 7.5 6V7C7.77614 7 8 7.22386 8 7.5H9ZM7.5 11C8.32843 11 9 10.3284 9 9.5H8C8 9.77614 7.77614 10 7.5 10V11ZM10 6V11H11V6H10ZM10.5 7H13V6H10.5V7ZM10.5 9H12V8H10.5V9ZM2 5V1.5H1V5H2ZM13 3.5V5H14V3.5H13ZM2.5 1H10.5V0H2.5V1ZM10.1464 0.853553L13.1464 3.85355L13.8536 3.14645L10.8536 0.146447L10.1464 0.853553ZM2 1.5C2 1.22386 2.22386 1 2.5 1V0C1.67157 0 1 0.671573 1 1.5H2ZM1 12V13.5H2V12H1ZM2.5 15H12.5V14H2.5V15ZM14 13.5V12H13V13.5H14ZM12.5 15C13.3284 15 14 14.3284 14 13.5H13C13 13.7761 12.7761 14 12.5 14V15ZM1 13.5C1 14.3284 1.67157 15 2.5 15V14C2.22386 14 2 13.7761 2 13.5H1Z"
-                    style="fill: #647486; fill-opacity:1; stroke:none; stroke-width:0px;"  />
-                </svg>
-
-              </button>
-            </div>
-            <div>
-              <select tabindex="-1" name="" id="format" class={toolButtonClass}>
-                <option value="A4">A4</option>
-                <option value="A3">A3</option>
-                <option value="A2">A2</option>
-                <option value="A1">A1</option>
-              </select>
-            </div>
-            
-            <div class="flex">
-              <div class="flex items-center mx-1">
-                <input type="checkbox" tabindex="-1" name="angleSnap" id="angleSnap" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mx-1">
-                <label for="angleSnap">Угл.</label>
-              </div>
-              <div class="flex-row align-center">
-                <input type="checkbox" tabindex="-1" name="magnets" id="magnets" checked="true" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mx-1">
-                <label for="magnets">Маг.</label>
-              </div>
-              <div class="flex-row align-center">
-                <input type="checkbox" tabindex="-1" name="output" id="output" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mx-1">
-                <label for="output">Рамка</label>
-              </div>
-              <div class="flex-row align-center">
-                <input type="checkbox" tabindex="-1" name="ctrl" id="ctrl" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mx-1">
-                <label for="ctrl">Мод.</label>
-              </div>
-            </div>
           </div>
-        </div>
-        <div id="info" class="absolute-div z-20 w-1/4">
           <div>
-            <button tabindex="-1" on:click={()=>helpHidden=!helpHidden}>
-              <svg class={toolIconClass}  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <circle cx="12" cy="12" r="9" />  <line x1="12" y1="17" x2="12" y2="17.01" />  <path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4" /></svg>
-            </button>
-            <HelpComponent hidden={helpHidden}></HelpComponent>
+            <select tabindex="-1" name="" id="fontSize" class={toolButtonClass}>
+              <option value="6">6</option>
+              <option value="12">12</option>
+              <option value="18">18</option>
+              <option value="24">24</option>
+              <option value="30">30</option>
+              <option value="36" selected>36</option>
+              <option value="42">42</option>
+              <option value="48">48</option>
+              <option value="54">54</option>
+              <option value="60">60</option>
+              <option value="66">66</option>
+              <option value="72">72</option>
+              <option value="78">78</option>
+              <option value="84">84</option>
+              <option value="90">90</option>
+              <option value="96">96</option>
+              <option value="102">102</option>
+            </select>
           </div>
-          <div style="margin-left: 4px">
-            <p id="mode"></p>
-            <p id="tool"></p>
-            <p id="cursor"></p>
-            <p id="message1"></p>
-            <p id="message2"></p>
-            <p id="message3"></p>
-            <p id="error"></p>
+
+          <div>
+            <button tabindex="-1" id="line" class={toolButtonClass}>
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <circle cx="6" cy="18" r="2" />
+                <circle cx="18" cy="6" r="2" />
+                <line x1="7.5" y1="16.5" x2="16.5" y2="7.5" />
+              </svg>
+            </button>
+          </div>
+          <div>
+            <button tabindex="-1" id="rectangle" class={toolButtonClass}>
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <circle cx="6" cy="6" r="2" />
+                <circle cx="18" cy="6" r="2" />
+                <circle cx="6" cy="18" r="2" />
+                <circle cx="18" cy="18" r="2" />
+                <line x1="6" y1="8" x2="6" y2="16" />
+                <line x1="8" y1="6" x2="16" y2="6" />
+                <line x1="8" y1="18" x2="16" y2="18" />
+                <line x1="18" y1="8" x2="18" y2="16" />
+              </svg>
+            </button>
+          </div>
+          <div>
+            <button tabindex="-1" id="circle" class={toolButtonClass}>
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <circle cx="12" cy="12" r="9" />
+              </svg>
+            </button>
+          </div>
+
+          <div>
+            <button tabindex="-1" id="select" class={toolButtonClass}>
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
+                <path d="M4 16v2a2 2 0 0 0 2 2h2" />
+                <path d="M16 4h2a2 2 0 0 1 2 2v2" />
+                <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
+              </svg>
+            </button>
+          </div>
+          <div>
+            <button tabindex="-1" id="delete" class={toolButtonClass}>
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <line x1="4" y1="7" x2="20" y2="7" />
+                <line x1="10" y1="11" x2="10" y2="17" />
+                <line x1="14" y1="11" x2="14" y2="17" />
+                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+              </svg>
+            </button>
+          </div>
+
+          <div>
+            <button tabindex="-1" id="move" class={toolButtonClass}>
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <rect x="7" y="4" width="10" height="16" rx="4" />
+                <line x1="12" y1="8" x2="12" y2="11" />
+              </svg>
+            </button>
+          </div>
+          <div>
+            <button tabindex="-1" id="copy" class={toolButtonClass}>
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <rect x="8" y="8" width="12" height="12" rx="2" />
+                <path
+                  d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2"
+                />
+              </svg>
+            </button>
+          </div>
+          <div>
+            <button tabindex="-1" id="rotate" class={toolButtonClass}>
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <path d="M9 4.55a8 8 0 0 1 6 14.9m0 -4.45v5h5" />
+                <path
+                  d="M11 19.95a8 8 0 0 1 -5.3 -12.8"
+                  stroke-dasharray=".001 4.13"
+                />
+              </svg>
+            </button>
+          </div>
+          <div>
+            <button tabindex="-1" id="mirror" class={toolButtonClass}>
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <path d="M15 19v-2a2 2 0 0 1 2 -2h2" />
+                <path d="M15 5v2a2 2 0 0 0 2 2h2" />
+                <path d="M5 15h2a2 2 0 0 1 2 2v2" />
+                <path d="M5 9h2a2 2 0 0 0 2 -2v-2" />
+              </svg>
+            </button>
+          </div>
+          <div>
+            <button tabindex="-1" id="scale" class={toolButtonClass}>
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <path d="M10 12h-7l3 -3m0 6l-3 -3" />
+                <path d="M14 12h7l-3 -3m0 6l3 -3" />
+                <path d="M3 6v-3h18v3" />
+                <path d="M3 18v3h18v-3" />
+              </svg>
+            </button>
+          </div>
+          <button tabindex="-1" id="break" class={toolButtonClass}>
+            <svg
+              class={toolIconClass}
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" />
+              <path d="M3 19l15 -15l3 3l-6 6l2 2a14 14 0 0 1 -14 4" />
+            </svg>
+          </button>
+
+          <div>
+            <button tabindex="-1" id="saveDxf" class={toolButtonClass}>
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 20 20"
+                version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <g id="layer1">
+                  <path
+                    d="M 3 0 L 3 20 L 17 20 L 17 19 L 16 19 L 4 19 L 4 1 L 12 1 L 12 4 L 12 5 L 16 5 L 16 12 L 17 12 L 17 5 L 17 4 L 13 0 L 12 0 L 3 0 z M 13 1.3535156 L 15.646484 4 L 13 4 L 13 1.3535156 z M 5 13 L 5 18 L 7 18 L 7.1835938 17.992188 L 7.3671875 17.964844 L 7.546875 17.923828 L 7.7226562 17.865234 L 7.8925781 17.791016 L 8.0527344 17.699219 L 8.2050781 17.595703 L 8.3476562 17.478516 L 8.4785156 17.347656 L 8.5957031 17.205078 L 8.6992188 17.052734 L 8.7910156 16.890625 L 8.8652344 16.722656 L 8.9238281 16.546875 L 8.9648438 16.367188 L 8.9921875 16.183594 L 9 16 L 9 15 L 8.9921875 14.816406 L 8.9648438 14.632812 L 8.9238281 14.451172 L 8.8652344 14.277344 L 8.7910156 14.107422 L 8.6992188 13.947266 L 8.5957031 13.794922 L 8.4785156 13.652344 L 8.3476562 13.521484 L 8.2050781 13.404297 L 8.0527344 13.298828 L 7.8925781 13.208984 L 7.7226562 13.134766 L 7.546875 13.076172 L 7.3671875 13.033203 L 7.1835938 13.007812 L 7 13 L 5 13 z M 10 13 L 10 14 A 0.50005 0.50005 0 0 0 10.146484 14.353516 L 11.292969 15.5 L 10.146484 16.646484 A 0.50005 0.50005 0 0 0 10 17 L 10 18 L 11 18 L 11 17.207031 L 12 16.207031 L 13 17.207031 L 13 18 L 14 18 L 14 17 A 0.50005 0.50005 0 0 0 13.853516 16.646484 L 12.707031 15.5 L 13.853516 14.353516 A 0.50005 0.50005 0 0 0 14 14 L 14 13 L 13 13 L 13 13.792969 L 12 14.792969 L 11 13.792969 L 11 13 L 10 13 z M 15 13 L 15 18 L 16 18 L 16 16 L 18 16 L 18 15 L 16 15 L 16 14 L 19 14 L 19 13 L 15 13 z M 6 14 L 7 14 L 7.1308594 14.007812 L 7.2597656 14.033203 L 7.3828125 14.076172 L 7.5 14.134766 L 7.609375 14.207031 L 7.7070312 14.292969 L 7.7929688 14.390625 L 7.8652344 14.5 L 7.9238281 14.617188 L 7.9667969 14.740234 L 7.9921875 14.869141 L 8 15 L 8 16 L 7.9921875 16.130859 L 7.9667969 16.257812 L 7.9238281 16.382812 L 7.8652344 16.5 L 7.7929688 16.607422 L 7.7070312 16.707031 L 7.609375 16.792969 L 7.5 16.865234 L 7.3828125 16.923828 L 7.2597656 16.964844 L 7.1308594 16.992188 L 7 17 L 6 17 L 6 14 z "
+                    style="fill: #647486; fill-opacity:1; stroke:none; stroke-width:0px;"
+                  />
+                </g>
+              </svg>
+            </button>
+          </div>
+          <div>
+            <button
+              tabindex="-1"
+              id="stamp"
+              class={toolButtonClass}
+              on:click={() => (stampHidden = !stampHidden)}
+            >
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <rect x="4" y="4" width="16" height="16" rx="2" />
+                <line x1="4" y1="15" x2="20" y2="15" /></svg
+              ></button
+            >
+          </div>
+          <div>
+            <button tabindex="-1" id="savePdf" class={toolButtonClass}>
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 15 15"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M2.5 6.5V6H2V6.5H2.5ZM6.5 6.5V6H6V6.5H6.5ZM6.5 10.5H6V11H6.5V10.5ZM13.5 3.5H14V3.29289L13.8536 3.14645L13.5 3.5ZM10.5 0.5L10.8536 0.146447L10.7071 0H10.5V0.5ZM2.5 7H3.5V6H2.5V7ZM3 11V8.5H2V11H3ZM3 8.5V6.5H2V8.5H3ZM3.5 8H2.5V9H3.5V8ZM4 7.5C4 7.77614 3.77614 8 3.5 8V9C4.32843 9 5 8.32843 5 7.5H4ZM3.5 7C3.77614 7 4 7.22386 4 7.5H5C5 6.67157 4.32843 6 3.5 6V7ZM6 6.5V10.5H7V6.5H6ZM6.5 11H7.5V10H6.5V11ZM9 9.5V7.5H8V9.5H9ZM7.5 6H6.5V7H7.5V6ZM9 7.5C9 6.67157 8.32843 6 7.5 6V7C7.77614 7 8 7.22386 8 7.5H9ZM7.5 11C8.32843 11 9 10.3284 9 9.5H8C8 9.77614 7.77614 10 7.5 10V11ZM10 6V11H11V6H10ZM10.5 7H13V6H10.5V7ZM10.5 9H12V8H10.5V9ZM2 5V1.5H1V5H2ZM13 3.5V5H14V3.5H13ZM2.5 1H10.5V0H2.5V1ZM10.1464 0.853553L13.1464 3.85355L13.8536 3.14645L10.8536 0.146447L10.1464 0.853553ZM2 1.5C2 1.22386 2.22386 1 2.5 1V0C1.67157 0 1 0.671573 1 1.5H2ZM1 12V13.5H2V12H1ZM2.5 15H12.5V14H2.5V15ZM14 13.5V12H13V13.5H14ZM12.5 15C13.3284 15 14 14.3284 14 13.5H13C13 13.7761 12.7761 14 12.5 14V15ZM1 13.5C1 14.3284 1.67157 15 2.5 15V14C2.22386 14 2 13.7761 2 13.5H1Z"
+                  style="fill: #647486; fill-opacity:1; stroke:none; stroke-width:0px;"
+                />
+              </svg>
+            </button>
+          </div>
+          <div>
+            <select tabindex="-1" name="" id="format" class={toolButtonClass}>
+              <option value="A4">A4</option>
+              <option value="A3">A3</option>
+              <option value="A2">A2</option>
+              <option value="A1">A1</option>
+            </select>
+          </div>
+
+          <div class="flex">
+            <div class="flex items-center mx-1">
+              <input
+                type="checkbox"
+                tabindex="-1"
+                name="angleSnap"
+                id="angleSnap"
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mx-1"
+              />
+              <label for="angleSnap">Угл.</label>
+            </div>
+            <div class="flex-row align-center">
+              <input
+                type="checkbox"
+                tabindex="-1"
+                name="magnets"
+                id="magnets"
+                checked="true"
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mx-1"
+              />
+              <label for="magnets">Маг.</label>
+            </div>
+            <div class="flex-row align-center">
+              <input
+                type="checkbox"
+                tabindex="-1"
+                name="output"
+                id="output"
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mx-1"
+              />
+              <label for="output">Рамка</label>
+            </div>
+            <div class="flex-row align-center">
+              <input
+                type="checkbox"
+                tabindex="-1"
+                name="ctrl"
+                id="ctrl"
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mx-1"
+              />
+              <label for="ctrl">Мод.</label>
+            </div>
           </div>
         </div>
       </div>
+      <div id="info" class="absolute-div z-20 w-1/4">
+        <div>
+          <button
+            tabindex="-1"
+            on:click={() => {
+              helpHidden = !helpHidden;
+              localStorage.helpHidden = helpHidden;
+            }}
+          >
+            <svg
+              class={toolIconClass}
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+              fill="none"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" />
+              <circle cx="12" cy="12" r="9" />
+              <line x1="12" y1="17" x2="12" y2="17.01" />
+              <path
+                d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4"
+              /></svg
+            >
+          </button>
+          <HelpComponent hidden={helpHidden}></HelpComponent>
+        </div>
+        <div style="margin-left: 4px">
+          <p id="mode"></p>
+          <p id="tool"></p>
+          <p id="cursor"></p>
+          <p id="message1"></p>
+          <p id="message2"></p>
+          <p id="message3"></p>
+          <p id="error"></p>
+        </div>
+      </div>
     </div>
-    <canvas class="drawing"></canvas>
-    <canvas class="text" ></canvas>
   </div>
-
+  <canvas class="drawing"></canvas>
+  <canvas class="text"></canvas>
+</div>

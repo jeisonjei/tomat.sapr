@@ -12,7 +12,7 @@ import {drawText} from "../../shared/render/text";
 import { s } from "../../shared/globalState/settings.mjs";
 import { Point } from "../../models/Point.mjs";
 
-import { drawShapes, drawSingle, addShapes, updateActiveShapes, updateShapesPanZoom } from "../../shared/render/shapes";
+import { drawShapes, drawSingle, addShapes, updateActiveShapes, updateShapesPanZoom, saveShapes } from "../../shared/render/shapes";
 
 // --- rxjs
 import { fromEvent, map } from "rxjs";
@@ -183,6 +183,7 @@ function handleMouseUp(mouse) {
 
     // проверить какие фигуры находятся в области полотна
     updateActiveShapes();
+    saveShapes(a.shapes);
 
 
 }

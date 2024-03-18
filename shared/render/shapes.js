@@ -190,4 +190,8 @@ function deleteShapes(shapes) {
     a.shapes$.next(a.shapes);
 }
 
-export { drawShapes, drawSingle, updateActiveShapes, addShapes, updateShapesPanZoom, deleteShapes }
+function saveShapes(shapes) {
+    localStorage.shapes = JSON.stringify(shapes);
+}
+
+export { drawShapes, drawSingle, updateActiveShapes, addShapes, updateShapesPanZoom, deleteShapes, saveShapes }

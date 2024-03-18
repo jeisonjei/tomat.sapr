@@ -16,7 +16,7 @@
  * модуль отопления
  */
 
-
+import {a} from './shared/globalState/a';
 import { t } from './shared/globalState/t.js';
 import { s } from './shared/globalState/settings.mjs';
 import { g } from "./shared/globalState/g.js";
@@ -29,6 +29,11 @@ import { registerSpacebarEvents } from "./handlers/keyboard/spacebar.js";
 import { registerMouseDownEvent } from "./handlers/mouse/down.js";
 import {registerKeyboardAnyTextEvent} from "./handlers/keyboard/anyText";
 import { registerButtonSavePdfEvent } from './handlers/buttons/pdf.js';
+
+import { Line } from './models/shapes/Line.mjs';
+import { Rectangle } from './models/shapes/Rectangle.mjs';
+import { Circle } from './models/shapes/Circle.mjs';
+import { drawShapes } from './shared/render/shapes.js';
 
 
 /**
@@ -64,5 +69,40 @@ registerKeyboardAnyTextEvent();
 
 // --- buttons
 registerButtonSavePdfEvent();
+
+// --- restore a.shapes from localStorage
+if (localStorage.shapes) {
+    const storedShapes = JSON.parse(localStorage.shapes);
+    console.log(storedShapes);
+    for (const shape of storedShapes) {
+        switch (shape.type) {
+            case 'line':
+                
+                const start = shape._start;
+                const end = shape._end;
+                const line = new Line(shape.aspectRatio,start, end,shape.color)
+                a.shapes.push(line);
+                break;
+            case 'rectangle':
+                const p1 = shape._p1;
+                const p2 = shape._p2;
+                const p3 = shape._p3;
+                const p4 = shape._p4;
+                const width = shape._width;
+                const height = shape._height;
+
+                const rectangle = new Rectangle(shape.aspectRatio,p1,p2,p3,p4,width,height,shape.color);
+                a.shapes.push(rectangle);
+                break;
+            case 'circle':
+                const circle = new Circle(shape.aspectRatio, shape._center, shape._radius, shape.color);
+                a.shapes.push(circle);
+                break;
+            default:
+                break;
+        }
+    }
+    drawShapes();
+}
 
 
