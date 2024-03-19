@@ -123,7 +123,9 @@ function getLetterSize(letter) {
     };
 }
 
+function saveText(text) {
+    localStorage.text = JSON.stringify(text);
+}
 
 
-
-export { drawCursor, drawText, addText, deleteText, getCurrentTextObject, getStringUpToIndex, drawTextSingle }
+export { drawCursor, drawText, addText, deleteText, getCurrentTextObject, getStringUpToIndex, drawTextSingle, saveText }
