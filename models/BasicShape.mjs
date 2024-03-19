@@ -16,7 +16,7 @@ export class BasicShape {
     constructor(aspectRatio) {
         this.aspectRatio = aspectRatio;
         this.isSelected = false;
-        this.isinArea = true;
+        this.isinArea = true; // is in active area (a.activeShapes)
         this.edit = null;
 
         this.move_mat = null;
