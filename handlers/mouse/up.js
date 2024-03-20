@@ -183,7 +183,7 @@ function handleMouseUp(mouse) {
 
     // проверить какие фигуры находятся в области полотна
     updateActiveShapes();
-    saveShapes(a.shapes);
+    
 
 
 }

@@ -157,8 +157,19 @@ function updateActiveShapes() {
 function addShapes(shape) {
     shape.id = id++;
     a.shapes.push(shape);
-    a.vertices = pushVertices(shape, a.vertices);
+    a.shapes$.next(a.shapes);
 }
+
+function deleteShapes(shapes) {
+    a.shapes = a.shapes.filter(shape => !shape.isSelected);
+    a.shapes$.next(a.shapes);
+}
+
+a.shapes$.subscribe((shapes) => {
+    a.vertices = getNewVertices(shapes);
+    saveShapes(shapes);
+});
+
 
 function updateShapesPanZoom(mode) {
     switch (mode) {
@@ -180,18 +191,11 @@ function updateShapesPanZoom(mode) {
     a.shapes$.next(a.shapes);
 }
 
-a.shapes$.subscribe((shapes) => {
-    a.vertices = getNewVertices(shapes);
-});
-
-function deleteShapes(shapes) {
-    // ...
-    a.shapes = a.shapes.filter(shape => !shape.isSelected);
-    a.shapes$.next(a.shapes);
-}
 
 function saveShapes(shapes) {
     localStorage.shapes = JSON.stringify(shapes);
 }
+
+
 
 export { drawShapes, drawSingle, updateActiveShapes, addShapes, updateShapesPanZoom, deleteShapes, saveShapes }
