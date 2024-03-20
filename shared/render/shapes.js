@@ -155,12 +155,18 @@ function updateActiveShapes() {
 }
 
 function addShapes(shape) {
+    /**
+     * Функция используется всегда, когда требуется добавление фигуры
+     */
     shape.id = id++;
     a.shapes.push(shape);
     a.shapes$.next(a.shapes);
 }
 
 function deleteShapes(shapes) {
+    /**
+     * Функция используется всегда, когда требуется удаление фигуры
+     */
     a.shapes = a.shapes.filter(shape => !shape.isSelected);
     a.shapes$.next(a.shapes);
 }
