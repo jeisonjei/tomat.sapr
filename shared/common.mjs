@@ -2,7 +2,7 @@ import { mat3 } from "gl-matrix";
 import { Point } from "../models/Point.mjs";
 import { SelectBoundary } from "../models/frames/SelectBoundary.mjs";
 import { s } from "./globalState/settings.mjs";
-import {g as gl} from "./globalState/g.js"
+import { g as gl } from "./globalState/g.js"
 
 export function getCos(angleDeg) {
   const angleRad = (angleDeg * Math.PI) / 180;
@@ -101,16 +101,16 @@ export function transformPointByMatrix3(matrix, p) {
   }
   let transformedPoint = new Point(0, 0);
 
-  const point = canvasGetWebglCoordinates(p,gl.canvas);
+  const point = canvasGetWebglCoordinates(p, gl.canvas);
 
   const x = point.x;
   const y = point.y;
   const w = 1;
 
-  transformedPoint.x = matrix[0] * x + matrix[1] * y  + matrix[2] * w;
-  transformedPoint.y = matrix[3] * x + matrix[4] * y  + matrix[5] * w;
+  transformedPoint.x = matrix[0] * x + matrix[1] * y + matrix[2] * w;
+  transformedPoint.y = matrix[3] * x + matrix[4] * y + matrix[5] * w;
 
-  transformedPoint = convertWebGLToCanvas2DPoint(transformedPoint,gl.canvas.width,gl.canvas.height);
+  transformedPoint = convertWebGLToCanvas2DPoint(transformedPoint, gl.canvas.width, gl.canvas.height);
 
   return transformedPoint;
 }
@@ -140,7 +140,7 @@ export function convertPixelToWebGLCoordinate(pixelValue, canvasSize, isXAxis) {
 
   // Adjust for y-axis inversion in WebGL
   if (!isXAxis) {
-      webglCoord *= -1;
+    webglCoord *= -1;
   }
 
   return webglCoord;
@@ -213,10 +213,13 @@ export function applyTransformationToPoint(x, y, matrix) {
 }
 
 export function getLineSelectBoundary(start, end) {
-  const width = s.tolerance / 2;
   const angle = Math.atan2(end.y - start.y, end.x - start.x);
-  const offsetX = width * Math.sin(angle);
-  const offsetY = width * Math.cos(angle);
+  const baseWidth = s.tolerance / 2;
+  const baseOffset = 0;
+
+  const width = baseOffset * Math.sin(angle) + baseOffset * Math.cos(angle);
+  const offsetX = baseWidth * Math.sin(angle);
+  const offsetY = baseWidth * Math.cos(angle);
 
   const selectBoundary = new SelectBoundary(s.aspectRatio, new Point(0, 0), new Point(0, 0), new Point(0, 0), new Point(0, 0));
 
@@ -261,10 +264,13 @@ export function getSelectBoundaryCircle(p1, p2, p3, p4) {
 }
 
 export function isinSelectBoundaryLine(mouse, start, end) {
-  const width = s.tolerance / 2;
   const angle = Math.atan2(end.y - start.y, end.x - start.x);
-  const offsetX = width * Math.sin(angle);
-  const offsetY = width * Math.cos(angle);
+  const baseWidth = s.tolerance / 2;
+  const baseOffset = 0;
+
+  const width = baseOffset * Math.sin(angle) + baseOffset * Math.cos(angle);
+  const offsetX = baseWidth * Math.sin(angle);
+  const offsetY = baseWidth * Math.cos(angle);
 
   const point1 = new Point(start.x - offsetX + width * Math.cos(angle), start.y + offsetY + width * Math.sin(angle));
   const point2 = new Point(end.x - offsetX - width * Math.cos(angle), end.y + offsetY - width * Math.sin(angle));
@@ -338,10 +344,10 @@ export function getSideOfMouseRelativeToLine(mouse, breakStart, selectedLine) {
   const lineVector = new Point(end.x - breakStart.x, end.y - breakStart.y);
 
   // Определяем вектор, соединяющий начало выбранной линии и точку мыши
-  const mouseVector = new Point(mouse.x - breakStart.x,mouse.y-breakStart.y);
+  const mouseVector = new Point(mouse.x - breakStart.x, mouse.y - breakStart.y);
 
   // Вычисляем скалярное произведение векторов
-  const scalarProduct = dot(lineVector,mouseVector);
+  const scalarProduct = dot(lineVector, mouseVector);
 
   // Если скалярное произведение положительное, то точка мыши находится на одной стороне линии с началом
   if (scalarProduct > 0) {
@@ -372,7 +378,7 @@ export function getProjection(mouse, line) {
 
 export function findClosestPoints(mouse, points) {
   const result = points.map(p => {
-    const mouseVector = new Point(mouse.x - p.x,mouse.y - p.y);
+    const mouseVector = new Point(mouse.x - p.x, mouse.y - p.y);
     return { scalar: getScalar(mouse, mouseVector), point: p }
   });
 
@@ -403,13 +409,13 @@ export function findClosestPoints(mouse, points) {
 
 
 
-const dot = (currentVector,otherVector) => {
+const dot = (currentVector, otherVector) => {
   return currentVector.x * otherVector.x + currentVector.y * otherVector.y;
 }
 
 export function getScalar(mouse, point) {
-  
-  const result = dot(mouse,point);
+
+  const result = dot(mouse, point);
   return result;
 }
 

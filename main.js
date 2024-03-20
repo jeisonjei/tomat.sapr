@@ -73,7 +73,7 @@ registerButtonSavePdfEvent();
 // --- restore a.shapes from localStorage
 if (localStorage.shapes) {
     const storedShapes = JSON.parse(localStorage.shapes);
-    console.log(storedShapes);
+    
     for (const shape of storedShapes) {
         switch (shape.type) {
             case 'line':
