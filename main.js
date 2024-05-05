@@ -31,6 +31,8 @@ import { Line } from './models/shapes/Line.mjs';
 import { Rectangle } from './models/shapes/Rectangle.mjs';
 import { Circle } from './models/shapes/Circle.mjs';
 import { drawShapes } from './shared/render/shapes.js';
+import { initCanvasText } from './libs/canvas-text/src/index.js';
+
 
 
 /**
@@ -44,7 +46,8 @@ import { drawShapes } from './shared/render/shapes.js';
  */
 
 g.init();
-c.init();
+// c.init();
+initCanvasText('text',g.canvasWidth, g.canvasHeight);
 
 (function init() {
     s.tolerance = 10;
