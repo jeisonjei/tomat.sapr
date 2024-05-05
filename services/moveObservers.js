@@ -114,24 +114,7 @@ export function boundaryModeObserver(mouse,shapes) {
 
     t.editBoundary = false;
 
-    
-    if (gm() === 'text') {
-        const isinSelectBoundary = t.utext.filter(t => t.isinSelectBoundary(mouse));
-
-        if (isinSelectBoundary.length > 0) {
-            for (const textLine of isinSelectBoundary) {
-                textLine.setSelectBoundary();
-                textLine.selectBoundary.color = [0, 0, 1, 1];
-                drawSingle(textLine.selectBoundary);
-                textLine.selectBoundary.color = [0.75, 0.75, 0.75, 1];
-                t.editBoundary = true;
-                return;
-            }
-        }
-
-    }
-
-    else if (['select','boundary','break'].includes(gm())) {
+    if (['select','boundary','break'].includes(gm())) {
         const isinSelectBoundary = shapes.filter(shape => checkFunction(shape, 'isinSelectBoundary', mouse));
         if (isinSelectBoundary.length > 0) {
             if (gm()!=='break') {

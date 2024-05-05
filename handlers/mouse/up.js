@@ -1,18 +1,12 @@
 import { a } from "../../shared/globalState/a";
 import { t } from "../../shared/globalState/t";
 import { gm } from "../../page.mjs";
-import { transformPointByMatrix3, canvasGetMouse } from "../../shared/common.mjs";
+import { canvasGetMouse } from "../../shared/common.mjs";
 import { g } from "../../shared/globalState/g";
-import { c } from "../../shared/globalState/c";
-import { getMoveMatrix } from "../../shared/transform.mjs";
-import { getRotateMatrix } from "../../shared/transform.mjs";
-import { getScaleMatrix } from "../../shared/transform.mjs";
-import {drawText} from "../../shared/render/text";
 
-import { s } from "../../shared/globalState/settings.mjs";
 import { Point } from "../../models/Point.mjs";
 
-import { drawShapes, drawSingle, addShapes, updateActiveShapes, updateShapesPanZoom, saveShapes } from "../../shared/render/shapes";
+import { drawShapes, addShapes, updateActiveShapes } from "../../shared/render/shapes";
 
 // --- rxjs
 import { fromEvent, map } from "rxjs";
@@ -110,17 +104,6 @@ function handleMouseUp(mouse) {
                     shape.isSelected = true;
                 }
             });
-            
-            // --- text
-            a.selectFrame.convertToCanvas2d(c.canvas.width, c.canvas.height);
-            t.utext.forEach(text => {
-                if (text.isinSelectFrame(a.selectFrame)) {
-                    text.isSelected = !text.isSelected;
-                }
-            });
-            drawText();
-            a.selectFrame.start = 0;
-            a.selectFrame.end = 0;
                 
 
             break;

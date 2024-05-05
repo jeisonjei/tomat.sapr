@@ -1,10 +1,8 @@
 import { drawShapes, drawSingle, updateShapesPanZoom, updateActiveShapes } from "../../shared/render/shapes";
-import { drawText } from "../../shared/render/text";
 
 import { a } from "../../shared/globalState/a";
 import { t } from "../../shared/globalState/t";
 import { g } from "../../shared/globalState/g";
-import { c } from "../../shared/globalState/c";
 
 import { mat3 } from "gl-matrix";
 
@@ -18,21 +16,7 @@ function handleSpacebarUp() {
     g.context.uniformMatrix3fv(g.u_pan, false, mat3.create());
     updateShapesPanZoom('pan');
 
-    // --- text
-    const scalex = 1 / c.canvas.width;
-    const scaley = 1 / c.canvas.height;
-    const tx = a.pan_tx / scalex / 2;
-    const ty = a.pan_ty / scaley / 2;
 
-    t.utext.forEach(textLine => {
-        textLine.start.x = textLine.start.x + tx;
-        textLine.start.y = textLine.start.y - ty;
-
-    });
-    c.context.setTransform(new DOMMatrix([1, 0, 0, 1, 0, 0]));
-    drawText();
-
-    // --- text
 
     a.pan_tx = 0;
     a.pan_ty = 0;

@@ -1,6 +1,5 @@
 import { s } from "../globalState/settings.mjs";
 import { g } from "../globalState/g.js";
-import { c } from "../globalState/c.js";
 import { a } from '../globalState/a.js';
 
 import { mat3 } from "gl-matrix";

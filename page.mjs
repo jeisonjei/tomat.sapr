@@ -1,12 +1,11 @@
 import { fromEvent } from "rxjs";
-import { drawText, deleteText } from "./shared/render/text.js";
 import { drawShapes,updateActiveShapes,deleteShapes } from "./shared/render/shapes.js";
 import { a } from './shared/globalState/a.js';
 import { t } from './shared/globalState/t.js';
 import { s } from "./shared/globalState/settings.mjs";
-import { c } from "./shared/globalState/c.js";
 import { generateDXFContent } from "./shared/export/dxf.mjs";
 import jsPDF from "jspdf";
+import { cnv } from "./libs/canvas-text/src/shared/cnv.js";
 
 // rxdb
 const mode_elem = document.getElementById('mode');
@@ -14,23 +13,23 @@ const mode_elem = document.getElementById('mode');
 function setMode(mode_elem, mode) {
 
     mode_elem.innerHTML = 'mode: ' + mode;
-    if (!c.context) {
+    if (!cnv.context) {
         return;
     }
     if (mode === 'select' || mode === 'boundary') {
-        c.context.canvas.style.cursor = 'pointer';
+        cnv.context.canvas.style.cursor = 'pointer';
     }
     else if (mode === 'text') {
-        c.context.canvas.style.cursor = 'default';
+        cnv.context.canvas.style.cursor = 'default';
     }
     else if (mode === 'textEdit') {
-        c.context.canvas.style.cursor = 'text';
+        cnv.context.canvas.style.cursor = 'text';
     }
     else if (mode === 'break') {
-        c.context.canvas.style.cursor = 'cell'
+        cnv.context.canvas.style.cursor = 'cell'
     }
     else {
-        c.context.canvas.style.cursor = 'crosshair';
+        cnv.context.canvas.style.cursor = 'crosshair';
     }
 
 }
@@ -139,10 +138,8 @@ keyDown$.subscribe(event => {
             reset();
             setMode(mode_elem, 'select');
             drawShapes();
-            t.utext.forEach(text => {
-                text.isSelected = false;
-            });
-            drawText();
+
+
             break;
         case 'l':
         case 'д':
@@ -188,25 +185,16 @@ keyDown$.subscribe(event => {
             reset();
             drawShapes();
 
-            // --- text
-
-            t.utext.filter(t => t.isSelected).forEach(text => {
-                text.isSelected = false;
-                text.edit = false;
-            })
-            drawText();
 
             t.editId = null;
-            setMode(mode_elem, 'select');
+            // режим 'select' устанавливается в библиотеке canvas-text
+            // setMode(mode_elem, 'select');
             break;
         case 'Delete':
             deleteShapes();
             drawShapes();
             updateActiveShapes();
 
-            // --- text
-            deleteText();
-            drawText();
 
             break;
 
@@ -232,12 +220,7 @@ keyUp$.subscribe(event => {
 });
 
 
-fromEvent(document, 'keydown').subscribe(event => {
-    if ((event.key === 't' || event.key === 'е') && gm() !== 'text') {
-        setMode(mode_elem, 'text');
-        t.textPosition = null;
-    }
-});
+
 // --------- KEY EVENTS ---------
 
 
@@ -355,21 +338,21 @@ function drawPrintArea() {
     const p4x = p1x;
     const p4y = p3y;
 
-    c.context.save();
+    cnv.context.save();
 
-    c.context.strokeStyle = "rgba(0,0,255,0.5)";
-    c.context.lineWidth = 4;
+    cnv.context.strokeStyle = "rgba(0,0,255,0.5)";
+    cnv.context.lineWidth = 4;
 
-    c.context.strokeRect(p1x, p1y, p2x, p3y);
+    cnv.context.strokeRect(p1x, p1y, p2x, p3y);
 
-    c.context.restore();
+    cnv.context.restore();
 
 
 }
 
 function removePrintArea() {
-    c.context.clearRect(0, 0, c.canvas.height, c.canvas.width);
-    drawText();
+    cnv.context.clearRect(0, 0, c.canvas.height, c.canvas.width);
+    
 }
 
 

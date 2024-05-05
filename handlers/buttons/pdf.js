@@ -1,7 +1,6 @@
 import { a } from '../../shared/globalState/a';
 import { t } from '../../shared/globalState/t.js';
 import { s } from '../../shared/globalState/settings.mjs';
-import { c } from '../../shared/globalState/c.js';
 import jsPDF from 'jspdf';
 
 import { font } from "../../fonts/GOST type A-normal.js"
@@ -104,9 +103,7 @@ function handleSavePdfButtonClick() {
     pdf.setFontSize(fontSizemm);
 
 
-    t.utext.forEach(t => {
-        pdf.text(t.text, t.start.x / scaleX, t.start.y / scaleX);
-    })
+    
     // --- border
     pdf.setDrawColor(0, 0, 0);
     pdf.setLineWidth(0.75);

@@ -17,16 +17,13 @@ import {a} from './shared/globalState/a';
 import { t } from './shared/globalState/t.js';
 import { s } from './shared/globalState/settings.mjs';
 import { g } from "./shared/globalState/g.js";
-import { c } from "./shared/globalState/c.js";
 
 import { registerMouseMoveEvent } from "./handlers/mouse/move.js";
 import { registerMouseUpEvent } from "./handlers/mouse/up.js";
 import { registerMouseWheelEvent } from "./handlers/mouse/wheel.js";
 import { registerSpacebarEvents } from "./handlers/keyboard/spacebar.js";
 import { registerMouseDownEvent } from "./handlers/mouse/down.js";
-import {registerKeyboardAnyTextEvent} from "./handlers/keyboard/anyText";
 import { registerButtonSavePdfEvent } from './handlers/buttons/pdf.js';
-
 import { Line } from './models/shapes/Line.mjs';
 import { Rectangle } from './models/shapes/Rectangle.mjs';
 import { Circle } from './models/shapes/Circle.mjs';
@@ -46,15 +43,13 @@ import { initCanvasText } from './libs/canvas-text/src/index.js';
  */
 
 g.init();
-// c.init();
-initCanvasText('text',g.canvasWidth, g.canvasHeight);
+initCanvasText('text',g.context.canvas.width, g.context.canvas.height);
 
 (function init() {
     s.tolerance = 10;
     s.aspectRatio = g.canvas.height / g.canvas.width;
     s.format = 'a4';
 
-    t.fontSize = document.getElementById('fontSize').value;
 
 })();
 
@@ -65,7 +60,6 @@ registerMouseMoveEvent();
 registerMouseUpEvent();
 registerMouseWheelEvent();
 registerSpacebarEvents();
-registerKeyboardAnyTextEvent();
 
 // --- buttons
 registerButtonSavePdfEvent();

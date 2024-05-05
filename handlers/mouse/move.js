@@ -1,9 +1,7 @@
 import { a } from "../../shared/globalState/a";
 import { t } from "../../shared/globalState/t";
 import { g } from "../../shared/globalState/g.js";
-import { c } from "../../shared/globalState/c.js"
 import { gm } from "../../page.mjs";
-import { transformPointByMatrix3 } from "../../shared/common.mjs";
 import { getMoveMatrix } from "../../shared/transform.mjs";
 import { getRotateMatrix } from "../../shared/transform.mjs";
 import { getScaleMatrix } from "../../shared/transform.mjs";
@@ -17,7 +15,6 @@ import { boundaryModeObserver } from "../../services/moveObservers";
 import { observeMagnet } from "../../shared/magnets.mjs";
 
 import { drawShapes, drawSingle } from "../../shared/render/shapes";
-import { addShapes, updateShapesPanZoom } from "../../shared/render/shapes";
 
 import { Point } from "../../models/Point.mjs";
 
@@ -26,7 +23,7 @@ import { canvasGetWebglCoordinates, canvasGetMouse } from "../../shared/common.m
 import { getAnglePosition } from "../../shared/magnets.mjs";
 
 import { mat3 } from "gl-matrix";
-import {drawText} from "../../shared/render/text";
+
 
 // --- rxjs
 import { fromEvent, map } from "rxjs";
@@ -118,15 +115,7 @@ function handleMouseMove(mouse) {
             mat3.transpose(pan_mat, pan_mat);
             g.context.uniformMatrix3fv(g.u_pan, false, pan_mat);
 
-            // --- text
-            const scalex = 1 / c.canvas.width;
-            const scaley = 1 / c.canvas.height;
-            const tx = a.pan_tx / scalex / 2;
-            const ty = a.pan_ty / scaley / 2;
 
-            const matrix = new DOMMatrix([1, 0, 0, 1, tx, -ty]);
-            c.context.setTransform(matrix);
-            drawText();
 
 
         }
@@ -309,18 +298,7 @@ function handleMouseMove(mouse) {
                             drawSingle(shape);
                         });
 
-                        // --- text
-
-                        const tx = move_mat[2] * c.canvas.width / 2;
-                        const ty = move_mat[5] * c.canvas.height / 2;
-
-                        t.utext.filter(t => t.isSelected).forEach(t => {
-                            t.edit = 1;
-                            t.start.x = t.moveXclick + tx;
-                            t.start.y = t.moveYclick - ty;
-                        });
-
-                        drawText();
+                        
                     }
                     break;
                 case 'copy':
@@ -331,18 +309,7 @@ function handleMouseMove(mouse) {
                             drawSingle(shape);
                         });
 
-                        // --- text
-
-                        const tx = move_mat[2] * c.canvas.width / 2;
-                        const ty = move_mat[5] * c.canvas.height / 2;
-
-                        t.utext.filter(t => t.isSelected).forEach(t => {
-                            t.edit = 1;
-                            t.start.x = t.copyClick.x + tx;
-                            t.start.y = t.copyClick.y - ty;
-                        });
-
-                        drawText();
+                        
 
 
                     }

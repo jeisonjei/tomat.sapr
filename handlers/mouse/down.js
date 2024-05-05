@@ -1,7 +1,6 @@
 import { a } from "../../shared/globalState/a";
 import { t } from "../../shared/globalState/t";
 import { g } from "../../shared/globalState/g";
-import { c } from "../../shared/globalState/c.js";
 import { s } from "../../shared/globalState/settings.mjs";
 
 import { gm } from "../../page.mjs";
@@ -22,8 +21,6 @@ import { replaceVertices } from "../../shared/webgl/reshape.mjs";
 
 import { Point } from "../../models/Point.mjs";
 
-import { drawText, addText } from "../../shared/render/text.js";
-import { Text } from "../../models/shapes/Text.mjs";
 
 function handleMouseDown(mouse) {
     /**
@@ -135,15 +132,7 @@ function handleMouseDown(mouse) {
                 })
             }
 
-            // --- text
-            const isinSelectBoundaryText = t.utext.filter(t => t.isinSelectBoundary(mouse));
-            if (isinSelectBoundaryText.length > 0) {
-                isinSelectBoundaryText.forEach(t => {
-                    t.isSelected = !t.isSelected;
-                })
-            }
 
-            drawText();
             break;
         case 'line':
             a.line.start = a.start;
@@ -164,17 +153,6 @@ function handleMouseDown(mouse) {
             if (!a.clickMoveStart) {
                 a.clickMoveStart = { ...a.start };
 
-                // --- text
-                /**
-                 * так как в отличие от фигур, для которых используется uniformMatrix3fv,
-                 * в операции с текстом меняется позиция самих точек, 
-                 * нужно при первом клике запомнить для каждой строки текста расстояние 
-                 * от позиции текста до щелчка мыши
-                 */
-                t.utext.filter(t => t.isSelected).forEach(t => {
-                    t.moveXclick = t.start.x;
-                    t.moveYclick = t.start.y;
-                })
             }
             else if (a.clickMoveStart) {
                 const move_mat = getMoveMatrix(a.clickMoveStart, a.start);
@@ -267,16 +245,6 @@ function handleMouseDown(mouse) {
                             break;
                     }
                 });
-
-                // --- text
-                t.utext.filter(t => t.isSelected).forEach(text => {
-                    const deltaX = a.clickCopyStart.x - a.start.x;
-                    const deltaY = a.clickCopyStart.y - a.start.y;
-                    text.start.x = text.copyClick.x - deltaX;
-                    text.start.y = text.copyClick.y - deltaY;
-                    text.edit = null;
-                })
-                drawText();
 
 
                 a.clickCopyStart = null;
@@ -548,88 +516,12 @@ function handleMouseDown(mouse) {
     drawShapes();
 }
 
-function handleMouseDownText(mouse) {
-    t.offset = Number.parseInt(t.fontSize) * 0.2;
 
-
-    t.currentLetterIndex = 0;
-
-
-
-
-    if (!['text'].includes(gm())) {
-        return;
-    }
-
-
-    for (const textLine of t.utext) {
-        if (textLine.isinSelectBoundary(mouse)) {
-            t.editId = textLine.id;
-            t.textPosition = { ...textLine.start };
-            drawCursor(0, t.editId);
-            drawText(false);
-            t.utext = t.utext.filter(t => t.text !== '');
-
-            return;
-        }
-        t.editId = null;
-
-    }
-
-    if (a.magnetPosition) {
-        t.textPosition = { ...a.magnetPosition };
-    }
-    else {
-        t.textPosition = new Point(mouse.x, mouse.y);
-    }
-
-    t.textPosition.y = t.textPosition.y - t.offset;
-    t.textPosition.x = t.textPosition.x + t.offset;
-
-
-    if (a.magnetPosition) {
-        c.context.strokeStyle = 'orange';
-    }
-    else {
-        c.context.strokeStyle = 'gray';
-    }
-
-    const textLine = new Text(s.aspectRatio, t.textPosition, [], c.context);
-
-    t.utext = t.utext.filter(t => t.text !== '');
-    addText(textLine);
-
-
-    const textHeight = c.context.measureText(textLine.text).fontBoundingBoxAscent;
-
-    c.context.clearRect(0, 0, c.canvas.width, c.canvas.height);
-    c.context.save();
-
-    c.context.beginPath();
-    c.context.moveTo(t.textPosition.x, t.textPosition.y);
-    c.context.lineTo(t.textPosition.x + 100, t.textPosition.y);
-    c.context.moveTo(t.textPosition.x, t.textPosition.y - textHeight);
-    c.context.lineTo(t.textPosition.x + 100, t.textPosition.y - textHeight);
-    c.context.moveTo(t.textPosition.x, t.textPosition.y);
-    c.context.lineTo(t.textPosition.x, t.textPosition.y - textHeight);
-    c.context.stroke();
-
-    drawText(false);
-
-    a.shapes = a.shapes.filter(t => (t.type !== 'text' || t.text !== ''));
-
-    // только для magnetsObserver, также используется в boundaryModeObserver для отрисовки рамки
-    a.shapes.push(...t.utext);
-
-
-
-}
 
 
 function registerMouseDownEvent() {
     const mouseDown$ = fromEvent(document, 'mousedown').pipe(map(ev => canvasGetMouse(ev, g.canvas)));
     mouseDown$.subscribe(handleMouseDown);
-    mouseDown$.subscribe(handleMouseDownText);
 
 
 }

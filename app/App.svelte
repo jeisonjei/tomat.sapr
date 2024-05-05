@@ -11,9 +11,8 @@
   let stampHidden = true;
 
   onMount(function () {
-    
     if (localStorage.helpHidden) {
-      helpHidden = (/true/.test(localStorage.helpHidden) ? true : false);
+      helpHidden = /true/.test(localStorage.helpHidden) ? true : false;
     }
   });
 </script>
@@ -46,7 +45,7 @@
             </button>
           </div>
           <div>
-            <select tabindex="-1" name="" id="fontSize" class={toolButtonClass}>
+            <select hidden tabindex="-1" name="" id="fontSize" class={toolButtonClass}>
               <option value="6">6</option>
               <option value="12">12</option>
               <option value="18">18</option>
@@ -65,9 +64,38 @@
               <option value="96">96</option>
               <option value="102">102</option>
             </select>
-            <button id="font-size-up"><svg class="h-8 w-8 text-stone-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <line x1="12" y1="5" x2="12" y2="19" />  <line x1="18" y1="11" x2="12" y2="5" />  <line x1="6" y1="11" x2="12" y2="5" /></svg></button>
-            <button id="font-size-down"><svg class="h-8 w-8 text-stone-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <line x1="12" y1="5" x2="12" y2="19" />  <line x1="18" y1="13" x2="12" y2="19" />  <line x1="6" y1="13" x2="12" y2="19" /></svg></button>
-
+            <button class={toolButtonClass} id="font-size-up">
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="18" y1="11" x2="12" y2="5" />
+                <line x1="6" y1="11" x2="12" y2="5" /></svg>
+              </button>
+            <button id="font-size-down" class={toolButtonClass}>
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="18" y1="13" x2="12" y2="19" />
+                <line x1="6" y1="13" x2="12" y2="19" /></svg>
+              </button>
           </div>
 
           <div>
