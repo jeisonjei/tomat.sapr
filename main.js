@@ -43,7 +43,7 @@ import { initCanvasText } from './libs/canvas-text/src/index.js';
  */
 
 g.init();
-initCanvasText('text',g.context.canvas.width, g.context.canvas.height);
+initCanvasText('.text',g.context.canvas.width, g.context.canvas.height);
 
 (function init() {
     s.tolerance = 10;
