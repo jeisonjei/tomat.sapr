@@ -1,0 +1,3 @@
+[submodule "libs/canvas-text"]
+	path = libs/canvas-text
+	url = https://github.com/jeisonjei/canvas-text.git
