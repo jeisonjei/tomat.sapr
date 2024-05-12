@@ -19,12 +19,7 @@ function setMode(mode_elem, mode) {
     if (mode === 'select' || mode === 'boundary') {
         cnv.context.canvas.style.cursor = 'pointer';
     }
-    else if (mode === 'text') {
-        cnv.context.canvas.style.cursor = 'default';
-    }
-    else if (mode === 'textEdit') {
-        cnv.context.canvas.style.cursor = 'text';
-    }
+    
     else if (mode === 'break') {
         cnv.context.canvas.style.cursor = 'cell'
     }
