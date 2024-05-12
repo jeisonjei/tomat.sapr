@@ -24,9 +24,13 @@ import { getAnglePosition } from "../../shared/magnets.mjs";
 
 import { mat3 } from "gl-matrix";
 
+import { textLinesCollection } from "../../libs/canvas-text/src/shared/state.js";
+
 
 // --- rxjs
 import { fromEvent, map } from "rxjs";
+import { rerender } from "../../libs/canvas-text/src/index.js";
+import { cnv } from "../../libs/canvas-text/src/shared/cnv.js";
 
 function handleMouseMove(mouse) {
     /**
@@ -298,7 +302,21 @@ function handleMouseMove(mouse) {
                             drawSingle(shape);
                         });
 
-                        
+                        // --- text
+
+                        const tx = move_mat[2] * cnv.context.canvas.width / 2;
+                        const ty = move_mat[5] * cnv.context.canvas.height / 2;
+
+                        textLinesCollection.filter(t => t.selected).forEach(t => {
+                            t.edit = 1;
+                            t.start.x = t.moveXclick + tx;
+                            t.start.y = t.moveYclick - ty;
+                        });
+                        cnv.clear();
+                        rerender();
+
+
+
                     }
                     break;
                 case 'copy':
@@ -309,7 +327,20 @@ function handleMouseMove(mouse) {
                             drawSingle(shape);
                         });
 
-                        
+                        // --- text
+
+                        const tx = move_mat[2] * cnv.context.canvas.width / 2;
+                        const ty = move_mat[5] * cnv.context.canvas.height / 2;
+
+                        textLinesCollection.filter(t => t.selected).forEach(t => {
+                            t.edit = 1;
+                            t.start.x = t.copyClick.x + tx;
+                            t.start.y = t.copyClick.y - ty;
+                        });
+
+                        cnv.clear();
+                        rerender();
+
 
 
                     }

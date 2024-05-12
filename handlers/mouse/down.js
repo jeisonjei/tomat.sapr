@@ -11,6 +11,8 @@ import { getRotateMatrix } from "../../shared/transform.mjs";
 import { getScaleMatrix } from "../../shared/transform.mjs";
 import { getMirrorMatrix } from "../../shared/transform.mjs";
 
+import { textLinesCollection, textLinesCollection$ } from "../../libs/canvas-text/src/shared/state";
+
 import { mat3 } from "gl-matrix";
 
 // --- rxjs
@@ -20,6 +22,8 @@ import { getSideOfMouseRelativeToLine, canvasGetMouse } from "../../shared/commo
 import { replaceVertices } from "../../shared/webgl/reshape.mjs";
 
 import { Point } from "../../models/Point.mjs";
+import { cnv } from "../../libs/canvas-text/src/shared/cnv";
+import { rerender } from "../../libs/canvas-text/src";
 
 
 function handleMouseDown(mouse) {
@@ -122,7 +126,7 @@ function handleMouseDown(mouse) {
 
         case 'select':
             a.selectFrame.start = a.start;
-            
+
             break;
         case 'boundary':
             const isinSelectBoundary = a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isinSelectBoundary(mouse));
@@ -152,6 +156,18 @@ function handleMouseDown(mouse) {
         case 'move':
             if (!a.clickMoveStart) {
                 a.clickMoveStart = { ...a.start };
+
+                // --- text
+                /**
+                 * так как в отличие от фигур, для которых используется uniformMatrix3fv,
+                 * в операции с текстом меняется позиция самих точек, 
+                 * нужно при первом клике запомнить для каждой строки текста расстояние 
+                 * от позиции текста до щелчка мыши
+                 */
+                textLinesCollection.filter(t => t.selected).forEach(t => {
+                    t.moveXclick = t.start.x;
+                    t.moveYclick = t.start.y;
+                });
 
             }
             else if (a.clickMoveStart) {
@@ -195,13 +211,16 @@ function handleMouseDown(mouse) {
                  * В будущем можно предусмотреть эти функции и в самой библиотеке, но всё равно останется необходимость взаимодействовать
                  * с магнитами и рамкой основной программы.
                  */
-                t.utext.filter(t => t.isSelected).forEach(text => {
+                textLinesCollection.filter(t => t.selected).forEach(text => {
                     const deltaX = a.clickMoveStart.x - a.start.x;
                     const deltaY = a.clickMoveStart.y - a.start.y;
                     text.start.x = text.moveXclick - deltaX;
                     text.start.y = text.moveYclick - deltaY;
                     text.edit = null;
-                })
+                });
+
+                cnv.clear();
+                rerender();
 
                 a.clickMoveStart = null;
                 g.context.uniformMatrix3fv(g.u_move, false, mat3.create());
@@ -216,16 +235,16 @@ function handleMouseDown(mouse) {
 
                 // --- text
                 let array = [];
-                t.utext.filter(t => t.isSelected).forEach(t => {
-                    array.push(t.getClone());
+                textLinesCollection.filter(t => t.selected).forEach(t => {
+                    array.push(t.clone());
                     t.copyClick = { ...t.start };
 
                 });
 
                 array.forEach(item => {
-                    addText(item);
+                    textLinesCollection$.next({ fnName: 'push', line: item });
                     // это нужно для работы magnetObserver и boundaryModeObserver
-                    a.shapes.push(item);
+                    // a.shapes.push(item);
                 });
 
             }
@@ -255,6 +274,19 @@ function handleMouseDown(mouse) {
                             break;
                     }
                 });
+
+                // --- text
+                textLinesCollection.filter(t => t.selected).forEach(text => {
+                    const deltaX = a.clickCopyStart.x - a.start.x;
+                    const deltaY = a.clickCopyStart.y - a.start.y;
+                    text.start.x = text.copyClick.x - deltaX;
+                    text.start.y = text.copyClick.y - deltaY;
+                    text.edit = null;
+                });
+
+                cnv.clear();
+                rerender();
+
 
 
                 a.clickCopyStart = null;

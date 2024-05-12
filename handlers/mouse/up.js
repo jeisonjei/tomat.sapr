@@ -8,8 +8,11 @@ import { Point } from "../../models/Point.mjs";
 
 import { drawShapes, addShapes, updateActiveShapes } from "../../shared/render/shapes";
 
+import { textLinesCollection } from "../../libs/canvas-text/src/shared/state";
+
 // --- rxjs
 import { fromEvent, map } from "rxjs";
+import { cnv } from "../../libs/canvas-text/src/shared/cnv";
 
 function handleMouseUp(mouse) {
     console.log('shapes', a.shapes.length);
@@ -104,7 +107,17 @@ function handleMouseUp(mouse) {
                     shape.isSelected = true;
                 }
             });
-                
+
+            // --- text
+            a.selectFrame.convertToCanvas2d(cnv.context.canvas.width, cnv.context.canvas.height);
+            t.utext.forEach(text => {
+                if (text.isinSelectFrame(a.selectFrame)) {
+                    text.isSelected = !text.isSelected;
+                }
+            });
+            // drawText();
+
+
 
             break;
         case 'line':
@@ -166,7 +179,7 @@ function handleMouseUp(mouse) {
 
     // проверить какие фигуры находятся в области полотна
     updateActiveShapes();
-    
+
 
 
 }
