@@ -25,6 +25,8 @@ import { Point } from "../../models/Point.mjs";
 import { cnv } from "../../libs/canvas-text/src/shared/cnv";
 import { rerender } from "../../libs/canvas-text/src";
 
+import { magnet$ } from "../../libs/canvas-text/src/shared/state";
+
 
 function handleMouseDown(mouse) {
     /**
@@ -37,7 +39,7 @@ function handleMouseDown(mouse) {
      * 
      * 
      * 
-     */
+    */
     if (a.pan) {
         return;
     }
@@ -51,6 +53,7 @@ function handleMouseDown(mouse) {
         a.start = { ...mouse };
     }
 
+    magnet$.next(a.start);
 
     switch (gm()) {
 
