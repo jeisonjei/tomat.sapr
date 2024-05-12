@@ -6,6 +6,9 @@ import jsPDF from 'jspdf';
 import { font } from "../../fonts/GOST type A-normal.js"
 import { Point } from '../../models/Point.mjs';
 
+import { cnv } from '../../libs/canvas-text/src/shared/cnv.js';
+import { textLinesCollection} from '../../libs/canvas-text/src/shared/state.js';
+
 
 function handleSavePdfButtonClick() {
 
@@ -56,8 +59,8 @@ function handleSavePdfButtonClick() {
 
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    const scaleX = c.canvas.width / pdfWidth;
-    const scaleY = c.canvas.height / pdfHeight;
+    const scaleX = cnv.context.canvas.width / pdfWidth;
+    const scaleY = cnv.context.canvas.height / pdfHeight;
 
     const mmtopx = pdfMockWidth / pdfWidth;
 
@@ -86,7 +89,7 @@ function handleSavePdfButtonClick() {
                     pdf.circle(x, y, radius);
 
                     break;
-                default:
+                default:    
                     break;
             }
         });
@@ -96,11 +99,19 @@ function handleSavePdfButtonClick() {
 
     pdf.setFont('GOST type A');
 
-    const mmtopoints = 0.75
+    const mmtopoints = 0.6;
 
-    const scaleYmm = (pdfWidth * mmtopx / c.canvas.width) / mmtopoints;
-    const fontSizemm = t.fontSize * scaleYmm;
-    pdf.setFontSize(fontSizemm);
+    const scaleYmm = (pdfWidth * mmtopx / cnv.context.canvas.width) / mmtopoints;
+    // console.log(`** scaleYmm: ${scaleYmm}`);
+    // const fontSizemm = t.fontSize * scaleYmm;
+    // pdf.setFontSize(fontSizemm);
+
+    textLinesCollection.forEach(line => {
+        const x = line.start.x / scaleX;
+        const y = line.start.y / scaleX;
+        pdf.setFontSize(line.fontSize*scaleYmm);
+        pdf.text(line.textArray.join(''), x, y);
+    })
 
 
     

@@ -49,7 +49,6 @@ const ctrlCheckbox = document.getElementById('ctrl');
 const keyDown$ = fromEvent(document, 'keydown');
 const keyUp$ = fromEvent(document, 'keyup');
 keyDown$.subscribe(event => {
-    console.log(`** ${event.key}`);
 
 
     // --- эфки - эфки не включают никакой режим mode
@@ -359,7 +358,7 @@ function drawPrintArea() {
     const mmpx = pdfMockWidth / pdfWidth;
 
 
-    const scaleX = c.canvas.height / pdfMockWidth;
+    const scaleX = cnv.context.canvas.height / pdfMockWidth;
 
     const topPadding = (5 * mmpx) * scaleX;
     const rightPadding = 5 * mmpx * scaleX;
@@ -368,10 +367,10 @@ function drawPrintArea() {
 
     const p1x = leftPadding;
     const p1y = topPadding;
-    const p2x = c.canvas.width - leftPadding - rightPadding;
+    const p2x = cnv.context.canvas.width - leftPadding - rightPadding;
     const p2y = p1y;
     const p3x = p2x;
-    const p3y = c.canvas.height - topPadding;
+    const p3y = cnv.context.canvas.height - topPadding;
     const p4x = p1x;
     const p4y = p3y;
 
@@ -388,7 +387,7 @@ function drawPrintArea() {
 }
 
 function removePrintArea() {
-    cnv.context.clearRect(0, 0, c.canvas.height, c.canvas.width);
+    cnv.context.clearRect(0, 0, cnv.context.canvas.height, cnv.context.canvas.width);
     
 }
 
