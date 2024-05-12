@@ -243,12 +243,17 @@ const breakButton = document.getElementById('break');
 const scaleButton = document.getElementById('scale');
 const saveDxfButton = document.getElementById('saveDxf');
 
+// --- text
+const fontSizeUpButton = document.getElementById('font-size-up');
+const fontSizeDownButton = document.getElementById('font-size-down');
+// --- text
+
 const formatSelect = document.getElementById('format');
 
 const helpTable = document.querySelector('table');
 
 
-const buttons = [textButton, lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, breakButton, scaleButton, saveDxfButton, document.getElementById('savePdf')];
+const buttons = [textButton, lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, breakButton, scaleButton, saveDxfButton, document.getElementById('savePdf'), fontSizeUpButton, fontSizeDownButton];
 
 buttons.forEach(button => {
     const id = button.id;
@@ -259,6 +264,9 @@ buttons.forEach(button => {
         button.blur();
         if (['text', 'line', 'rectangle', 'circle', 'select', 'delete', 'move', 'copy', 'rotate', 'mirror', 'break', 'scale'].includes(id)) {
             setMode(mode_elem, id);
+        }
+        else if (['font-size-up', 'font-size-down'].includes(id)) {
+            setMode(mode_elem, 'text');
         }
         else {
             setMode(mode_elem, 'select');
