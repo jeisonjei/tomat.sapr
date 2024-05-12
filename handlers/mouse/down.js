@@ -238,10 +238,10 @@ function handleMouseDown(mouse) {
                 textLinesCollection.filter(t => t.selected).forEach(t => {
                     array.push(t.clone());
                     t.copyClick = { ...t.start };
-
                 });
 
                 array.forEach(item => {
+                    item.selected = false;
                     textLinesCollection$.next({ fnName: 'push', line: item });
                     // это нужно для работы magnetObserver и boundaryModeObserver
                     // a.shapes.push(item);
