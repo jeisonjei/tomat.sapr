@@ -13,6 +13,7 @@ import { textLinesCollection } from "../../libs/canvas-text/src/shared/state";
 // --- rxjs
 import { fromEvent, map } from "rxjs";
 import { cnv } from "../../libs/canvas-text/src/shared/cnv";
+import { rerender } from "../../libs/canvas-text/src";
 
 function handleMouseUp(mouse) {
     console.log('shapes', a.shapes.length);
@@ -109,13 +110,14 @@ function handleMouseUp(mouse) {
             });
 
             // --- text
-            a.selectFrame.convertToCanvas2d(cnv.context.canvas.width, cnv.context.canvas.height);
-            t.utext.forEach(text => {
+            // a.selectFrame.convertToCanvas2d(cnv.context.canvas.width, cnv.context.canvas.height);
+            textLinesCollection.forEach(text => {
                 if (text.isinSelectFrame(a.selectFrame)) {
-                    text.isSelected = !text.isSelected;
+                    text.selected = !text.selected;
                 }
             });
-            // drawText();
+            cnv.clear();
+            rerender();
 
 
 
