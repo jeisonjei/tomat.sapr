@@ -49,7 +49,7 @@ const ctrlCheckbox = document.getElementById('ctrl');
 const keyDown$ = fromEvent(document, 'keydown');
 const keyUp$ = fromEvent(document, 'keyup');
 keyDown$.subscribe(event => {
-
+    console.log(`** ${event.key}`);
 
 
     // --- эфки - эфки не включают никакой режим mode
@@ -84,11 +84,15 @@ keyDown$.subscribe(event => {
         event.preventDefault();
         switch (event.key) {
             case 'l':
+            case 'L':
             case 'д':
+            case 'Д':
                 setMode(mode_elem, 'symline');
                 break;
             case 'r':
+            case 'R':
             case 'к':
+            case 'К':
                 setMode(mode_elem, 'rotatecopy');
                 break;
             default:
@@ -118,15 +122,21 @@ keyDown$.subscribe(event => {
     // --- Handle key down events
     switch (event.key) {
         case 'w':
+        case 'W':
         case 'ц':
+        case 'Ц':
             setMode(mode_elem, 'scale');
             break;
         case 'b':
+        case 'B':
         case 'и':
+        case 'И':
             setMode(mode_elem, 'break');
             break;
         case 's':
+        case 'S':
         case 'ы':
+        case 'Ы':
             a.shapes.filter(shape => shape.isSelected).forEach(shape => {
                 shape.isSelected = false;
             });
@@ -137,39 +147,57 @@ keyDown$.subscribe(event => {
 
             break;
         case 'l':
+        case 'L':
         case 'д':
+        case 'Д':
             setMode(mode_elem, 'line');
             break;
         case 'k':
+        case 'K':
         case 'л':
+        case 'Л':
             setMode(mode_elem, 'rectangle');
             break;
         case 'q':
+        case 'Q':
         case 'й':
+        case 'Й':
             setMode(mode_elem, 'square');
             break;
         case 'e':
+        case 'E':
         case 'у':
+        case 'У':
             setMode(mode_elem, 'circle');
             break;
         case 'm':
+        case 'M':
         case 'ь':
+        case 'Ь':
             setMode(mode_elem, 'move');
             break;
         case 'c':
+        case 'C':
         case 'с':
+        case 'С':
             setMode(mode_elem, 'copy');
             break;
         case 'r':
+        case 'R':
         case 'к':
+        case 'К':
             setMode(mode_elem, 'rotate');
             break;
         case 'i':
+        case 'I':
         case 'ш':
+        case 'Ш':
             setMode(mode_elem, 'mirror');
             break;
         case 'o':
+        case 'O':
         case 'щ':
+        case 'Щ':
             setMode(mode_elem, 'output');
 
             break;
