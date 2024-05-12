@@ -179,6 +179,12 @@ keyDown$.subscribe(event => {
             });
             reset();
             drawShapes();
+            /**
+             * Здесь есть конфликт с библиотекой canvas-text. 
+             * Если установить селект, то в библиотеке не будет выхода из режима текста. Поэтому строка закомментирована
+             */
+            // setMode(mode_elem, 'select');
+
 
 
             t.editId = null;
