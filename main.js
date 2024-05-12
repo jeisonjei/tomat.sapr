@@ -42,6 +42,10 @@ import { initCanvasText } from './libs/canvas-text/src/index.js';
  * обновляется и массив вершин a.vertices
  */
 
+
+// --- init globalState and canvas-text library
+registerMouseDownEvent();
+
 g.init();
 initCanvasText('.text',g.context.canvas.width, g.context.canvas.height);
 
@@ -53,9 +57,7 @@ initCanvasText('.text',g.context.canvas.width, g.context.canvas.height);
 
 })();
 
-
 // --- events registration
-registerMouseDownEvent();
 registerMouseMoveEvent();
 registerMouseUpEvent();
 registerMouseWheelEvent();
@@ -63,6 +65,8 @@ registerSpacebarEvents();
 
 // --- buttons
 registerButtonSavePdfEvent();
+
+
 
 // --- restore a.shapes from localStorage
 if (localStorage.shapes) {
