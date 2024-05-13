@@ -9,11 +9,18 @@
   let toolIconClass = "h-6 w-6 text-slate-500";
   let helpHidden = false;
   let stampHidden = true;
+  let curFontSize = null;
 
-  onMount(function () {
+  onMount(async function () {
     if (localStorage.helpHidden) {
       helpHidden = /true/.test(localStorage.helpHidden) ? true : false;
     }
+    const fontSize$ = (await import('../libs/canvas-text/src/shared/state')).fontSize$;
+    fontSize$.subscribe(fontSize=>{
+      curFontSize = fontSize;
+      console.log(`** curFontSize: ${curFontSize}`);
+    })
+
   });
 </script>
 
@@ -44,7 +51,7 @@
               </svg>
             </button>
           </div>
-          <div>
+          <div class="flex-row align-center">
             <select hidden tabindex="-1" name="" id="fontSize" class={toolButtonClass}>
               <option value="6">6</option>
               <option value="12">12</option>
@@ -64,6 +71,7 @@
               <option value="96">96</option>
               <option value="102">102</option>
             </select>
+            <input type="text" name="font-size" id="font-size-field" class="w-50px" bind:value={curFontSize}>
             <button class={toolButtonClass} id="font-size-up">
               <svg
                 class={toolIconClass}

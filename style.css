@@ -73,6 +73,15 @@ canvas.text {
   text-align: center;
 }
 
+.w-25{
+  width: 25%;
+}
+
+.w-50 {
+  width: 50%;
+
+}
+
 .w-60 {
   width: 60%;
 
@@ -80,6 +89,18 @@ canvas.text {
 
 .w-80 {
   width: 80%;
+}
+
+.w-50px{
+  width: 50px;
+}
+
+.w-75px{
+  width: 75px;
+}
+
+.w-100px{
+  width: 100px;
 }
 
 .absolute-div {
