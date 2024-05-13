@@ -211,7 +211,8 @@ keyDown$.subscribe(event => {
              * Если установить селект, то в библиотеке не будет выхода из режима текста. Поэтому строка закомментирована
              */
             // setMode(mode_elem, 'select');
-
+            a.selectFrame.start = null;
+            a.selectFrame.end = null;
 
 
             t.editId = null;

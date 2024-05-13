@@ -53,7 +53,9 @@ function handleMouseDown(mouse) {
         a.start = { ...mouse };
     }
 
+    // --- text
     magnet$.next(a.start);
+    // --- text
 
     switch (gm()) {
 
@@ -129,6 +131,7 @@ function handleMouseDown(mouse) {
 
         case 'select':
             a.selectFrame.start = a.start;
+            a.selectFrame.end = null;
 
             break;
         case 'boundary':
