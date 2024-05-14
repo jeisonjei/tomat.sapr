@@ -7,12 +7,12 @@ import { font } from "../../fonts/GOST type A-normal.js"
 import { Point } from '../../models/Point.mjs';
 
 import { cnv } from '../../libs/canvas-text/src/shared/cnv.js';
-import { textLinesCollection} from '../../libs/canvas-text/src/shared/state.js';
+import { textLinesCollection } from '../../libs/canvas-text/src/shared/state.js';
 
 
 function handleSavePdfButtonClick() {
 
-   
+
 
     const designerValue = localStorage.designerValue ?? '';
     const checkerValue = localStorage.checkerValue ?? '';
@@ -89,7 +89,7 @@ function handleSavePdfButtonClick() {
                     pdf.circle(x, y, radius);
 
                     break;
-                default:    
+                default:
                     break;
             }
         });
@@ -99,22 +99,19 @@ function handleSavePdfButtonClick() {
 
     pdf.setFont('GOST type A');
 
-    const mmtopoints = 0.6;
+    const mmtopoints = 0.73;
 
     const scaleYmm = (pdfWidth * mmtopx / cnv.context.canvas.width) / mmtopoints;
-    // console.log(`** scaleYmm: ${scaleYmm}`);
-    // const fontSizemm = t.fontSize * scaleYmm;
-    // pdf.setFontSize(fontSizemm);
 
     textLinesCollection.forEach(line => {
         const x = line.start.x / scaleX;
         const y = line.start.y / scaleX;
-        pdf.setFontSize(line.fontSize*scaleYmm);
+        pdf.setFontSize(line.fontSize * scaleYmm);
         pdf.text(line.textArray.join(''), x, y);
     })
 
 
-    
+
     // --- border
     pdf.setDrawColor(0, 0, 0);
     pdf.setLineWidth(0.75);
@@ -155,16 +152,16 @@ function handleSavePdfButtonClick() {
     const qtyPartValueCell = cellPoints['cell-4-2']
 
     const projectCodeValueCell = new Point(cellPoints['cell-2-7'].x + row, cellPoints['cell-2-7'].y);
-    const addressValueCell = new Point(cellPoints['cell-5-7'].x + row, cellPoints['cell-5-7'].y - 2*row);
-    const buildingValueCell = new Point(cellPoints['cell-8-7'].x + row, cellPoints['cell-8-7'].y - 2*row);
-    const sheetNameValueCell = new Point(cellPoints['cell-11-7'].x + row, cellPoints['cell-11-7'].y - 2*row);
+    const addressValueCell = new Point(cellPoints['cell-5-7'].x + row, cellPoints['cell-5-7'].y - 2 * row);
+    const buildingValueCell = new Point(cellPoints['cell-8-7'].x + row, cellPoints['cell-8-7'].y - 2 * row);
+    const sheetNameValueCell = new Point(cellPoints['cell-11-7'].x + row, cellPoints['cell-11-7'].y - 2 * row);
 
     const projectStageCell = new Point(cellPoints['cell-6-15'].x - row, cellPoints['cell-6-15'].y);
     const sheetNumberCell = cellPoints['cell-6-16'];
     const sheetQtyCell = new Point(cellPoints['cell-6-17'].x + row, cellPoints['cell-6-17'].y);
 
     const projectStageValueCell = new Point(cellPoints['cell-8-15'].x - row, cellPoints['cell-8-15'].y - row);
-    const sheetNumberValueCell = new Point(cellPoints['cell-8-16'].x, cellPoints['cell-8-16'].y-row);
+    const sheetNumberValueCell = new Point(cellPoints['cell-8-16'].x, cellPoints['cell-8-16'].y - row);
     const sheetsQtyValueCell = new Point(cellPoints['cell-8-17'].x + row, cellPoints['cell-8-17'].y - row);
 
     const companyValueCell = new Point(cellPoints['cell-11-15'].x - row, cellPoints['cell-11-15'].y);
@@ -197,20 +194,20 @@ function handleSavePdfButtonClick() {
     pdf.text(date4 ?? '', date4Valuecell.x, date4Valuecell.y);
     pdf.text(changeQtyPartsValue ?? '', qtyPartValueCell.x, qtyPartValueCell.y);
     pdf.setFontSize(26);
-    pdf.text(projectCodeValue ?? '', projectCodeValueCell.x +60, projectCodeValueCell.y, 'center');
+    pdf.text(projectCodeValue ?? '', projectCodeValueCell.x + 60, projectCodeValueCell.y, 'center');
 
     // --- possible long strings
     pdf.setFontSize(12);
     const addressSplit = pdf.splitTextToSize(adressValue, 115);
     const buildingSplit = pdf.splitTextToSize(buildingValue, 65);
     const sheetNameSplit = pdf.splitTextToSize(sheetNameValue, 65);
-    pdf.text(addressSplit ?? '', addressValueCell.x+60, addressValueCell.y, 'center');
-    pdf.text(buildingSplit ?? '', buildingValueCell.x+35, buildingValueCell.y, 'center');
+    pdf.text(addressSplit ?? '', addressValueCell.x + 60, addressValueCell.y, 'center');
+    pdf.text(buildingSplit ?? '', buildingValueCell.x + 35, buildingValueCell.y, 'center');
     pdf.text(sheetNameSplit ?? '', sheetNameValueCell.x + 35, sheetNameValueCell.y, 'center');
     pdf.setFontSize(26);
-    pdf.text(projectStageValue ?? '', projectStageValueCell.x+6, projectStageValueCell.y+row, 'center');
-    pdf.text(sheetNumberValue ?? '', sheetNumberValueCell.x+6, sheetNumberValueCell.y+row, 'center');
-    pdf.text(sheetsQtyValue ?? '', sheetsQtyValueCell.x+8, sheetsQtyValueCell.y+row, 'center');
+    pdf.text(projectStageValue ?? '', projectStageValueCell.x + 6, projectStageValueCell.y + row, 'center');
+    pdf.text(sheetNumberValue ?? '', sheetNumberValueCell.x + 6, sheetNumberValueCell.y + row, 'center');
+    pdf.text(sheetsQtyValue ?? '', sheetsQtyValueCell.x + 8, sheetsQtyValueCell.y + row, 'center');
     pdf.setFontSize(20);
     pdf.text(companyValue ?? '', companyValueCell.x, companyValueCell.y);
 
