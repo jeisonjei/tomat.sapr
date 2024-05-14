@@ -49,7 +49,7 @@ import { initCanvasText } from './libs/canvas-text/src/index.js';
 registerMouseDownEvent();
 
 g.init();
-initCanvasText('.text',g.context.canvas.width, g.context.canvas.height);
+initCanvasText('.text',g.context.canvas.width, g.context.canvas.height, 'gost_type_a');
 
 (function init() {
     s.tolerance = 10;
