@@ -18,7 +18,6 @@
     const fontSize$ = (await import('../libs/canvas-text/src/shared/state')).fontSize$;
     fontSize$.subscribe(fontSize=>{
       curFontSize = fontSize;
-      console.log(`** curFontSize: ${curFontSize}`);
     })
 
   });
