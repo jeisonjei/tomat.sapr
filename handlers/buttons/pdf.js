@@ -102,12 +102,12 @@ function handleSavePdfButtonClick() {
     const mmtopoints = 0.73;
 
     const scaleYmm = (pdfWidth * mmtopx / cnv.context.canvas.width) / mmtopoints;
-
+    
     textLinesCollection.forEach(line => {
         const x = line.start.x / scaleX;
         const y = line.start.y / scaleX;
         pdf.setFontSize(line.fontSize * scaleYmm);
-        pdf.text(line.textArray.join(''), x, y);
+        pdf.text(line.textArray.join(''), x, y, { baseline: 'bottom'});
     })
 
 
