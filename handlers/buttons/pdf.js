@@ -52,7 +52,7 @@ function handleSavePdfButtonClick() {
 
     // draw shapes from a.shapes to canvas2d
     pdf.setDrawColor(0, 0, 0);
-    pdf.setLineWidth(0.5);
+    pdf.setLineWidth(0.4);
     pdf.setLineJoin('round'); // possible values are 'miter, round, bevel'
     pdf.setLineCap('round');
 
