@@ -67,6 +67,10 @@ function handleSavePdfButtonClick() {
 
     const filteredShapes = a.shapes.filter(shape => shape.type !== 'text');
 
+    /**
+     * Здесь можно легко сделать разные толщины линий для разных объектов. 
+     * 
+     */
     if (filteredShapes.length > 0) {
         filteredShapes.forEach(shape => {
 
