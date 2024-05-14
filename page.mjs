@@ -6,6 +6,7 @@ import { s } from "./shared/globalState/settings.mjs";
 import { generateDXFContent } from "./shared/export/dxf.mjs";
 import jsPDF from "jspdf";
 import { cnv } from "./libs/canvas-text/src/shared/cnv.js";
+import { rerender } from "./libs/canvas-text/src/index.js";
 
 // rxdb
 const mode_elem = document.getElementById('mode');
@@ -42,7 +43,6 @@ function gm() {
 
 // --------- KEY EVENTS ---------
 const magnetsCheckbox = document.getElementById('magnets');
-const outputCheckbox = document.getElementById('output');
 const angleSnapCheckbox = document.getElementById('angleSnap');
 const ctrlCheckbox = document.getElementById('ctrl');
 
@@ -58,14 +58,13 @@ keyDown$.subscribe(event => {
             magnetsCheckbox.checked = !magnetsCheckbox.checked;
         }
         else if (event.key === 'F1') {
-            if (outputCheckbox.checked) {
-                outputCheckbox.checked = false;
+            a.isPrintAreaVisible =!a.isPrintAreaVisible;
+            if (a.isPrintAreaVisible) {
                 removePrintArea();
 
             }
             else {
-                outputCheckbox.checked = true;
-                drawPrintArea()
+                drawPrintArea();
             }
 
         }
@@ -193,11 +192,7 @@ keyDown$.subscribe(event => {
         case 'Ш':
             setMode(mode_elem, 'mirror');
             break;
-        case 'o':
-        case 'O':
-        case 'щ':
-        case 'Щ':
-            setMode(mode_elem, 'output');
+
 
             break;
         case 'Escape':
@@ -270,6 +265,7 @@ const mirrorButton = document.getElementById('mirror');
 const breakButton = document.getElementById('break');
 const scaleButton = document.getElementById('scale');
 const saveDxfButton = document.getElementById('saveDxf');
+const isStampVisibleCheckbox = document.getElementById('is-stamp-visible');
 
 // --- text
 const fontSizeUpButton = document.getElementById('font-size-up');
@@ -281,7 +277,7 @@ const formatSelect = document.getElementById('format');
 const helpTable = document.querySelector('table');
 
 
-const buttons = [textButton, lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, breakButton, scaleButton, saveDxfButton, document.getElementById('savePdf'), fontSizeUpButton, fontSizeDownButton];
+const buttons = [textButton, lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, breakButton, scaleButton, saveDxfButton, document.getElementById('savePdf'), fontSizeUpButton, fontSizeDownButton, isStampVisibleCheckbox];
 
 buttons.forEach(button => {
     const id = button.id;
@@ -388,7 +384,8 @@ function drawPrintArea() {
 }
 
 function removePrintArea() {
-    cnv.context.clearRect(0, 0, cnv.context.canvas.height, cnv.context.canvas.width);
+    cnv.clear();
+    rerender();
     
 }
 
@@ -407,7 +404,7 @@ function reset() {
     a.clickScaleStart2 = null;
 }
 
-export { mode_elem, setMode, gm, magnetsCheckbox, outputCheckbox, drawPrintArea, removePrintArea }
+export { mode_elem, setMode, gm, magnetsCheckbox, drawPrintArea, removePrintArea }
 
 
 

@@ -117,7 +117,7 @@ function handleSavePdfButtonClick() {
 
 
     // --- border
-    pdf.setDrawColor(0, 0, 0);
+    if(a.isStampVisible){pdf.setDrawColor(0, 0, 0);
     pdf.setLineWidth(0.75);
     pdf.setFontSize(12);
 
@@ -296,7 +296,7 @@ function handleSavePdfButtonClick() {
     pdf.rect(topX + row * 30, topY + row * 6, 15, 10);
     // ---
     pdf.rect(topX + row * 33, topY + row * 5, 20, 5);
-    pdf.rect(topX + row * 33, topY + row * 6, 20, 10);
+    pdf.rect(topX + row * 33, topY + row * 6, 20, 10);}
 
 
 

@@ -2,6 +2,7 @@
   import { beforeUpdate, onMount } from "svelte";
   import HelpComponent from "../components/tomat/HelpComponent.svelte";
   import Stamp from "../components/tomat/Stamp.svelte";
+  import { a } from '../shared/globalState/a';
 
   let color = "blue";
   let toolButtonClass =
@@ -10,15 +11,27 @@
   let helpHidden = false;
   let stampHidden = true;
   let curFontSize = null;
+  let isStampVisible = true;
+
+  $: if(isStampVisible){
+    a.isStampVisible = isStampVisible;
+  }
+  $: if(!isStampVisible){
+    a.isStampVisible = isStampVisible;
+  }
 
   onMount(async function () {
     if (localStorage.helpHidden) {
       helpHidden = /true/.test(localStorage.helpHidden) ? true : false;
     }
-    const fontSize$ = (await import('../libs/canvas-text/src/shared/state')).fontSize$;
-    fontSize$.subscribe(fontSize=>{
-      curFontSize = fontSize;
-    })
+    (await import('../libs/canvas-text/src/shared/state')).fontSize$.subscribe(
+      (fontSize) => {
+        curFontSize = fontSize;
+      }
+    );
+
+    // *** elements ***
+
 
   });
 </script>
@@ -394,6 +407,17 @@
               </svg>
             </button>
           </div>
+          <div class="flex-row align-center">
+            <input
+              type="checkbox"
+              tabindex="-1"
+              name="is-stamp-visible"
+              id="is-stamp-visible"
+              bind:checked={isStampVisible}
+              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mx-1"
+            />
+            <label for="output">Рамка</label>
+          </div>
           <div>
             <select tabindex="-1" name="" id="format" class={toolButtonClass}>
               <option value="A4">A4</option>
@@ -425,16 +449,7 @@
               />
               <label for="magnets">Маг.</label>
             </div>
-            <div class="flex-row align-center">
-              <input
-                type="checkbox"
-                tabindex="-1"
-                name="output"
-                id="output"
-                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mx-1"
-              />
-              <label for="output">Рамка</label>
-            </div>
+
             <div class="flex-row align-center">
               <input
                 type="checkbox"

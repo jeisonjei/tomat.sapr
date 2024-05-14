@@ -58,7 +58,11 @@ const a = {
     vertices: [],
 
     // ctrl
-    ctrl: false
+    ctrl: false,
+
+    // ui settings
+    isPrintAreaVisible: false,
+    isStampVisible: true,
 }
 
 export {a}
