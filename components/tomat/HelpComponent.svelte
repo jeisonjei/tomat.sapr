@@ -58,6 +58,14 @@
         <td class={td2Class}>Текст</td>
       </tr>
       <tr>
+        <td class="{td1Class}">X</td>
+        <td class="{td2Class}">Редактирование текста</td>
+      </tr>
+      <tr>
+        <td class="{td1Class}">Стрелка вверх/вниз</td>
+        <td class="{td2Class}">Увеличить/уменьшить размер текста</td>
+      </tr>
+      <tr>
         <td class={td1Class}>ENTER</td>
         <td class={td2Class}>Перенос строки</td>
       </tr>
