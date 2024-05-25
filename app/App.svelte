@@ -3,7 +3,7 @@
   import HelpComponent from "../components/tomat/HelpComponent.svelte";
   import Stamp from "../components/tomat/Stamp.svelte";
   import { a } from "../shared/globalState/a";
-  import { initialize, create} from "../services/database";
+  import { initialize, create, clear} from "../services/database";
 
   let color = "blue";
   let toolButtonClass =
@@ -35,6 +35,7 @@
   });
 
   function saveShapes(){
+    clear();
     create(a.shapes);
   }
 

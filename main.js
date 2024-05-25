@@ -37,6 +37,8 @@ import { Circle } from './models/shapes/Circle.mjs';
 import { drawShapes } from './shared/render/shapes.js';
 import { initCanvasText } from './libs/canvas-text/src/index.js';
 
+import { list, clear } from './services/database.js'
+
 
 
 /**
@@ -103,38 +105,41 @@ registerButtonSavePdfEvent();
  */
 // --- restore a.shapes from localStorage
 
-if (localStorage.shapes) {
-    const storedShapes = JSON.parse(localStorage.shapes);
+// --- Переменная, хранящая объекты из базы данных, если таковые имеются
+list();
+a.storedShapes$.subscribe((storedShapes) => {
+    if (storedShapes.length > 0) {
+        for (const shape of storedShapes) {
+            switch (shape.type) {
+                case 'line':
+                    
+                    const start = shape._start;
+                    const end = shape._end;
+                    const line = new Line(shape.aspectRatio,start, end,shape.color)
+                    a.shapes.push(line);
+                    break;
+                case 'rectangle':
+                    const p1 = shape._p1;
+                    const p2 = shape._p2;
+                    const p3 = shape._p3;
+                    const p4 = shape._p4;
+                    const width = shape._width;
+                    const height = shape._height;
     
-    for (const shape of storedShapes) {
-        switch (shape.type) {
-            case 'line':
-                
-                const start = shape._start;
-                const end = shape._end;
-                const line = new Line(shape.aspectRatio,start, end,shape.color)
-                a.shapes.push(line);
-                break;
-            case 'rectangle':
-                const p1 = shape._p1;
-                const p2 = shape._p2;
-                const p3 = shape._p3;
-                const p4 = shape._p4;
-                const width = shape._width;
-                const height = shape._height;
-
-                const rectangle = new Rectangle(shape.aspectRatio,p1,p2,p3,p4,width,height,shape.color);
-                a.shapes.push(rectangle);
-                break;
-            case 'circle':
-                const circle = new Circle(shape.aspectRatio, shape._center, shape._radius, shape.color);
-                a.shapes.push(circle);
-                break;
-            default:
-                break;
+                    const rectangle = new Rectangle(shape.aspectRatio,p1,p2,p3,p4,width,height,shape.color);
+                    a.shapes.push(rectangle);
+                    break;
+                case 'circle':
+                    const circle = new Circle(shape.aspectRatio, shape._center, shape._radius, shape.color);
+                    a.shapes.push(circle);
+                    break;
+                default:
+                    break;
+            }
         }
+        drawShapes();
     }
-    drawShapes();
-}
+});
+
 
 
