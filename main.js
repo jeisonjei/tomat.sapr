@@ -35,8 +35,11 @@ import { Line } from './models/shapes/Line.mjs';
 import { Rectangle } from './models/shapes/Rectangle.mjs';
 import { Circle } from './models/shapes/Circle.mjs';
 import { drawShapes } from './shared/render/shapes.js';
+// --- canvas-text
 import { initCanvasText } from './libs/canvas-text/src/index.js';
-
+import { TextBlock } from './libs/canvas-text/src/models/TextBlock.js';
+import { textLinesCollection$ } from './libs/canvas-text/src/shared/state.js';
+// --- database
 import { list as dbList, initialize as dbInitialize } from './services/database.js'
 
 
@@ -65,7 +68,6 @@ import { list as dbList, initialize as dbInitialize } from './services/database.
  * 
  */
 
-
 registerMouseDownEvent();
 
 g.init();
@@ -76,8 +78,8 @@ initCanvasText('.text',g.context.canvas.width, g.context.canvas.height, 'gost_ty
     s.tolerance = 10;
     s.aspectRatio = g.canvas.height / g.canvas.width;
     s.format = 'a4';
-
-
+    
+    
 })();
 
 // --- events registration
@@ -102,7 +104,7 @@ registerButtonSavePdfEvent();
  * 
  * Также сделать функцию, которая будет позволять сохранять и открывать файл с чертежём.
  * У каждого файла будет своя история сохранений.
- */
+*/
 // --- restore a.shapes from localStorage
 
 // --- Переменная, хранящая объекты из базы данных, если таковые имеются
@@ -140,7 +142,17 @@ a.storedShapes$.subscribe((storedShapes) => {
         }
         drawShapes();
     }
+
 });
+a.storedText$.subscribe((storedText) => {
+    console.log(storedText);
+    if (storedText.length > 0) {
+        for (const textObject of storedText) {
+            let textBlock = new TextBlock(textObject.start, textObject.textArray, textObject.fontSize, textObject.color);
+            textLinesCollection$.next({ fnName: 'push', line: textBlock });
+        }
+    }
+})
 
 
 

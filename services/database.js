@@ -10,7 +10,7 @@ function initialize() {
     request.onupgradeneeded = function (event) {
         let db = event.target.result;
         db.createObjectStore(shapesTableName);
-        db.createObjectStore(textTableName, { keyPath: 'id'});
+        db.createObjectStore(textTableName);
         console.log('** database created successfully **');
     }
     request.onsuccess = function (event) {
@@ -23,13 +23,20 @@ function list() {
     request.onerror = console.error;
     request.onsuccess = function (event) {
         let db = event.target.result;
-        let transaction = db.transaction([shapesTableName],'readonly');
+        let transaction = db.transaction([shapesTableName, textTableName],'readonly');
         let shapesStore = transaction.objectStore(shapesTableName);
+        let textStore  = transaction.objectStore(textTableName);
         let shapes = shapesStore.getAll();
+        let text = textStore.getAll();
         shapes.onerror = console.error;
         shapes.onsuccess = function (event) {
             let shapes = event.target.result;
             a.storedShapes$.next(shapes);
+            db.close();
+        }
+        text.onsuccess = function (event) {
+            let text = event.target.result;
+            a.storedText$.next(text);
             db.close();
         }
     }
@@ -40,14 +47,21 @@ function create(arrayOfObjects) {
     request.onerror = console.error;
     request.onsuccess = function (event) {
         let db = event.target.result;
-        let transaction = db.transaction([shapesTableName], 'readwrite');
+        let transaction = db.transaction([shapesTableName, textTableName], 'readwrite');
 
         let shapesStore = transaction.objectStore(shapesTableName);
+        let textStore  = transaction.objectStore(textTableName);
 
         for (const shape of arrayOfObjects) {
             let obj = shape.getObject();
             console.log(obj);
-            shapesStore.put(obj,`${shape.type}_${shape.id}`);
+            if (shape.type !== 'text') {
+                shapesStore.put(obj,`${shape.type}_${shape.id}`);
+                
+            }
+            else {
+                textStore.put(obj, `${shape.type}_${shape.id}`);
+            }
         }
         
         transaction.oncomplete = function (event) {
@@ -70,9 +84,11 @@ function clear() {
     request.onerror = console.error;
     request.onsuccess = function (event) {
         let db = event.target.result;
-        let transaction = db.transaction([shapesTableName],'readwrite');
+        let transaction = db.transaction([shapesTableName, textTableName],'readwrite');
         let shapesStore = transaction.objectStore(shapesTableName);
+        let textStore  = transaction.objectStore(textTableName);
         shapesStore.clear();
+        textStore.clear();
         transaction.oncomplete = function (event) {
             db.close();
             console.log('** database cleared successfully **');
