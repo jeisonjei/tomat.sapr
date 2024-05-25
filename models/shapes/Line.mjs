@@ -60,14 +60,6 @@ export class Line extends BasicShape {
         return line;
     }
 
-    getObject() {
-        let json = JSON.stringify(this);
-        let result = JSON.parse(json);
-        result.id = this.id;
-        return result;
-    }
-
-
     isinSelectFrame(frame) {
         const angle = Math.atan2(this.end.y - this.start.y, this.end.x - this.start.x);
         const offsetX = s.tolerance * Math.sin(angle) ;

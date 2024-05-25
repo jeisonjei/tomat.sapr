@@ -32,4 +32,12 @@ export class BasicShape {
         this.id = uuidv4();
 
     }
+
+    getObject() {
+        let json = JSON.stringify(this);
+        let result = JSON.parse(json);
+        result.id = this.id;
+        return result;
+    }
+
 }
