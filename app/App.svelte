@@ -3,7 +3,7 @@
   import HelpComponent from "../components/tomat/HelpComponent.svelte";
   import Stamp from "../components/tomat/Stamp.svelte";
   import { a } from "../shared/globalState/a";
-  import { initialize, create, clear} from "../services/database";
+  import { initialize as dbInitialize, create as dbCreate, clear as dbClear} from "../services/database";
 
   let color = "blue";
   let toolButtonClass =
@@ -25,18 +25,19 @@
     if (localStorage.helpHidden) {
       helpHidden = /true/.test(localStorage.helpHidden) ? true : false;
     }
+
     (await import("../libs/canvas-text/src/shared/state")).fontSize$.subscribe(
       (fontSize) => {
         curFontSize = fontSize;
       },
     );
-    initialize();
+    dbInitialize();
 
   });
 
   function saveShapes(){
-    clear();
-    create(a.shapes);
+    dbClear();
+    dbCreate(a.shapes);
   }
 
 
