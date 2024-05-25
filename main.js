@@ -64,10 +64,10 @@ import { initCanvasText } from './libs/canvas-text/src/index.js';
  */
 
 
-// --- init globalState and canvas-text library
 registerMouseDownEvent();
 
 g.init();
+// --- init globalState and canvas-text library
 initCanvasText('.text',g.context.canvas.width, g.context.canvas.height, 'gost_type_a');
 
 (function init() {
@@ -90,7 +90,7 @@ registerButtonSavePdfEvent();
 
 /**
  * Новая функция автоматического сохранения чертежа по интервалу времени.
- * Сохранется 100 копий один раз в 60 минут
+ * Сохранется 100 копий, одна копия раз в 60 секунд
  * К любой из 100 копий должно быть легко вернуться
  * На панели должно быть видно к какой версии мы вернулись
  * Нужно предусмотреть функцию/кнопку "утвердить" возврат к предыдущей версии,
