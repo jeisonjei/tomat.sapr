@@ -2,7 +2,8 @@
   import { beforeUpdate, onMount } from "svelte";
   import HelpComponent from "../components/tomat/HelpComponent.svelte";
   import Stamp from "../components/tomat/Stamp.svelte";
-  import { a } from '../shared/globalState/a';
+  import { a } from "../shared/globalState/a";
+  import { initialize, create} from "../services/database";
 
   let color = "blue";
   let toolButtonClass =
@@ -13,10 +14,10 @@
   let curFontSize = null;
   let isStampVisible = true;
 
-  $: if(isStampVisible){
+  $: if (isStampVisible) {
     a.isStampVisible = isStampVisible;
   }
-  $: if(!isStampVisible){
+  $: if (!isStampVisible) {
     a.isStampVisible = isStampVisible;
   }
 
@@ -24,16 +25,20 @@
     if (localStorage.helpHidden) {
       helpHidden = /true/.test(localStorage.helpHidden) ? true : false;
     }
-    (await import('../libs/canvas-text/src/shared/state')).fontSize$.subscribe(
+    (await import("../libs/canvas-text/src/shared/state")).fontSize$.subscribe(
       (fontSize) => {
         curFontSize = fontSize;
-      }
+      },
     );
-
-    // *** elements ***
-
+    initialize();
 
   });
+
+  function saveShapes(){
+    create(a.shapes);
+  }
+
+
 </script>
 
 <Stamp bind:hidden={stampHidden}></Stamp>
@@ -42,6 +47,26 @@
     <div>
       <div class="tools z-50">
         <div class="flex-row">
+          <div>
+            <button tabindex="-1" id="save" class={toolButtonClass} on:click={saveShapes}>
+              <svg
+                class={toolIconClass}
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+                /> <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" /></svg
+              >
+            </button>
+          </div>
           <div>
             <button tabindex="-1" id="text" class={toolButtonClass}>
               <svg
@@ -64,7 +89,13 @@
             </button>
           </div>
           <div class="flex-row align-center">
-            <select hidden tabindex="-1" name="" id="fontSize" class={toolButtonClass}>
+            <select
+              hidden
+              tabindex="-1"
+              name=""
+              id="fontSize"
+              class={toolButtonClass}
+            >
               <option value="6">6</option>
               <option value="12">12</option>
               <option value="18">18</option>
@@ -83,7 +114,13 @@
               <option value="96">96</option>
               <option value="102">102</option>
             </select>
-            <input type="text" name="font-size" id="font-size-field" class="w-50px" bind:value={curFontSize}>
+            <input
+              type="text"
+              name="font-size"
+              id="font-size-field"
+              class="w-50px"
+              bind:value={curFontSize}
+            />
             <button class={toolButtonClass} id="font-size-up">
               <svg
                 class={toolIconClass}
@@ -94,12 +131,14 @@
                 stroke="currentColor"
                 fill="none"
                 stroke-linecap="round"
-                stroke-linejoin="round">
+                stroke-linejoin="round"
+              >
                 <path stroke="none" d="M0 0h24v24H0z" />
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="18" y1="11" x2="12" y2="5" />
-                <line x1="6" y1="11" x2="12" y2="5" /></svg>
-              </button>
+                <line x1="6" y1="11" x2="12" y2="5" /></svg
+              >
+            </button>
             <button id="font-size-down" class={toolButtonClass}>
               <svg
                 class={toolIconClass}
@@ -110,12 +149,14 @@
                 stroke="currentColor"
                 fill="none"
                 stroke-linecap="round"
-                stroke-linejoin="round">
+                stroke-linejoin="round"
+              >
                 <path stroke="none" d="M0 0h24v24H0z" />
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="18" y1="13" x2="12" y2="19" />
-                <line x1="6" y1="13" x2="12" y2="19" /></svg>
-              </button>
+                <line x1="6" y1="13" x2="12" y2="19" /></svg
+              >
+            </button>
           </div>
 
           <div>
