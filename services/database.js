@@ -66,7 +66,25 @@ function create(arrayOfObjects) {
         
         transaction.oncomplete = function (event) {
             db.close();
+            var message1Element = document.querySelector('#message1');
+            var message1 = "Сохранение успешно выполнено ...";
+            message1Element.innerHTML = `<span style="color:green">${message1}</span>`;
+            setTimeout(() => {
+              message1Element.textContent = "";
+            }, 2000);
+        
             console.log('** database updated successfully **');
+        }
+        transaction.onerror = function (event) {
+            db.close();
+            var message1Element = document.querySelector('#message1');
+            var message1 = "Сохранение успешно выполнено ...";
+            message1Element.innerHTML = `<span style="color: red;">${message1}</span>`;
+            setTimeout(() => {
+              message1Element.textContent = "";
+            }, 2000);
+
+            console.error('** database update failed **');
         }
     }
 }
