@@ -9,8 +9,6 @@ import { AbstractFrame } from "../../models/frames/AbstractFrame.mjs";
 
 import { getNewVertices, pushVertices } from "../webgl/reshape.mjs";
 
-let id = 0;
-
 function drawShapes() {
 
     // это для того, чтобы фигуры раздваивались
@@ -157,7 +155,6 @@ function addShapes(shape) {
     /**
      * Функция используется всегда, когда требуется добавление фигуры
      */
-    shape.id = id++;
     a.shapes.push(shape);
     a.shapes$.next(a.shapes);
 }
