@@ -13,6 +13,7 @@ const a = {
     activeShapes: [],
     shapes$: new Subject(),
     storedShapes$: new Subject(),
+    storedText$: new Subject(),
     selected: false,
 
     isMouseDown: false,
