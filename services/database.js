@@ -65,6 +65,9 @@ function create(arrayOfObjects) {
         }
         
         transaction.oncomplete = function (event) {
+            /**
+             * TODO: сделать удобный механизм отображения служебных сообщений
+             */
             db.close();
             var message1Element = document.querySelector('#message1');
             var message1 = "Сохранение успешно выполнено ...";
