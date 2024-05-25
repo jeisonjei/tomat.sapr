@@ -37,7 +37,7 @@ import { Circle } from './models/shapes/Circle.mjs';
 import { drawShapes } from './shared/render/shapes.js';
 import { initCanvasText } from './libs/canvas-text/src/index.js';
 
-import { list as dbList } from './services/database.js'
+import { list as dbList, initialize as dbInitialize } from './services/database.js'
 
 
 
@@ -106,6 +106,7 @@ registerButtonSavePdfEvent();
 // --- restore a.shapes from localStorage
 
 // --- Переменная, хранящая объекты из базы данных, если таковые имеются
+dbInitialize();
 dbList();
 a.storedShapes$.subscribe((storedShapes) => {
     if (storedShapes.length > 0) {
