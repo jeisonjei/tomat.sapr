@@ -91,6 +91,10 @@ canvas.text {
   width: 80%;
 }
 
+.w-100 {
+  width: 100%;
+}
+
 .w-50px{
   width: 50px;
 }
@@ -126,7 +130,15 @@ canvas.text {
   margin: 1rem;
   border-radius: 5px;
 }
+.link{
+  color:var(--east-bay-700);
+  text-decoration: underline;
+}
 
+.small{
+  font-size: .75em;
+  color:slategray;
+}
 :root {
   --woodsmoke-50: #f6f6f6;
   --woodsmoke-100: #e7e7e7;

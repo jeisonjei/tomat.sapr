@@ -3,11 +3,12 @@
   import HelpComponent from "./components/tomat/HelpComponent.svelte";
   import Stamp from "./components/tomat/Stamp.svelte";
   import { a } from "../shared/globalState/a";
-  import { textLinesCollection} from "../libs/canvas-text/src/shared/state";
-  import { initialize as dbInitialize, create as dbCreate, clear as dbClear} from "../services/database";
-
- 
-
+  import { textLinesCollection } from "../libs/canvas-text/src/shared/state";
+  import {
+    initialize as dbInitialize,
+    create as dbCreate,
+    clear as dbClear,
+  } from "../services/database";
 
   let color = "blue";
   let toolButtonClass =
@@ -35,15 +36,13 @@
         curFontSize = fontSize;
       },
     );
-
   });
 
-  function saveShapes(){
+  function saveShapes() {
     dbClear();
     dbCreate(a.shapes);
     dbCreate(textLinesCollection);
   }
-
 </script>
 
 <Stamp bind:hidden={stampHidden}></Stamp>
@@ -53,7 +52,12 @@
       <div class="tools z-50">
         <div class="flex-row">
           <div>
-            <button tabindex="-1" id="save" class={toolButtonClass} on:click={saveShapes}>
+            <button
+              tabindex="-1"
+              id="save"
+              class={toolButtonClass}
+              on:click={saveShapes}
+            >
               <svg
                 class={toolIconClass}
                 width="24"
@@ -506,6 +510,9 @@
               />
               <label for="ctrl">Мод.</label>
             </div>
+          </div>
+          <div class="m-flex align-center m-justify-end m-mx-2 w-60">
+            <div><a class="link" href="/about.html" target="_blank">О программе</a></div>
           </div>
         </div>
       </div>

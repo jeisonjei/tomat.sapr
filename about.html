@@ -1,4 +1,44 @@
-<div>
-    <h1>This is About Page</h1>
-    <a href="/">Tomat CAD</a>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О программе</title>
+    <style>
+        .mb-025{
+            margin-bottom: 0.25em;
+        }
+        .ml-025{
+            margin-left: 0.25em;
+        }
+        .flex-centered{
+            display: flex;
+            align-items: center;
+        }
+        .small{
+            font-size: .8em;
+            color: rgb(71, 71, 71);
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="flex-centered">
+            <img src="./assets/imgs/tomat-logo-export.png">
+            <h1 class="mb-025 ml-025">Томат САПР</h1>
+        </div>
+        <div class="small">Бета версия 1.1.1</div>
+        <p>Российская минималистичная программа черчения. В модулях черчения и текста, которые являются основными, внешние библиотеки, за исключением <a target="_blank" href="https://glmatrix.net/">gl-matrix</a>, не используются.</p>
+        <p>Основные приемущества</p>
+        <ul>
+            <li>Простая в использовании. Построена по принципу одно действие - один способ.</li>
+            <li>Работает в браузере, на всех платформах.</li>
+            <li>Быстрый запуск.</li>
+            <li>Лёгкий вывод чертежей в PDF.</li>
+            <li>Рамки чертежей по ГОСТ</li>
+            <li>В базовом виде бесплатна.</li>
+        </ul>
+        <a href="/">Начать пользоваться</a>
+    </div>
+</body>
+</html>
