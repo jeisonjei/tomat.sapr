@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-    entry: ['./svelte/svelteApp.js','./main.js'],
+    entry: ['./src/svelteApp.js','./main.js'],
 
     output: {
         filename: 'bundle.js',

@@ -6,6 +6,9 @@
   import { textLinesCollection} from "../libs/canvas-text/src/shared/state";
   import { initialize as dbInitialize, create as dbCreate, clear as dbClear} from "../services/database";
 
+ 
+
+
   let color = "blue";
   let toolButtonClass =
     "p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold mx-0.5";
@@ -40,7 +43,6 @@
     dbCreate(a.shapes);
     dbCreate(textLinesCollection);
   }
-
 
 </script>
 
