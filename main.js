@@ -75,6 +75,7 @@ import { inject } from "@vercel/analytics"
 // аналитика vercel.com
 inject();
 
+// намеренно регистрируется раньше, чем initCanvasText, чтобы собственное событие mousedown срабатывало раньше
 registerMouseDownEvent();
 
 g.init();
