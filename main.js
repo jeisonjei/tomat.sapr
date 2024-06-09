@@ -44,6 +44,8 @@ import { textLinesCollection$ } from './libs/canvas-text/src/shared/state.js';
 // --- database
 import { list as dbList, initialize as dbInitialize } from './services/database.js'
 
+import { inject } from "@vercel/analytics"
+
 
 
 /**
@@ -69,6 +71,9 @@ import { list as dbList, initialize as dbInitialize } from './services/database.
  * также нужно первыми.
  * 
  */
+
+// аналитика vercel.com
+inject();
 
 registerMouseDownEvent();
 
