@@ -1,7 +1,7 @@
 <script>
   import { afterUpdate, onMount } from "svelte";
   import { fade } from "svelte/transition";
-  import { s } from "../../shared/globalState/settings.mjs";
+  import { s } from "../../../shared/globalState/settings.mjs";
 
   import { addRxPlugin } from "rxdb";
 

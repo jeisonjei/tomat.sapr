@@ -1,7 +1,7 @@
 <script>
   import { beforeUpdate, onMount } from "svelte";
-  import HelpComponent from "../components/tomat/HelpComponent.svelte";
-  import Stamp from "../components/tomat/Stamp.svelte";
+  import HelpComponent from "./components/tomat/HelpComponent.svelte";
+  import Stamp from "./components/tomat/Stamp.svelte";
   import { a } from "../shared/globalState/a";
   import { textLinesCollection} from "../libs/canvas-text/src/shared/state";
   import { initialize as dbInitialize, create as dbCreate, clear as dbClear} from "../services/database";
