@@ -266,6 +266,7 @@ const breakButton = document.getElementById('break');
 const scaleButton = document.getElementById('scale');
 const saveDxfButton = document.getElementById('saveDxf');
 const isStampVisibleCheckbox = document.getElementById('is-stamp-visible');
+const fontSizeInput = document.getElementById('font-size-field');
 
 // --- text
 const fontSizeUpButton = document.getElementById('font-size-up');
@@ -279,7 +280,7 @@ const helpTable = document.querySelector('table');
 const saveButton = document.getElementById('save');
 
 
-const buttons = [textButton, lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, breakButton, scaleButton, saveDxfButton, document.getElementById('savePdf'), fontSizeUpButton, fontSizeDownButton, isStampVisibleCheckbox, saveButton];
+const buttons = [textButton, lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, breakButton, scaleButton, saveDxfButton, document.getElementById('savePdf'), fontSizeUpButton, fontSizeDownButton, isStampVisibleCheckbox, saveButton, fontSizeInput];
 
 buttons.forEach(button => {
     const id = button.id;

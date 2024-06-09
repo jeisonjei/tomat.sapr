@@ -3,12 +3,16 @@
   import HelpComponent from "./components/tomat/HelpComponent.svelte";
   import Stamp from "./components/tomat/Stamp.svelte";
   import { a } from "../shared/globalState/a";
+  import { a as b} from "../libs/canvas-text/src/shared/state";
+  import { fontSize$ } from "../libs/canvas-text/src/shared/state";
   import { textLinesCollection } from "../libs/canvas-text/src/shared/state";
   import {
     initialize as dbInitialize,
     create as dbCreate,
     clear as dbClear,
   } from "../services/database";
+  import { rerender } from "../libs/canvas-text/src";
+  import { cnv } from "../libs/canvas-text/src/shared/cnv";
 
   let color = "blue";
   let toolButtonClass =
@@ -36,12 +40,23 @@
         curFontSize = fontSize;
       },
     );
+
+    curFontSize = b.initTextSize;
   });
 
   function saveShapes() {
     dbClear();
     dbCreate(a.shapes);
     dbCreate(textLinesCollection);
+  }
+
+  function changeFontSize(event) {
+    var fontSize = event.target.value;
+    textLinesCollection.filter(t=>t.selected).forEach(t=>{
+      t.fontSize = fontSize;
+    });
+    cnv.clear();
+    rerender();
   }
 </script>
 
@@ -128,7 +143,9 @@
               name="font-size"
               id="font-size-field"
               class="w-50px"
-              bind:value={curFontSize}
+              placeholder="60"
+              on:change={changeFontSize}
+              value="{curFontSize}"
             />
             <button class={toolButtonClass} id="font-size-up">
               <svg
