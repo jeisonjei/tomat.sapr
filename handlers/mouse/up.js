@@ -29,6 +29,9 @@ function handleMouseUp(mouse) {
         a.end = mouse;
     }
 
+    console.log(` start: ${JSON.stringify(a.start)}`);
+    console.log(` end: ${JSON.stringify(a.end)}`);
+
 
     switch (gm()) {
         case 'edit':
@@ -124,7 +127,7 @@ function handleMouseUp(mouse) {
             break;
         case 'line':
             a.line.end = a.end;
-            addShapes(a.line.getClone());
+            if (!(a.start.x === a.end.x && a.start.y === a.end.y)) { addShapes(a.line.getClone()); }
             break;
         case 'symline':
             a.symline.end = a.end;
