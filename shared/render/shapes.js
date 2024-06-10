@@ -169,7 +169,6 @@ function deleteShapes(shapes) {
 
 a.shapes$.subscribe((shapes) => {
     a.vertices = getNewVertices(shapes);
-    saveShapes(shapes);
 });
 
 
@@ -194,10 +193,8 @@ function updateShapesPanZoom(mode) {
 }
 
 
-function saveShapes(shapes) {
-    localStorage.shapes = JSON.stringify(shapes);
-}
 
 
 
-export { drawShapes, drawSingle, updateActiveShapes, addShapes, updateShapesPanZoom, deleteShapes, saveShapes }
+
+export { drawShapes, drawSingle, updateActiveShapes, addShapes, updateShapesPanZoom, deleteShapes }
