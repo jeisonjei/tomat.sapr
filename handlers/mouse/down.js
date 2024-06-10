@@ -236,6 +236,7 @@ function handleMouseDown(mouse) {
             if (!a.clickCopyStart) {
                 a.clickCopyStart = { ...a.start };
                 a.shapes.filter(shape => shape.type !== 'text').filter(shape => shape.isSelected).forEach(shape => {
+                    // TODO: проблема с производительностью из-за Subject shapes$
                     addShapes(shape.getClone());
                 });
 
