@@ -20,7 +20,7 @@
   let toolIconClass = "h-6 w-6 text-slate-500";
   let helpHidden = false;
   let stampHidden = true;
-  let curFontSize = null;
+  let curFontSize = b.initTextSize;
   let isStampVisible = true;
 
   $: if (isStampVisible) {
@@ -40,8 +40,6 @@
         curFontSize = fontSize;
       },
     );
-
-    curFontSize = b.initTextSize;
   });
 
   function saveShapes() {
