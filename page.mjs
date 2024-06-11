@@ -252,7 +252,6 @@ keyUp$.subscribe(event => {
 // --------- BUTTONS ---------
 
 const textButton = document.getElementById('text');
-const fontSelect = document.getElementById('fontSize');
 const lineButton = document.getElementById('line');
 const rectangleButton = document.getElementById('rectangle');
 const circleButton = document.getElementById('circle');
@@ -326,12 +325,7 @@ saveDxfButton.addEventListener('click', generateDXFContent);
 
 
 // --- select
-fontSelect.addEventListener("change", (event) => {
-    t.fontSize = event.target.value;
-    c.context.font = `${t.fontSize}px ${t.fontName}`;
-    drawText();
-    fontSelect.blur();
-});
+
 
 formatSelect.addEventListener('change', (event) => {
     s.format = event.target.value.toLowerCase();
