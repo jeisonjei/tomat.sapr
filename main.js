@@ -78,8 +78,9 @@ inject();
 // намеренно регистрируется раньше, чем initCanvasText, чтобы собственное событие mousedown срабатывало раньше
 registerMouseDownEvent();
 
+// инициализация webgl canvas
 g.init();
-// --- init globalState and canvas-text library
+// инициализация библиотеки canvas-text
 initCanvasText('.text',g.context.canvas.width, g.context.canvas.height, 'gost_type_a');
 
 (function init() {
@@ -90,6 +91,21 @@ initCanvasText('.text',g.context.canvas.width, g.context.canvas.height, 'gost_ty
     
 })();
 
+// resizeObserver
+var resizeObserver = new ResizeObserver((entries) => {
+
+    // TODO: при проблемах с производительностью это можно оптимизировать. Пока предполагается, что 
+    // размер окна будет меняться нечасто
+    g.init();
+    initCanvasText('.text',g.context.canvas.width, g.context.canvas.height, 'gost_type_a');
+
+    s.aspectRatio = g.canvas.height / g.canvas.width;
+    
+
+});
+
+resizeObserver.observe(g.canvas);
+
 // --- events registration
 registerMouseMoveEvent();
 registerMouseUpEvent();
@@ -99,7 +115,7 @@ registerSpacebarEvents();
 // --- buttons
 registerButtonSavePdfEvent();
 
-// --- Переменная, хранящая объекты из базы данных, если таковые имеются
+// --- Database: Переменная, хранящая объекты из базы данных, если таковые имеются
 dbInitialize();
 dbList();
 a.storedShapes$.subscribe((storedShapes) => {
