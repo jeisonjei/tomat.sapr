@@ -93,6 +93,7 @@
         <div class="flex-row flex-wrap jcc">
           <div>
             <button
+              title="Сохранить чертёж"
               tabindex="-1"
               id="save"
               class={toolButtonClass}
@@ -102,12 +103,13 @@
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="text" class={toolButtonClass}>
+            <button tabindex="-1" id="text" class={toolButtonClass} title="Режим текста">
               <TextIcon meclass={toolIconClass}></TextIcon>
             </button>
           </div>
           <div class="flex-row align-center">
             <input
+              
               type="text"
               name="font-size"
               id="font-size-field"
@@ -116,77 +118,78 @@
               on:input={changeFontSize}
               value={curFontSize}
             />
-            <button class={toolButtonClass} id="font-size-up">
+            <!-- <button class={toolButtonClass} id="font-size-up" title="Увеличить шрифт">
               <FontSizeUpIcon meclass={toolIconClass}></FontSizeUpIcon>
             </button>
-            <button id="font-size-down" class={toolButtonClass}>
+            <button id="font-size-down" class={toolButtonClass} title="Уменьшить шрифт">
               <FontSizeDownIcon meclass={toolIconClass}></FontSizeDownIcon>
-            </button>
+            </button> -->
           </div>
 
           <div>
-            <button tabindex="-1" id="line" class={toolButtonClass}>
+            <button tabindex="-1" id="line" class={toolButtonClass} title="Линия">
               <LineIcon meclass={toolIconClass}></LineIcon>
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="rectangle" class={toolButtonClass}>
+            <button tabindex="-1" id="rectangle" class={toolButtonClass} title="Прямоугольник">
               <RectangleIcon meclass={toolIconClass}></RectangleIcon>
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="circle" class={toolButtonClass}>
+            <button tabindex="-1" id="circle" class={toolButtonClass} title="Круг">
               <CircleIcon meclass={toolIconClass}></CircleIcon>
             </button>
           </div>
 
           <div>
-            <button tabindex="-1" id="select" class={toolButtonClass}>
+            <button tabindex="-1" id="select" class={toolButtonClass} title="Выбор элементов">
               <SelectIcon meclass={toolIconClass}></SelectIcon>
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="delete" class={toolButtonClass}>
+            <button tabindex="-1" id="delete" class={toolButtonClass} title="Удаление элементов">
               <DeleteIcon meclass={toolIconClass}></DeleteIcon>
             </button>
           </div>
 
           <div>
-            <button tabindex="-1" id="move" class={toolButtonClass}>
+            <button tabindex="-1" id="move" class={toolButtonClass} title="Перемещение">
               <MoveIcon meclass={toolIconClass}></MoveIcon>
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="copy" class={toolButtonClass}>
+            <button tabindex="-1" id="copy" class={toolButtonClass} title="Копирование">
               <CopyIcon meclass={toolIconClass}></CopyIcon>
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="rotate" class={toolButtonClass}>
+            <button tabindex="-1" id="rotate" class={toolButtonClass} title="Поворот">
               <RotateIcon meclass={toolIconClass}></RotateIcon>
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="mirror" class={toolButtonClass}>
+            <button tabindex="-1" id="mirror" class={toolButtonClass} title="Зеркальное отображение">
               <MirrorIcon meclass={toolIconClass}></MirrorIcon>
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="scale" class={toolButtonClass}>
+            <button tabindex="-1" id="scale" class={toolButtonClass} title="Масштабировать">
               <ScaleIcon meclass={toolIconClass}></ScaleIcon>
             </button>
           </div>
-          <button tabindex="-1" id="break" class={toolButtonClass}>
+          <button tabindex="-1" id="break" class={toolButtonClass} title="Обрезать или разорвать линию">
             <BreakIcon meclass={toolIconClass}></BreakIcon>
           </button>
 
           <div>
-            <button tabindex="-1" id="saveDxf" class={toolButtonClass}>
+            <button tabindex="-1" id="saveDxf" class={toolButtonClass} title="Экпорт в DXF">
               <SaveDxfIcon meclass={toolIconClass}></SaveDxfIcon>
             </button>
           </div>
           <div>
             <button
+              title="Рамка с основной надписью"
               tabindex="-1"
               id="stamp"
               class={toolButtonClass}
@@ -196,7 +199,7 @@
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="savePdf" class={toolButtonClass}>
+            <button tabindex="-1" id="savePdf" class={toolButtonClass} title="Экспорт в PDF">
               <SavePdfIcon meclass={toolIconClass}></SavePdfIcon>
             </button>
           </div>
