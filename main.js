@@ -14,7 +14,6 @@
  * перемещение и копирование строго по горизонтали или вертикали
  * области печати до вывода в PDF
  * специальные символы в тексте
- * resize canvas
  * дизайн
  * сайт
  * модуль отопления
@@ -153,7 +152,6 @@ a.storedShapes$.subscribe((storedShapes) => {
 
 });
 a.storedText$.subscribe((storedText) => {
-    console.log(storedText);
     if (storedText.length > 0) {
         for (const textObject of storedText) {
             let textBlock = new TextBlock(textObject.start, textObject.textArray, textObject.fontSize, textObject.color);

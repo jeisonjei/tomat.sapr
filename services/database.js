@@ -54,7 +54,6 @@ function create(arrayOfObjects) {
 
         for (const shape of arrayOfObjects) {
             let obj = shape.getObject();
-            console.log(obj);
             if (shape.type !== 'text') {
                 shapesStore.put(obj,`${shape.type}_${shape.id}`);
                 
