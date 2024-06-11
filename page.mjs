@@ -279,7 +279,7 @@ const helpTable = document.querySelector('table');
 const saveButton = document.getElementById('save');
 
 
-const buttons = [textButton, lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, breakButton, scaleButton, saveDxfButton, document.getElementById('savePdf'), fontSizeUpButton, fontSizeDownButton, isStampVisibleCheckbox, saveButton, fontSizeInput];
+const buttons = [textButton, lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, breakButton, scaleButton, saveDxfButton, document.getElementById('savePdf'), isStampVisibleCheckbox, saveButton, fontSizeInput];
 
 buttons.forEach(button => {
     const id = button.id;
