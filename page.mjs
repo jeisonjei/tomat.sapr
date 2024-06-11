@@ -291,7 +291,7 @@ buttons.forEach(button => {
         if (['text', 'line', 'rectangle', 'circle', 'select', 'delete', 'move', 'copy', 'rotate', 'mirror', 'break', 'scale'].includes(id)) {
             setMode(mode_elem, id);
         }
-        else if (['font-size-up', 'font-size-down'].includes(id)) {
+        else if (['font-size-up', 'font-size-down', 'font-size-field'].includes(id)) {
             setMode(mode_elem, 'text');
         }
         else {
