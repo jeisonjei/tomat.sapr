@@ -5,6 +5,7 @@
   import { a } from "../shared/globalState/a";
   import { a as b } from "../libs/canvas-text/src/shared/state";
   import { fontSize$ } from "../libs/canvas-text/src/shared/state";
+  import { functionCalled$ } from "../libs/canvas-text/src/index";
   import { textLinesCollection } from "../libs/canvas-text/src/shared/state";
   import {
     initialize as dbInitialize,
@@ -78,8 +79,9 @@
         t.fontSize = fontSize;
       });
     b.curTextLine.fontSize = fontSize;
-    cnv.clear();
-    rerender();
+    functionCalled$.next({
+      self: "setFont",
+    });
   }
 </script>
 
@@ -111,7 +113,7 @@
               id="font-size-field"
               class="w-50px"
               placeholder="60"
-              on:change={changeFontSize}
+              on:input={changeFontSize}
               value={curFontSize}
             />
             <button class={toolButtonClass} id="font-size-up">
