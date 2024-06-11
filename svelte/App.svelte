@@ -40,7 +40,7 @@
   let toolIconClass = "h-6 w-6 text-slate-500";
   let helpHidden = false;
   let stampHidden = true;
-  let curFontSize = b.initTextSize;
+  let curFontSize = null;
   let isStampVisible = true;
 
   $: if (isStampVisible) {
@@ -51,6 +51,8 @@
   }
 
   onMount(async function () {
+    curFontSize = b.initFontSize;
+
     if (localStorage.helpHidden) {
       helpHidden = /true/.test(localStorage.helpHidden) ? true : false;
     }
@@ -60,6 +62,7 @@
         curFontSize = fontSize;
       },
     );
+
   });
 
   function saveShapes() {
@@ -73,6 +76,7 @@
     textLinesCollection.filter(t=>t.selected).forEach(t=>{
       t.fontSize = fontSize;
     });
+    b.curTextLine.fontSize = fontSize;
     cnv.clear();
     rerender();
   }
@@ -108,7 +112,7 @@
               class="w-50px"
               placeholder="60"
               on:change={changeFontSize}
-              value="{curFontSize}"
+              value={curFontSize}
             />
             <button class={toolButtonClass} id="font-size-up">
               <FontSizeUpIcon meclass={toolIconClass}></FontSizeUpIcon>
