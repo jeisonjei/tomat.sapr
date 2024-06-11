@@ -21,7 +21,6 @@ canvas.text {
   left: 50%;
   transform: translateX(-50%);
   user-select: none;
-
 }
 
 .info {
@@ -59,7 +58,7 @@ canvas.text {
   align-items: center;
 }
 
-.cont {
+.jcc {
   justify-content: center;
   /* width: 80%; */
 }
@@ -940,6 +939,9 @@ video {
 
 .flex-row {
   flex-direction: row;
+}
+.flex-wrap{
+  flex-wrap: wrap;
 }
 
 .items-center {

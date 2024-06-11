@@ -3,7 +3,7 @@
   import HelpComponent from "./components/tomat/HelpComponent.svelte";
   import Stamp from "./components/tomat/Stamp.svelte";
   import { a } from "../shared/globalState/a";
-  import { a as b} from "../libs/canvas-text/src/shared/state";
+  import { a as b } from "../libs/canvas-text/src/shared/state";
   import { fontSize$ } from "../libs/canvas-text/src/shared/state";
   import { textLinesCollection } from "../libs/canvas-text/src/shared/state";
   import {
@@ -62,7 +62,6 @@
         curFontSize = fontSize;
       },
     );
-
   });
 
   function saveShapes() {
@@ -73,9 +72,11 @@
 
   function changeFontSize(event) {
     var fontSize = event.target.value;
-    textLinesCollection.filter(t=>t.selected).forEach(t=>{
-      t.fontSize = fontSize;
-    });
+    textLinesCollection
+      .filter((t) => t.selected)
+      .forEach((t) => {
+        t.fontSize = fontSize;
+      });
     b.curTextLine.fontSize = fontSize;
     cnv.clear();
     rerender();
@@ -84,10 +85,10 @@
 
 <Stamp bind:hidden={stampHidden}></Stamp>
 <div class="row">
-  <div class="flex-row cont">
+  <div class="flex-row jcc">
     <div>
-      <div class="tools z-50">
-        <div class="flex-row">
+      <div class="tools z-50 w-100">
+        <div class="flex-row flex-wrap jcc">
           <div>
             <button
               tabindex="-1"
@@ -95,7 +96,7 @@
               class={toolButtonClass}
               on:click={saveShapes}
             >
-            <SaveIcon meclass={toolIconClass}></SaveIcon>
+              <SaveIcon meclass={toolIconClass}></SaveIcon>
             </button>
           </div>
           <div>
@@ -104,7 +105,6 @@
             </button>
           </div>
           <div class="flex-row align-center">
-            
             <input
               type="text"
               name="font-size"
@@ -190,9 +190,8 @@
               class={toolButtonClass}
               on:click={() => (stampHidden = !stampHidden)}
             >
-            <StampIcon meclass={toolIconClass}></StampIcon>
-              </button
-            >
+              <StampIcon meclass={toolIconClass}></StampIcon>
+            </button>
           </div>
           <div>
             <button tabindex="-1" id="savePdf" class={toolButtonClass}>
@@ -254,7 +253,9 @@
             </div>
           </div>
           <div class="m-flex align-center m-justify-end m-mx-2 w-60">
-            <div><a class="link" href="/about.html" target="_blank">О программе</a></div>
+            <div>
+              <a class="link" href="/about.html" target="_blank">О программе</a>
+            </div>
           </div>
         </div>
       </div>
