@@ -3,7 +3,7 @@ import { a } from './../shared/globalState/a.js';
 import { t } from './../shared/globalState/t.js';
 import { s } from '../shared/globalState/settings.mjs'
 import { gm, setMode, mode_elem } from "../page.mjs";
-import { checkFunction, getColor } from "../shared/common.mjs";
+import { checkFunction, getColor, getLowerLeftPoint } from "../shared/common.mjs";
 import { drawSingle } from "../shared/render/shapes.js";
 import { addTooltip, clearTooltipAll } from "./tooltip.js";
 
@@ -127,7 +127,9 @@ export function boundaryModeObserver(mouse,shapes) {
 
                 // create div element absolutely positioned according to the element position
                 if (!shape.isSelected) {
-                    addTooltip(shape.id,shape.type,shape.selectBoundary,shape.getLength().toFixed(1), 'длина');
+                    
+                    let message = (shape.getLength()/a.zlc).toFixed(1)+' мм';
+                    addTooltip(shape.id,shape.type,shape.selectBoundary,message, 'длина');
                 }
                 else {
                     clearTooltipAll();

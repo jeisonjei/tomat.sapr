@@ -3,6 +3,7 @@ import { a } from "../shared/globalState/a";
 const databaseName = 'tomatDatabase';
 const shapesTableName = 'shapesTable';
 const textTableName = 'textTable';
+const zlcTableName = 'zlcTable';
 
 function initialize() {
     var request = indexedDB.open(databaseName);
@@ -11,6 +12,7 @@ function initialize() {
         let db = event.target.result;
         db.createObjectStore(shapesTableName);
         db.createObjectStore(textTableName);
+        db.createObjectStore(zlcTableName);
         console.log('** database created successfully **');
     }
     request.onsuccess = function (event) {

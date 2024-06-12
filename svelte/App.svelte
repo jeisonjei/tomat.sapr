@@ -69,6 +69,7 @@
     dbClear();
     dbCreate(a.shapes);
     dbCreate(textLinesCollection);
+    localStorage.setItem('zlc', a.zlc);
   }
 
   function changeFontSize(event) {

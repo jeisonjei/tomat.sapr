@@ -4,55 +4,55 @@ import { SelectBoundary } from "../models/frames/SelectBoundary.mjs";
 import { s } from "./globalState/settings.mjs";
 import { g as gl } from "./globalState/g.js"
 
- function getCos(angleDeg) {
+function getCos(angleDeg) {
   const angleRad = (angleDeg * Math.PI) / 180;
   return function () {
     return Math.cos(angleRad);
   }
 }
- function getSin(angleDeg) {
+function getSin(angleDeg) {
   const angleRad = (angleDeg * Math.PI) / 180;
   return function () {
     return Math.sin(angleRad);
   }
 }
- function g(xOrPoint, y) {
+function g(xOrPoint, y) {
   if (typeof xOrPoint === 'object') {
     return new Point(xOrPoint.x, xOrPoint.y);
   } else {
     return new Point(xOrPoint, y);
   }
 }
- function getColor(red, green, blue, a) {
+function getColor(red, green, blue, a) {
   const webglColor = [red / 255, green / 255, blue / 255, a];
   return webglColor;
 }
- function getAngleRadians(angleDegrees) {
+function getAngleRadians(angleDegrees) {
   return angleDegrees * (Math.PI / 180);
 }
 
- function getAngleDegrees(angleRadians) {
+function getAngleDegrees(angleRadians) {
   return angleRadians * (180 / Math.PI);
 }
- function getEccentricity(k) {
+function getEccentricity(k) {
   const e = Math.sqrt(1 - k ** 2);
   return e;
 }
- function getRadius(b, e, phi) {
+function getRadius(b, e, phi) {
   const radius = b / (Math.sqrt(1 - (e ** 2) * (Math.cos(phi) ** 2)));
   return radius;
 }
- function getB(radius, e, phi) {
+function getB(radius, e, phi) {
   const b = radius * Math.sqrt(1 - (e ** 2) * (Math.cos(phi) ** 2));
   return b;
 }
- function getMid(start, end) {
+function getMid(start, end) {
   const midX = (start.x + end.x) / 2;
   const midY = (start.y + end.y) / 2;
   return new Point(midX, midY);
 }
 
- function transformPointByMatrix4(matrix, point) {
+function transformPointByMatrix4(matrix, point) {
   if (point.x === 0 && point.y === 0) {
     return g(0, 0);
   }
@@ -90,7 +90,7 @@ function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
 }
 
 
- function transformPointByMatrix3(matrix, p) {
+function transformPointByMatrix3(matrix, p) {
   /**
    * В этой функции матрица остаётся той же - в webgl координатах.
    * Так как на полотне теперь используются пиксели, точка преобразуется сначала
@@ -114,24 +114,24 @@ function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
 
   return transformedPoint;
 }
- function canvasGetMouseWebgl(event, canvas) {
+function canvasGetMouseWebgl(event, canvas) {
   return new Point(
     (event.clientX - canvas.offsetLeft) / canvas.width * 2 - 1,
     -(event.clientY - canvas.offsetTop) / canvas.height * 2 + 1
   )
 }
 
- function canvasGetMouse(event, canvas) {
+function canvasGetMouse(event, canvas) {
   return new Point(
     (event.clientX - canvas.offsetLeft), (event.clientY - canvas.offsetTop)
   )
 }
 
- function canvasGetWebglCoordinates(position, canvas) {
+function canvasGetWebglCoordinates(position, canvas) {
   return new Point((position.x) / canvas.width * 2 - 1, (-position.y) / canvas.height * 2 + 1);
 }
 
- function convertPixelToWebGLCoordinate(pixelValue, canvasSize, isXAxis) {
+function convertPixelToWebGLCoordinate(pixelValue, canvasSize, isXAxis) {
   const canvasSizeHalf = canvasSize / 2;
   const scaleFactor = 2 / canvasSize;
 
@@ -146,15 +146,15 @@ function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
   return webglCoord;
 }
 
- function canvasGetClientY(event, canvas) {
+function canvasGetClientY(event, canvas) {
   return (canvas.height - (event.clientY - canvas.offsetTop)) / canvas.height * 2 - 1;
 }
 
- function canvasGetClientX(event, canvas) {
+function canvasGetClientX(event, canvas) {
   return (event.clientX - canvas.offsetLeft) / canvas.width * 2 - 1;
 }
 
- function convertVerticesToPoints(vertices) {
+function convertVerticesToPoints(vertices) {
   let points = [];
   for (let i = 0; i < vertices.length; i += 2) {
     let point = new Point(vertices[i], vertices[i + 1]);
@@ -163,7 +163,7 @@ function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
   return points;
 }
 
- function isPointInsideFrame(frame, x, y) {
+function isPointInsideFrame(frame, x, y) {
   const { point1, point2, point3 } = frame;
   if (x > point1.x && x < point2.x && ((y > point3.y && y < point2.y) || (y > point2.y && y < point3.y))) {
     return true;
@@ -171,7 +171,7 @@ function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
   return false;
 }
 
- function resizeCanvasToDisplaySize(canvas) {
+function resizeCanvasToDisplaySize(canvas) {
   // Lookup the size the browser is displaying the canvas in CSS pixels.
   const displayWidth = canvas.clientWidth;
   const displayHeight = canvas.clientHeight;
@@ -189,30 +189,30 @@ function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
   return needResize;
 }
 
- function checkFunction(shape, functionName, mouse) {
+function checkFunction(shape, functionName, mouse) {
   return typeof shape[functionName] === 'function' ? shape[functionName](mouse) : null;
 }
 
- function convertWebGLToCanvas2DPoint(point, canvas2DWidth, canvas2DHeight) {
+function convertWebGLToCanvas2DPoint(point, canvas2DWidth, canvas2DHeight) {
   const canvas2DX = (point.x + 1) * canvas2DWidth / 2;
   const canvas2DY = (1 - point.y) * canvas2DHeight / 2;
   return new Point(canvas2DX, canvas2DY);
 
 }
 
- function convertCanvas2DToWebGLPoint(point, canvas2DWidth, canvas2DHeight) {
+function convertCanvas2DToWebGLPoint(point, canvas2DWidth, canvas2DHeight) {
   const webGLX = (point.x - canvas2DWidth / 2) / (canvas2DWidth / 2) - 1;
   const webGLY = (canvas2DHeight / 2 - point.y) / (canvas2DHeight / 2) - 1;
   return new Point(webGLX, webGLY);
 }
 
- function applyTransformationToPoint(x, y, matrix) {
+function applyTransformationToPoint(x, y, matrix) {
   const newX = matrix[0] * x + matrix[3] * y + matrix[6];
   const newY = matrix[1] * x + matrix[4] * y + matrix[7];
   return new Point(newX, newY);
 }
 
- function getLineSelectBoundary(start, end) {
+function getLineSelectBoundary(start, end) {
   const angle = Math.atan2(end.y - start.y, end.x - start.x);
   const baseWidth = s.tolerance / 2;
   const baseOffset = 0;
@@ -231,7 +231,7 @@ function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
   return selectBoundary
 }
 
- function getSelectBoundaryRectangle(p1, p2, p3, p4) {
+function getSelectBoundaryRectangle(p1, p2, p3, p4) {
   const top = getLineSelectBoundary(p1, p2);
   const right = getLineSelectBoundary(p2, p3);
   const bottom = getLineSelectBoundary(p4, p3);
@@ -247,7 +247,7 @@ function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
   return new SelectBoundary(s.aspectRatio, boundaryP1, boundaryP2, boundaryP3, boundaryP4);
 }
 
- function getSelectBoundaryCircle(p1, p2, p3, p4) {
+function getSelectBoundaryCircle(p1, p2, p3, p4) {
   const top = getLineSelectBoundary(p1, p2);
   const right = getLineSelectBoundary(p2, p3);
   const bottom = getLineSelectBoundary(p4, p3);
@@ -263,7 +263,7 @@ function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
   return new SelectBoundary(s.aspectRatio, boundaryP1, boundaryP2, boundaryP3, boundaryP4);
 }
 
- function isinSelectBoundaryLine(mouse, start, end) {
+function isinSelectBoundaryLine(mouse, start, end) {
   const angle = Math.atan2(end.y - start.y, end.x - start.x);
   const baseWidth = s.tolerance / 2;
   const baseOffset = 0;
@@ -303,7 +303,7 @@ function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
   return isInside;
 }
 
- function isHorizontal(line1, line2) {
+function isHorizontal(line1, line2) {
   const deltaY1 = Math.abs(line1.start.y - line1.end.y);
   const deltaY2 = Math.abs(line2.start.y - line2.end.y);
 
@@ -317,7 +317,7 @@ function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
 
 
 
- const getSideOfMouse = (mouseCoords, lineCoords) => {
+const getSideOfMouse = (mouseCoords, lineCoords) => {
   const dx1 = mouseCoords.x - lineCoords.start.x;
   const dy1 = mouseCoords.y - lineCoords.start.y;
   const dx2 = lineCoords.end.x - lineCoords.start.x;
@@ -334,7 +334,7 @@ function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
 };
 
 
- function getSideOfMouseRelativeToLine(mouse, breakStart, selectedLine) {
+function getSideOfMouseRelativeToLine(mouse, breakStart, selectedLine) {
 
   // Определяем координаты начала и конца выбранной линии
   const start = selectedLine.start;
@@ -363,7 +363,7 @@ function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
   return 'onLine';
 }
 
- function getProjection(mouse, line) {
+function getProjection(mouse, line) {
   const lineVector = { x: line.end.x - line.start.x, y: line.end.y - line.start.y };
   const mouseVector = { x: mouse.x - line.start.x, y: mouse.y - line.start.y };
 
@@ -376,7 +376,7 @@ function convertMatrixToPixelCoordinates(matrix, canvasWidth, canvasHeight) {
   return projectionPoint;
 }
 
- function findClosestPoints(mouse, points) {
+function findClosestPoints(mouse, points) {
   const result = points.map(p => {
     const mouseVector = new Point(mouse.x - p.x, mouse.y - p.y);
     return { scalar: getScalar(mouse, mouseVector), point: p }
@@ -413,17 +413,17 @@ const dot = (currentVector, otherVector) => {
   return currentVector.x * otherVector.x + currentVector.y * otherVector.y;
 }
 
- function getScalar(mouse, point) {
+function getScalar(mouse, point) {
 
   const result = dot(mouse, point);
   return result;
 }
 
- function getDistance(mouse, point) {
+function getDistance(mouse, point) {
   const result = Math.hypot(mouse.x - point.x, mouse.y - point.y)
   return result;
 }
- function isPointBetweenTwoPointsOnLine(point1, point2, selectedPoint) {
+function isPointBetweenTwoPointsOnLine(point1, point2, selectedPoint) {
   const vector1 = { x: point1.x - selectedPoint.x, y: point1.y - selectedPoint.y };
   const vector2 = { x: point2.x - selectedPoint.x, y: point2.y - selectedPoint.y };
 
@@ -436,6 +436,19 @@ const dot = (currentVector, otherVector) => {
   } else {
     return false;
   }
+}
+/**
+ * Функция возвращает крайнюю левую нижнюю точку. 
+ * Если никакую точку нельзя отнести к крайней левой, то вычисляется
+ * новая точка на основе точки с крайней координатой x и крайней координатой y
+ * @param {Object} selectBoundary - область объекта. Каждая фигура имеет поле "selectBoundary", этот объект содержит 4 точки p1, p2, p3, p4.
+ * 
+ */
+function getLowerLeftPoint(selectBoundary) {
+  var { p1, p2, p3, p4 } = selectBoundary;
+  var minX = Math.min(p1.x, p2.x, p3.x, p4.x);
+  var maxY = Math.max(p1.y, p2.y, p3.y, p4.y);
+  return g(minX, maxY);
 }
 
 export {
@@ -475,5 +488,6 @@ export {
   findClosestPoints,
   getScalar,
   getDistance,
-  isPointBetweenTwoPointsOnLine
+  isPointBetweenTwoPointsOnLine,
+  getLowerLeftPoint
 };

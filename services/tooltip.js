@@ -1,4 +1,4 @@
-import { g } from "../shared/common.mjs";
+import { g, getLowerLeftPoint } from "../shared/common.mjs";
 
 /**
  * Функция добавления всплывающих сообщений.
@@ -15,13 +15,14 @@ function addTooltip(id, type, selectBoundary, message, tooltipName) {
     var tooltip = document.createElement("div");
     tooltip.classList.add("shape-tooltip");
     tooltip.setAttribute("id", id);
-    var anchor = g(selectBoundary.p1);
+    var anchor = getLowerLeftPoint(selectBoundary);
+    
     var offset = 5;
     var anchorX = anchor.x + offset;
     var anchorY = anchor.y + offset;
     tooltip.style.left = anchorX + "px";
     tooltip.style.top = anchorY + "px";
-    tooltip.innerHTML = `<div><b>${tooltipName}</b></div></div>${message}px</div>`;
+    tooltip.innerHTML = `<div><b>${tooltipName}</b></div></div>${message}</div>`;
 
     document.body.appendChild(tooltip);
 }

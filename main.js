@@ -120,6 +120,7 @@ registerButtonSavePdfEvent();
 // --- Database: Переменная, хранящая объекты из базы данных, если таковые имеются
 dbInitialize();
 dbList();
+
 a.storedShapes$.subscribe((storedShapes) => {
     if (storedShapes.length > 0) {
         for (const shape of storedShapes) {
@@ -161,7 +162,9 @@ a.storedText$.subscribe((storedText) => {
             textLinesCollection$.next({ fnName: 'push', line: textBlock });
         }
     }
-})
+});
+
+a.zlc = localStorage.getItem('zlc');
 
 
 
