@@ -96,7 +96,9 @@ var resizeObserver = new ResizeObserver((entries) => {
     // TODO: при проблемах с производительностью это можно оптимизировать. Пока предполагается, что 
     // размер окна будет меняться нечасто
     g.init();
-    initCanvasText('.text',g.context.canvas.width, g.context.canvas.height, 'gost_type_a');
+
+    // TODO: дублируется текст
+    // initCanvasText('.text',g.context.canvas.width, g.context.canvas.height, 'gost_type_a');
 
     s.aspectRatio = g.canvas.height / g.canvas.width;
     
