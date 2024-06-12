@@ -40,6 +40,7 @@ import { drawShapes } from './shared/render/shapes.js';
 import { initCanvasText } from './libs/canvas-text/src/index.js';
 import { TextBlock } from './libs/canvas-text/src/models/TextBlock.js';
 import { textLinesCollection$ } from './libs/canvas-text/src/shared/state.js';
+import { cnv } from './libs/canvas-text/src/shared/cnv.js';
 // --- database
 import { list as dbList, initialize as dbInitialize } from './services/database.js'
 
@@ -96,9 +97,8 @@ var resizeObserver = new ResizeObserver((entries) => {
     // TODO: при проблемах с производительностью это можно оптимизировать. Пока предполагается, что 
     // размер окна будет меняться нечасто
     g.init();
-
-    // TODO: дублируется текст
-    // initCanvasText('.text',g.context.canvas.width, g.context.canvas.height, 'gost_type_a');
+    cnv.init('canvas.text',g.canvas.width,g.canvas.height,'gost_type_a');
+    
 
     s.aspectRatio = g.canvas.height / g.canvas.width;
     
