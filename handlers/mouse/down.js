@@ -145,7 +145,24 @@ function handleMouseDown(mouse) {
 
             break;
         case 'line':
-            a.line.start = a.start;
+
+            if (!a.clickLineStart) {
+                a.line.start = a.start;
+                a.clickLineStart = true;
+            }
+            else if (a.clickLineStart) {
+                if (a.anglePosition) {
+                    a.end = { ...a.anglePosition };
+                }
+                else {
+                    a.end = { ...a.start };
+
+                }
+
+                a.line.end = a.end;
+                if (!(a.line.start.x === a.end.x && a.line.start.y === a.end.y)) { addShapes(a.line.getClone()); }
+                a.clickLineStart = false;
+            }
             break;
         case 'symline':
             a.symline.start = a.start;

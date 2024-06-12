@@ -30,6 +30,7 @@ const a = {
     clickScaleBaseDistanceY: null,
     clickScaleBaseDistance: null,
     clickScaleShapeDistance: null,
+    clickLineStart: null,
 
     start: null,
     end: null,

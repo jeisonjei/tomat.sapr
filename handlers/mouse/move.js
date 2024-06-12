@@ -132,7 +132,7 @@ function handleMouseMove(mouse) {
         boundaryModeObserver(mouse, a.activeShapes);
 
 
-        if (a.isMouseDown) {
+        if (a.isMouseDown || a.clickLineStart) {
             switch (gm()) {
                 case 'edit':
                     const editShapes = a.shapes.filter(shape => shape.edit !== null);
@@ -228,7 +228,6 @@ function handleMouseMove(mouse) {
                     drawSingle(a.selectFrame);
                     break;
                 case 'line':
-
                     if (a.angle_snap) {
 
                         a.line.end.x = a.anglePosition.x;

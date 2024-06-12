@@ -122,8 +122,8 @@ function handleMouseUp(mouse) {
 
             break;
         case 'line':
-            a.line.end = a.end;
-            if (!(a.start.x === a.end.x && a.start.y === a.end.y)) { addShapes(a.line.getClone()); }
+            // a.line.end = a.end;
+            // if (!(a.start.x === a.end.x && a.start.y === a.end.y)) { addShapes(a.line.getClone()); }
             break;
         case 'symline':
             a.symline.end = a.end;
