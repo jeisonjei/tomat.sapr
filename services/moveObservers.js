@@ -5,6 +5,7 @@ import { s } from '../shared/globalState/settings.mjs'
 import { gm, setMode, mode_elem } from "../page.mjs";
 import { checkFunction, getColor } from "../shared/common.mjs";
 import { drawSingle } from "../shared/render/shapes.js";
+import { addTooltip, clearTooltipAll } from "./tooltip.js";
 
 export function colorMagnetsObserver(mouse, shapes) {
     /**
@@ -124,6 +125,13 @@ export function boundaryModeObserver(mouse,shapes) {
                 shape.setSelectBoundary();
                 drawSingle(shape.selectBoundary);
 
+                // create div element absolutely positioned according to the element position
+                if (!shape.isSelected) {
+                    addTooltip(shape.id,shape.type,shape.selectBoundary,shape.getLength().toFixed(1), 'длина');
+                }
+                else {
+                    clearTooltipAll();
+                }
             })
         }
         else {
@@ -133,6 +141,8 @@ export function boundaryModeObserver(mouse,shapes) {
             else {
                 setMode(mode_elem, 'break');
             }
+            clearTooltipAll();
+
         }
 
     }

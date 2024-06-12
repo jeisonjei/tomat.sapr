@@ -317,6 +317,12 @@ export class Line extends BasicShape {
         return false;
     }
 
+    getLength() {
+        const dx = this.end.x - this.start.x;
+        const dy = this.end.y - this.start.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
 
 
 }

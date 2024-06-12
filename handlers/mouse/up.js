@@ -29,10 +29,6 @@ function handleMouseUp(mouse) {
         a.end = mouse;
     }
 
-    console.log(` start: ${JSON.stringify(a.start)}`);
-    console.log(` end: ${JSON.stringify(a.end)}`);
-
-
     switch (gm()) {
         case 'edit':
             const editShapes = a.shapes.filter(shape => shape.edit !== null);
