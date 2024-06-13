@@ -21,6 +21,10 @@
           <td class={td2Class}>Включение и выключение магнитов</td>
         </tr>
         <tr>
+          <td class={td1Class}>F4</td>
+          <td class={td2Class}>Ортогональный режим черчения</td>
+        </tr>
+        <tr>
           <td class={td1Class}>SHIFT + F</td>
           <td class={td2Class}>Включение и выключение магнитов</td>
         </tr>
