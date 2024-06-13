@@ -7,6 +7,7 @@ import { generateDXFContent } from "./shared/export/dxf.mjs";
 import jsPDF from "jspdf";
 import { cnv } from "./libs/canvas-text/src/shared/cnv.js";
 import { rerender } from "./libs/canvas-text/src/index.js";
+import { clearTooltipAll } from "./services/tooltip.js";
 
 // rxdb
 const mode_elem = document.getElementById('mode');
@@ -52,10 +53,14 @@ keyDown$.subscribe(event => {
 
 
     // --- эфки - эфки не включают никакой режим mode
-    if (['F1', 'F3'].includes(event.key)) {
+    if (['F1', 'F3', 'F4'].includes(event.key)) {
         event.preventDefault();
         if (event.key === 'F3') {
             magnetsCheckbox.checked = !magnetsCheckbox.checked;
+        }
+        else if (event.key === 'F4') {
+            angleSnapCheckbox.checked =!angleSnapCheckbox.checked;   
+            a.angle_snap = !a.angle_snap;
         }
         else if (event.key === 'F1') {
             a.isPrintAreaVisible =!a.isPrintAreaVisible;
@@ -211,6 +216,9 @@ keyDown$.subscribe(event => {
 
 
             t.editId = null;
+            a.isMouseDown = false;
+            a.clickLineStart = false;
+            clearTooltipAll();
             // режим 'select' устанавливается в библиотеке canvas-text
             // setMode(mode_elem, 'select');
             break;
@@ -224,7 +232,6 @@ keyDown$.subscribe(event => {
 
         case 'Shift':
             a.angle_snap = true;
-            angleSnapCheckbox.checked = true
 
             break;
     }
@@ -232,9 +239,8 @@ keyDown$.subscribe(event => {
 
 keyUp$.subscribe(event => {
     // Handle key up events
-    if (!event.shiftKey) {
+    if (!event.shiftKey && !angleSnapCheckbox.checked) {
         a.angle_snap = false;
-        angleSnapCheckbox.checked = false;
     }
     if (!event.ctrlKey) {
         ctrlCheckbox.checked = false;
@@ -267,6 +273,7 @@ const saveDxfButton = document.getElementById('saveDxf');
 const isStampVisibleCheckbox = document.getElementById('is-stamp-visible');
 const fontSizeInput = document.getElementById('font-size-field');
 
+
 // --- text
 const fontSizeUpButton = document.getElementById('font-size-up');
 const fontSizeDownButton = document.getElementById('font-size-down');
@@ -279,7 +286,7 @@ const helpTable = document.querySelector('table');
 const saveButton = document.getElementById('save');
 
 
-const buttons = [textButton, lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, breakButton, scaleButton, saveDxfButton, document.getElementById('savePdf'), isStampVisibleCheckbox, saveButton, fontSizeInput];
+const buttons = [textButton, lineButton, rectangleButton, circleButton, selectButton, deleteButton, moveButton, copyButton, rotateButton, mirrorButton, breakButton, scaleButton, saveDxfButton, document.getElementById('savePdf'), isStampVisibleCheckbox, saveButton, fontSizeInput, angleSnapCheckbox];
 
 buttons.forEach(button => {
     const id = button.id;

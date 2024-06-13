@@ -26,6 +26,7 @@ import { cnv } from "../../libs/canvas-text/src/shared/cnv";
 import { rerender } from "../../libs/canvas-text/src";
 
 import { magnet$ } from "../../libs/canvas-text/src/shared/state";
+import { addTooltipLength, clearTooltipAll } from "../../services/tooltip";
 
 
 function handleMouseDown(mouse) {
@@ -149,20 +150,26 @@ function handleMouseDown(mouse) {
             if (!a.clickLineStart) {
                 a.line.start = a.start;
                 a.clickLineStart = true;
+
+
             }
             else if (a.clickLineStart) {
-                if (a.anglePosition) {
+                if (a.magnetPosition) {
+                    a.end = { ...a.magnetPosition };
+                }
+                else if (a.anglePosition) {
                     a.end = { ...a.anglePosition };
                 }
                 else {
-                    a.end = { ...a.start };
-
+                    a.end = mouse;
                 }
 
-                a.line.end = a.end;
+                a.line.end = {...a.end};
                 if (!(a.line.start.x === a.end.x && a.line.start.y === a.end.y)) { addShapes(a.line.getClone()); }
                 a.clickLineStart = false;
+                clearTooltipAll();
             }
+            // Так как функция "up" для линий теперь не используется, сбросим значение "isMouseDown"
             break;
         case 'symline':
             a.symline.start = a.start;

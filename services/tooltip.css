@@ -8,6 +8,8 @@
     position: absolute;
     z-index: 100;
 
+}
+.grid-tooltip{
     display: grid;
     grid-template-columns: 1fr 1fr;
 }

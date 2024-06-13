@@ -1,4 +1,9 @@
-import { g, getLowerLeftPoint } from "../shared/common.mjs";
+import { findThirdPoint, g, getAngleDegrees, getLowerLeftPoint } from "../shared/common.mjs";
+import { a } from "../shared/globalState/a";
+import { addShapes, drawShapes, updateActiveShapes } from "../shared/render/shapes";
+import { g as webgl } from "../shared/globalState/g";
+import { Point } from "../models/Point.mjs";
+
 
 /**
  * Функция добавления всплывающих сообщений.
@@ -14,17 +19,96 @@ function addTooltip(id, type, selectBoundary, message, tooltipName) {
     }
     var tooltip = document.createElement("div");
     tooltip.classList.add("shape-tooltip");
+    tooltip.classList.add("grid-tooltip");
     tooltip.setAttribute("id", id);
     var anchor = getLowerLeftPoint(selectBoundary);
+    var padding = 20;
+    var offset = 5;
+
+    if (anchor.x > padding && anchor.y < window.innerHeight - padding) {
+        var anchorX = anchor.x + offset;
+        var anchorY = anchor.y + offset;
+        tooltip.style.left = anchorX + "px";
+        tooltip.style.top = anchorY + "px";
+        tooltip.innerHTML = `<div><b>${tooltipName}</b></div></div>${message}</div>`;
     
+        document.body.appendChild(tooltip);
+        
+    }
+
+}
+/**
+ * Функция добавления поля ввода длины для линий
+ * @param {string} id - id объекта
+ * @param {number} length - длина линии
+ */
+function addTooltipLength(id, selectBoundary, length, lineEndPoint) {
+    
+    
+    var tooltip = document.createElement("div");
+    var inputField = document.createElement("input");
+
+    inputField.setAttribute("type", "text");
+    inputField.setAttribute("value", length);
+    inputField.setAttribute("id", id);
+    inputField.classList.add("shape-tooltip-input");
+
+    tooltip.classList.add("shape-tooltip");
+    tooltip.setAttribute("id", id);
+    var anchor = getLowerLeftPoint(selectBoundary);
+
     var offset = 5;
     var anchorX = anchor.x + offset;
     var anchorY = anchor.y + offset;
     tooltip.style.left = anchorX + "px";
     tooltip.style.top = anchorY + "px";
-    tooltip.innerHTML = `<div><b>${tooltipName}</b></div></div>${message}</div>`;
+    inputField.value = length;
 
-    document.body.appendChild(tooltip);
+    var existingTooltip = document.querySelector('.shape-tooltip');
+    
+    if (!existingTooltip) {
+        tooltip.appendChild(inputField);
+        document.body.appendChild(tooltip);
+        inputField.focus();
+        inputField.select();
+        inputField.addEventListener("keydown", function (e) {
+            if (e.key === 'Enter') {
+                /**
+                 * Это очевидно, но просто напоминание - этот блок выполняется только если во время черчения нажат Enter,
+                 * то есть на текущую функциональность он никак не влияет
+                 */
+                let virtualLineEnd = g(0, 0);
+                if (a.magnetPosition) {
+                    virtualLineEnd = { ...a.magnetPosition };
+                }
+                else {
+                    virtualLineEnd = { ...a.line.end };
+                }
+            
+                let point3 = findThirdPoint(a.line.start, virtualLineEnd, inputField.value*a.zlc);
+                a.line.end = point3;
+                addShapes(a.line.getClone());
+                a.clickLineStart = false;
+                a.isMouseDown = false;
+                clearTooltipAll();
+                updateActiveShapes();
+                drawShapes();
+            }
+        });
+
+    }
+    else {
+        let input = existingTooltip.firstChild;
+        input.value = length;
+        input.focus();
+        input.select();
+
+
+    }
+
+
+
+
 }
 /**
  * Функция удаления подсказки. У объекта одновременно может отображаться только одна подсказка
@@ -44,4 +128,4 @@ function clearTooltipAll() {
     }
 }
 
-export { addTooltip, clearTooltipAll };
+export { addTooltip, clearTooltipAll, addTooltipLength };

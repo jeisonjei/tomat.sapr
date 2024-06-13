@@ -31,6 +31,11 @@ import { textLinesCollection } from "../../libs/canvas-text/src/shared/state.js"
 import { fromEvent, map } from "rxjs";
 import { rerender } from "../../libs/canvas-text/src/index.js";
 import { cnv } from "../../libs/canvas-text/src/shared/cnv.js";
+import { addTooltipLength } from "../../services/tooltip.js";
+
+// --- other libraries --------------------------------
+import { v4 as uuidv4 } from "uuid";
+
 
 function handleMouseMove(mouse) {
     /**
@@ -235,6 +240,12 @@ function handleMouseMove(mouse) {
                     } else {
                         a.line.end = mouse;
                     }
+
+                    a.line.setSelectBoundary();
+                    addTooltipLength(uuidv4(), a.line.selectBoundary, (a.line.getLength()/a.zlc), a.line.end);
+                    
+    
+
                     drawSingle(a.line);
                     break;
                 case 'symline':

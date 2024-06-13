@@ -164,7 +164,8 @@ a.storedText$.subscribe((storedText) => {
     }
 });
 
-a.zlc = localStorage.getItem('zlc');
+a.zlc = !localStorage.getItem('zlc') ? 1 : localStorage.getItem('zlc');
+console.log(a.zlc);
 
 
 

@@ -127,7 +127,8 @@ export function boundaryModeObserver(mouse,shapes) {
 
                 // create div element absolutely positioned according to the element position
                 if (!shape.isSelected) {
-                    
+                    console.log(`** length ${shape.getLength()}`);
+                    console.log(`** zlc ${a.zlc}`);
                     let message = (shape.getLength()/a.zlc).toFixed(1)+' мм';
                     addTooltip(shape.id,shape.type,shape.selectBoundary,message, 'длина');
                 }

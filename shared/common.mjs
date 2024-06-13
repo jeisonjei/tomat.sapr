@@ -451,6 +451,21 @@ function getLowerLeftPoint(selectBoundary) {
   return g(minX, maxY);
 }
 
+function findThirdPoint(point1, point2, length) {
+  let xDiff = point2.x - point1.x;
+  let yDiff = point2.y - point1.y;
+
+  let distance = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+
+  let ratio = length / distance;
+
+  let x3 = point1.x + ratio * xDiff;
+  let y3 = point1.y + ratio * yDiff;
+
+  return new Point(x3,y3);
+}
+
+
 export {
   getCos,
   getSin,
@@ -489,5 +504,6 @@ export {
   getScalar,
   getDistance,
   isPointBetweenTwoPointsOnLine,
-  getLowerLeftPoint
+  getLowerLeftPoint,
+  findThirdPoint
 };
