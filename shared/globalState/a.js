@@ -33,6 +33,7 @@ const a = {
     clickLineStart: null,
     clickRectangleStart: null,
     clickCircleStart: null,
+    clickSquareStart: null,
 
     start: null,
     end: null,

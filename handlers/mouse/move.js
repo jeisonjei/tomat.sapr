@@ -137,7 +137,7 @@ function handleMouseMove(mouse) {
         boundaryModeObserver(mouse, a.activeShapes);
 
 
-        if (a.isMouseDown || a.clickLineStart || a.clickRectangleStart || a.clickCircleStart) {
+        if (a.isMouseDown || a.clickLineStart || a.clickRectangleStart || a.clickCircleStart || a.clickSquareStart) {
             switch (gm()) {
                 case 'edit':
                     const editShapes = a.shapes.filter(shape => shape.edit !== null);

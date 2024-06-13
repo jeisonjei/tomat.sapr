@@ -208,7 +208,39 @@ function handleMouseDown(mouse) {
             }
             break;
         case 'square':
-            a.rectangle.p1 = a.start;
+            if (!a.clickSquareStart) {
+                a.rectangle.p1 = a.start;
+                a.clickSquareStart = true;
+            }
+            else if (a.clickSquareStart) {
+                if (a.magnetPosition) {
+                    a.end = { ...a.magnetPosition };
+                }
+                else {
+                    a.end = {...mouse};
+                }
+
+                let s = {...a.rectangle.p1};
+                a.rectangle.width = (a.end.x - s.x);
+
+                const height = (a.end.y - s.y);
+                if (height < 0 && a.rectangle.width < 0) {
+                    a.rectangle.height = a.rectangle.width;
+                } else if (height < 0 && a.rectangle.width > 0) {
+                    a.rectangle.height = -a.rectangle.width;
+                } else if (height > 0 && a.rectangle.width < 0) {
+                    a.rectangle.height = -a.rectangle.width;
+                } else if (height > 0 && a.rectangle.width > 0) {
+                    a.rectangle.height = a.rectangle.width;
+                }
+                a.rectangle.p2 = new Point(s.x + a.rectangle.width, s.y);
+                a.rectangle.p3 = new Point(s.x + a.rectangle.width, s.y + a.rectangle.height);
+                a.rectangle.p4 = new Point(s.x, s.y + a.rectangle.height);
+    
+                addShapes(a.rectangle.getClone());
+                a.clickSquareStart = false;
+                clearTooltipAll();
+            }    
             break;
         case 'circle':
             if (!a.clickCircleStart) {

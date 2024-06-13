@@ -146,23 +146,23 @@ function handleMouseUp(mouse) {
 
             break;
         case 'square':
-            a.rectangle.width = (a.end.x - a.start.x);
+            // a.rectangle.width = (a.end.x - a.start.x);
 
-            const height = (a.end.y - a.start.y);
-            if (height < 0 && a.rectangle.width < 0) {
-                a.rectangle.height = a.rectangle.width;
-            } else if (height < 0 && a.rectangle.width > 0) {
-                a.rectangle.height = -a.rectangle.width;
-            } else if (height > 0 && a.rectangle.width < 0) {
-                a.rectangle.height = -a.rectangle.width;
-            } else if (height > 0 && a.rectangle.width > 0) {
-                a.rectangle.height = a.rectangle.width;
-            }
-            a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
-            a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
-            a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
+            // const height = (a.end.y - a.start.y);
+            // if (height < 0 && a.rectangle.width < 0) {
+            //     a.rectangle.height = a.rectangle.width;
+            // } else if (height < 0 && a.rectangle.width > 0) {
+            //     a.rectangle.height = -a.rectangle.width;
+            // } else if (height > 0 && a.rectangle.width < 0) {
+            //     a.rectangle.height = -a.rectangle.width;
+            // } else if (height > 0 && a.rectangle.width > 0) {
+            //     a.rectangle.height = a.rectangle.width;
+            // }
+            // a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
+            // a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
+            // a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
 
-            addShapes(a.rectangle.getClone());
+            // addShapes(a.rectangle.getClone());
             break;
         case 'circle':
             // a.circle.radius = Math.hypot((a.end.x - a.start.x), a.end.y - a.start.y);;
