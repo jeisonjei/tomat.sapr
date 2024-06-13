@@ -22,7 +22,7 @@ function addTooltip(id, type, selectBoundary, message, tooltipName) {
     tooltip.classList.add("grid-tooltip");
     tooltip.setAttribute("id", id);
     var anchor = getLowerLeftPoint(selectBoundary);
-    var padding = 20;
+    var padding = 25;
     var offset = 5;
 
     if (anchor.x > padding && anchor.y < window.innerHeight - padding) {
