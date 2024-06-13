@@ -159,4 +159,7 @@ export class Circle extends BasicShape {
         mat3.transpose(pan_mat, pan_mat);
         this.center = transformPointByMatrix3(pan_mat, this.center);
     }
+    getLength() {
+        
+    }
 }

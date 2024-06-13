@@ -211,7 +211,16 @@ function handleMouseDown(mouse) {
             a.rectangle.p1 = a.start;
             break;
         case 'circle':
-            a.circle.center = a.start;
+            if (!a.clickCircleStart) {
+                a.circle.center = a.start;
+                a.clickCircleStart = true;
+            }
+            else if (a.clickCircleStart) {
+                a.circle.radius = Math.hypot((a.end.x - a.start.x), a.end.y - a.start.y);;
+                addShapes(a.circle.getClone());
+                a.clickCircleStart = false;
+                clearTooltipAll();
+            }
             break;
         case 'move':
             if (!a.clickMoveStart) {

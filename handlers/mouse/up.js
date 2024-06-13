@@ -165,8 +165,8 @@ function handleMouseUp(mouse) {
             addShapes(a.rectangle.getClone());
             break;
         case 'circle':
-            a.circle.radius = Math.hypot((a.end.x - a.start.x), a.end.y - a.start.y);;
-            addShapes(a.circle.getClone());
+            // a.circle.radius = Math.hypot((a.end.x - a.start.x), a.end.y - a.start.y);;
+            // addShapes(a.circle.getClone());
             break;
         default:
             break;
