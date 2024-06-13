@@ -154,6 +154,10 @@ function handleMouseDown(mouse) {
 
             }
             else if (a.clickLineStart) {
+                /**
+                 * Так как не все фигуры пока чертятся двумя щелчками, эти три блока пока будут располагаться не центрально в функции,
+                 * а здесь - внутри блоков case
+                 */
                 if (a.magnetPosition) {
                     a.end = { ...a.magnetPosition };
                 }
@@ -161,10 +165,10 @@ function handleMouseDown(mouse) {
                     a.end = { ...a.anglePosition };
                 }
                 else {
-                    a.end = mouse;
+                    a.end = {...mouse};
                 }
 
-                a.line.end = {...a.end};
+                a.line.end = { ...a.end };
                 if (!(a.line.start.x === a.end.x && a.line.start.y === a.end.y)) { addShapes(a.line.getClone()); }
                 a.clickLineStart = false;
                 clearTooltipAll();
@@ -175,7 +179,33 @@ function handleMouseDown(mouse) {
             a.symline.start = a.start;
             break;
         case 'rectangle':
-            a.rectangle.p1 = a.start;
+            if (!a.clickRectangleStart) {
+                a.rectangle.p1 = a.start;
+
+                a.clickRectangleStart = true;
+            }
+            else if (a.clickRectangleStart) {
+                if (a.magnetPosition) {
+                    a.end = { ...a.magnetPosition };
+                }
+                else {
+                    a.end = {...mouse};
+                }
+                a.rectangle.width = a.end.x - a.rectangle.p1.x;
+                a.rectangle.height = a.end.y - a.rectangle.p1.y;
+
+                a.rectangle.p2 = new Point(a.rectangle.p1.x + a.rectangle.width, a.rectangle.p1.y);
+                a.rectangle.p3 = new Point(a.rectangle.p1.x + a.rectangle.width, a.rectangle.p1.y + a.rectangle.height);
+                a.rectangle.p4 = new Point(a.rectangle.p1.x, a.rectangle.p1.y + a.rectangle.height);
+
+                a.rectangle.updateCenter();
+
+                addShapes(a.rectangle.getClone());
+
+
+                a.clickRectangleStart = false;
+                clearTooltipAll();
+            }
             break;
         case 'square':
             a.rectangle.p1 = a.start;

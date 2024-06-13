@@ -166,7 +166,7 @@ a.storedText$.subscribe((storedText) => {
 });
 
 a.zlc = !localStorage.getItem('zlc') ? 1 : localStorage.getItem('zlc');
-console.log(`** zlc: ${zlc}`);
+console.log(`** zlc: ${a.zlc}`);
 
 
 

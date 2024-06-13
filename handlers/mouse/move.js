@@ -137,7 +137,7 @@ function handleMouseMove(mouse) {
         boundaryModeObserver(mouse, a.activeShapes);
 
 
-        if (a.isMouseDown || a.clickLineStart) {
+        if (a.isMouseDown || a.clickLineStart || a.clickRectangleStart) {
             switch (gm()) {
                 case 'edit':
                     const editShapes = a.shapes.filter(shape => shape.edit !== null);
@@ -267,8 +267,6 @@ function handleMouseMove(mouse) {
                     a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
                     a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
                     a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
-
-
 
                     drawSingle(a.rectangle);
                     break;

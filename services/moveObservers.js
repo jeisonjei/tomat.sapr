@@ -15,8 +15,8 @@ export function colorMagnetsObserver(mouse, shapes) {
         return;
     }
 
-    else if (['move', 'copy', 'rotate', 'rotatecopy', 'mirror','scale'].includes(gm())) {
-        const color = getColor(212, 39, 216,1);
+    else if (['move', 'copy', 'rotate', 'rotatecopy', 'mirror', 'scale'].includes(gm())) {
+        const color = getColor(212, 39, 216, 1);
         shapes.filter(shape => shape.isSelected).forEach(shape => {
             switch (shape.type) {
                 case 'line':
@@ -50,7 +50,7 @@ export function colorMagnetsObserver(mouse, shapes) {
 
 }
 
-export function editModeObserver(mouse,shapes) {
+export function editModeObserver(mouse, shapes) {
     if (a.isMouseDown) {
         return;
     }
@@ -108,17 +108,17 @@ export function editModeObserver(mouse,shapes) {
 
 }
 
-export function boundaryModeObserver(mouse,shapes) {
+export function boundaryModeObserver(mouse, shapes) {
     if (a.isMouseDown) {
         return;
     }
 
     t.editBoundary = false;
 
-    if (['select','boundary','break'].includes(gm())) {
+    if (['select', 'boundary', 'break'].includes(gm())) {
         const isinSelectBoundary = shapes.filter(shape => checkFunction(shape, 'isinSelectBoundary', mouse));
         if (isinSelectBoundary.length > 0) {
-            if (gm()!=='break') {
+            if (gm() !== 'break') {
                 setMode(mode_elem, 'boundary');
             }
             isinSelectBoundary.forEach(shape => {
@@ -127,10 +127,8 @@ export function boundaryModeObserver(mouse,shapes) {
 
                 // create div element absolutely positioned according to the element position
                 if (!shape.isSelected) {
-                    console.log(`** length ${shape.getLength()}`);
-                    console.log(`** zlc ${a.zlc}`);
-                    let message = (shape.getLength()/a.zlc).toFixed(1)+' мм';
-                    addTooltip(shape.id,shape.type,shape.selectBoundary,message, 'длина');
+                    let message = (shape.getLength() / a.zlc).toFixed(1) + ' мм';
+                    addTooltip(shape.id, shape.type, shape.selectBoundary, message, 'длина');
                 }
                 else {
                     clearTooltipAll();
@@ -138,7 +136,7 @@ export function boundaryModeObserver(mouse,shapes) {
             })
         }
         else {
-            if (gm()!=='break') {
+            if (gm() !== 'break') {
                 setMode(mode_elem, 'select');
             }
             else {

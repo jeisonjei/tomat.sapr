@@ -241,6 +241,8 @@ export class Rectangle extends BasicShape {
         this.p4 = transformPointByMatrix3(pan_mat, this.p4);
         this.updateCenter();
     }
-
+    getLength() {
+        
+    }
 
 }

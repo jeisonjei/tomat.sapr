@@ -133,16 +133,16 @@ function handleMouseUp(mouse) {
             break;
         case 'rectangle':
 
-            a.rectangle.width = a.end.x - a.start.x;
-            a.rectangle.height = a.end.y - a.start.y;
+            // a.rectangle.width = a.end.x - a.start.x;
+            // a.rectangle.height = a.end.y - a.start.y;
 
-            a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
-            a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
-            a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
+            // a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
+            // a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
+            // a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
 
-            a.rectangle.updateCenter();
+            // a.rectangle.updateCenter();
 
-            addShapes(a.rectangle.getClone());
+            // addShapes(a.rectangle.getClone());
 
             break;
         case 'square':

@@ -31,6 +31,8 @@ const a = {
     clickScaleBaseDistance: null,
     clickScaleShapeDistance: null,
     clickLineStart: null,
+    clickRectangleStart: null,
+    clickCircleStart: null,
 
     start: null,
     end: null,
@@ -68,7 +70,7 @@ const a = {
     isStampVisible: true,
 }
 
-export {a}
+export { a }
 
 
 
