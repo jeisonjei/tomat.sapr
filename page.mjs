@@ -218,6 +218,9 @@ keyDown$.subscribe(event => {
             t.editId = null;
             a.isMouseDown = false;
             a.clickLineStart = false;
+            a.clickRectangleStart = false;
+            a.clickCircleStart = false;
+            a.clickSquareStart = false;
             clearTooltipAll();
             // режим 'select' устанавливается в библиотеке canvas-text
             // setMode(mode_elem, 'select');
@@ -226,6 +229,7 @@ keyDown$.subscribe(event => {
             deleteShapes();
             drawShapes();
             updateActiveShapes();
+            clearTooltipAll();
 
 
             break;
