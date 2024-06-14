@@ -242,7 +242,7 @@ function handleMouseMove(mouse) {
                     }
 
                     a.line.setSelectBoundary();
-                    addTooltipLength(uuidv4(), a.line.selectBoundary, (a.line.getLength()/a.zlc), a.line.end, getLowerLeftPoint);
+                    addTooltipLength(uuidv4(), a.line.selectBoundary, (a.line.getLength()/a.zlc), getLowerLeftPoint);
                     
     
 

@@ -4,6 +4,12 @@ import { addShapes, drawShapes, updateActiveShapes } from "../shared/render/shap
 import { g as webgl } from "../shared/globalState/g";
 import { Point } from "../models/Point.mjs";
 
+/**
+ * Должны ли одновременно отображаться несколько марок, будь то информация или ввод данных? Наверное нет,
+ * поэтому для всех марок на фигурах будет один класс, по которому они и будут выбираться
+ */
+const ttcname = "shape-tooltip";
+
 
 /**
  * Функция добавления всплывающих сообщений.
@@ -13,12 +19,12 @@ import { Point } from "../models/Point.mjs";
  * @param {object} selectBoundary - область объекта. На данный момент все объекты - линии, прямоугольники и круги имеют объект "selectBoundary", который является прямоугольником из точек p1, p2, p3, p4
  */
 function addTooltipInfo(id, type, selectBoundary, message, tooltipName) {
-    var existingTooltip = document.getElementById(id);
+    var existingTooltip = document.querySelector(`.${ttcname}`);
     if (existingTooltip) {
-        return;
+        clearTooltipAll();
     }
     var tooltip = document.createElement("div");
-    tooltip.classList.add("shape-tooltip");
+    tooltip.classList.add(ttcname);
     tooltip.classList.add("grid-tooltip");
     tooltip.setAttribute("id", id);
     var anchor = getLowerLeftPoint(selectBoundary);
@@ -42,20 +48,21 @@ function addTooltipInfo(id, type, selectBoundary, message, tooltipName) {
  * @param {string} id - id объекта
  * @param {number} length - длина линии
  */
-function addTooltipLength(id, selectBoundary, length, lineEndPoint, anchorFunction) {
+function addTooltipLength(id, selectBoundary, length, anchorFunction) {
     
     
     var { tooltip, inputField } = createTooltipWithInput(length, id, selectBoundary, anchorFunction);
 
-    var existingTooltip = document.querySelector('.shape-tooltip');
+    var existingTooltip = document.querySelector(`.${ttcname}`);
     
     if (!existingTooltip) {
-        tooltip.appendChild(inputField);
+        
         document.body.appendChild(tooltip);
         inputField.focus();
         inputField.select();
         inputField.addEventListener("keydown", function (e) {
             if (e.key === 'Enter') {
+                console.log(`** Enter pressed`);
                 /**
                  * Это очевидно, но просто напоминание - этот блок выполняется только если во время черчения нажат Enter,
                  * то есть на текущую функциональность он никак не влияет
@@ -102,7 +109,7 @@ function createTooltipWithInput(length, id, selectBoundary, anchorFunction) {
     inputField.setAttribute("id", id);
     inputField.classList.add("shape-tooltip-input");
 
-    tooltip.classList.add("shape-tooltip");
+    tooltip.classList.add(ttcname);
     tooltip.setAttribute("id", id);
     var anchor = anchorFunction(selectBoundary);
 
@@ -112,6 +119,7 @@ function createTooltipWithInput(length, id, selectBoundary, anchorFunction) {
     tooltip.style.left = anchorX + "px";
     tooltip.style.top = anchorY + "px";
     inputField.value = length;
+    tooltip.appendChild(inputField);
     return { tooltip, inputField };
 }
 
@@ -127,7 +135,7 @@ function removeTooltip(id) {
  * Функция удаляет все подсказки shape-tooltip из документа
  */
 function clearTooltipAll() {
-    let tooltips = document.getElementsByClassName("shape-tooltip");
+    let tooltips = document.getElementsByClassName(ttcname);
     for (let i = 0; i < tooltips.length; i++) {
         document.body.removeChild(tooltips[i]);
     }
