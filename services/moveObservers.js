@@ -5,7 +5,7 @@ import { s } from '../shared/globalState/settings.mjs'
 import { gm, setMode, mode_elem } from "../page.mjs";
 import { checkFunction, getColor, getLowerLeftPoint } from "../shared/common.mjs";
 import { drawSingle } from "../shared/render/shapes.js";
-import { addTooltip, clearTooltipAll } from "./tooltip.js";
+import { addTooltipInfo, clearTooltipAll } from "./tooltip.js";
 
 export function colorMagnetsObserver(mouse, shapes) {
     /**
@@ -128,7 +128,7 @@ export function boundaryModeObserver(mouse, shapes) {
                 // create div element absolutely positioned according to the element position
                 if (!shape.isSelected) {
                     let message = (shape.getLength() / a.zlc).toFixed(1) + ' мм';
-                    addTooltip(shape.id, shape.type, shape.selectBoundary, message, 'длина');
+                    addTooltipInfo(shape.id, shape.type, shape.selectBoundary, message, 'длина');
                 }
                 else {
                     clearTooltipAll();

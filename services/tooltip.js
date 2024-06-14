@@ -12,7 +12,7 @@ import { Point } from "../models/Point.mjs";
  * @param {string} type - тип объекта - это может быть линия, прямоугольник и так далее - "line, rectangle ..."
  * @param {object} selectBoundary - область объекта. На данный момент все объекты - линии, прямоугольники и круги имеют объект "selectBoundary", который является прямоугольником из точек p1, p2, p3, p4
  */
-function addTooltip(id, type, selectBoundary, message, tooltipName) {
+function addTooltipInfo(id, type, selectBoundary, message, tooltipName) {
     var existingTooltip = document.getElementById(id);
     if (existingTooltip) {
         return;
@@ -128,4 +128,4 @@ function clearTooltipAll() {
     }
 }
 
-export { addTooltip, clearTooltipAll, addTooltipLength };
+export { addTooltipInfo, clearTooltipAll, addTooltipLength };
