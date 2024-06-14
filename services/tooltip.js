@@ -53,9 +53,9 @@ function addTooltipInfo(id, type, selectBoundary, message, tooltipName) {
  * @param {number} length - длина линии
  */
 function addTooltipLength(id, selectBoundary, length, anchorFunction) {
-    
-    
-    var { tooltip, inputField } = createTooltipWithInput(length, id, selectBoundary, anchorFunction);
+
+    var anchor = anchorFunction(selectBoundary);
+    var { tooltip, inputField } = createTooltipWithInput(length, id, anchor);
 
     var existingTooltip = document.querySelector(`.${ttcname}`);
     
@@ -66,7 +66,6 @@ function addTooltipLength(id, selectBoundary, length, anchorFunction) {
         inputField.select();
         inputField.addEventListener("keydown", function (e) {
             if (e.key === 'Enter') {
-                console.log(`** Enter pressed`);
                 /**
                  * Это очевидно, но просто напоминание - этот блок выполняется только если во время черчения нажат Enter,
                  * то есть на текущую функциональность он никак не влияет
@@ -104,7 +103,7 @@ function addTooltipLength(id, selectBoundary, length, anchorFunction) {
 
 
 }
-function createTooltipWithInput(length, id, selectBoundary, anchorFunction) {
+function createTooltipWithInput(length, id, anchor) {
     var tooltip = document.createElement("div");
     var inputField = document.createElement("input");
 
@@ -115,7 +114,6 @@ function createTooltipWithInput(length, id, selectBoundary, anchorFunction) {
 
     tooltip.classList.add(ttcname);
     tooltip.setAttribute("id", id);
-    var anchor = anchorFunction(selectBoundary);
 
     var offset = 5;
     var anchorX = anchor.x + offset;
