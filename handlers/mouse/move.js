@@ -31,7 +31,7 @@ import { textLinesCollection } from "../../libs/canvas-text/src/shared/state.js"
 import { fromEvent, map } from "rxjs";
 import { rerender } from "../../libs/canvas-text/src/index.js";
 import { cnv } from "../../libs/canvas-text/src/shared/cnv.js";
-import { addTooltipLength } from "../../services/tooltip.js";
+import { addTooltipLength, addTooltipWidthAndHeight } from "../../services/tooltip.js";
 
 // --- other libraries --------------------------------
 import { v4 as uuidv4 } from "uuid";
@@ -242,7 +242,8 @@ function handleMouseMove(mouse) {
                     }
 
                     a.line.setSelectBoundary();
-                    addTooltipLength(0, a.line.selectBoundary, (a.line.getLength()/a.zlc), getLowerLeftPoint);
+                    let scaledLength = a.line.getLength() / a.zlc;
+                    addTooltipLength(0, a.line.selectBoundary, scaledLength, getLowerLeftPoint);
                     
     
 
@@ -267,6 +268,11 @@ function handleMouseMove(mouse) {
                     a.rectangle.p2 = new Point(a.start.x + a.rectangle.width, a.start.y);
                     a.rectangle.p3 = new Point(a.start.x + a.rectangle.width, a.start.y + a.rectangle.height);
                     a.rectangle.p4 = new Point(a.start.x, a.start.y + a.rectangle.height);
+
+                    let scaledWidth = a.rectangle.width / a.zlc;
+                    let scaledHeight = a.rectangle.height / a.zlc;
+
+                    addTooltipWidthAndHeight(0, scaledWidth,scaledHeight,a.start,mouse);
 
                     drawSingle(a.rectangle);
                     break;

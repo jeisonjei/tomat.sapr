@@ -103,10 +103,112 @@ function addTooltipLength(id, selectBoundary, length, anchorFunction) {
 
 
 }
+/**
+ * Функция добавления двух марок - для ширины и длины. Используется для прямоугольников
+ */
+function addTooltipWidthAndHeight(id, width,height, anchor, mouse) {
+    var { tooltip:mark1, inputField:inputField1 } = createTooltipWithInput(width, id+1, anchor);
+    var emark1 = document.getElementById(id + 1);
+    if (!emark1) {
+        document.body.appendChild(mark1);
+        emark1 = document.getElementById(id + 1);
+        mark1.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                console.log(`** width assigned`)
+                if (a.magnetPosition) {
+                    a.end = { ...a.magnetPosition };
+                }
+                else {
+                    a.end = {...mouse};
+                }
+                a.rectangle.width = inputField1.value*a.zlc;
+                a.rectangle.height = inputField2.value*a.zlc;
+    
+                a.rectangle.p2 = new Point(a.rectangle.p1.x + a.rectangle.width, a.rectangle.p1.y);
+                a.rectangle.p3 = new Point(a.rectangle.p1.x + a.rectangle.width, a.rectangle.p1.y + a.rectangle.height);
+                a.rectangle.p4 = new Point(a.rectangle.p1.x, a.rectangle.p1.y + a.rectangle.height);
+    
+                a.rectangle.updateCenter();
+    
+                addShapes(a.rectangle.getClone());
+    
+    
+                a.clickRectangleStart = false;
+                a.isMouseDown = false;
+                updateActiveShapes();
+                drawShapes();
+                clearTooltipAll();
+    
+           } 
+        });
+    
+    }
+    var top = parseFloat(mark1.style.top.split('px')[0]);
+    var left = parseFloat(mark1.style.left.split('px')[0]);
+    var offset = mark1.clientHeight;
+    var anchor2 = g(left, top+offset);
+    var { tooltip: mark2, inputField: inputField2 } = createTooltipWithInput(height, id+2, anchor2);
+    var emark2 = document.getElementById(id + 2);
+    if (!emark2) {
+        document.body.appendChild(mark2);   
+        emark2 = document.getElementById(id + 2);
+        mark2.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                console.log(`** width assigned`)
+                if (a.magnetPosition) {
+                    a.end = { ...a.magnetPosition };
+                }
+                else {
+                    a.end = {...mouse};
+                }
+                a.rectangle.width = inputField1.value*a.zlc;
+                a.rectangle.height = inputField2.value*a.zlc;
+    
+                a.rectangle.p2 = new Point(a.rectangle.p1.x + a.rectangle.width, a.rectangle.p1.y);
+                a.rectangle.p3 = new Point(a.rectangle.p1.x + a.rectangle.width, a.rectangle.p1.y + a.rectangle.height);
+                a.rectangle.p4 = new Point(a.rectangle.p1.x, a.rectangle.p1.y + a.rectangle.height);
+    
+                a.rectangle.updateCenter();
+    
+                addShapes(a.rectangle.getClone());
+    
+    
+                a.clickRectangleStart = false;
+                a.isMouseDown = false;
+                updateActiveShapes();
+                drawShapes();
+                clearTooltipAll();
+    
+           } 
+        });
+
+        
+    }
+
+    var newTop = parseFloat(mark1.style.top.split('px')[0]) - mark1.clientHeight * 2 -10;
+    mark1.style.top = newTop + 'px';
+    mark2.style.top = (newTop + offset)+ 'px';
+    
+    
+    
+    emark1.firstChild.value = width;
+    emark1.firstChild.focus();
+    emark1.firstChild.select();
+    emark2.firstChild.value = height;
+
+
+    emark2.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            
+
+        }
+    });
+
+}
 function createTooltipWithInput(length, id, anchor) {
     var tooltip = document.createElement("div");
     var inputField = document.createElement("input");
-
+    
     inputField.setAttribute("type", "text");
     inputField.setAttribute("value", length);
     inputField.setAttribute("id", id);
@@ -115,9 +217,8 @@ function createTooltipWithInput(length, id, anchor) {
     tooltip.classList.add(ttcname);
     tooltip.setAttribute("id", id);
 
-    var offset = 5;
-    var anchorX = anchor.x + offset;
-    var anchorY = anchor.y + offset;
+    var anchorX = anchor.x
+    var anchorY = anchor.y
     tooltip.style.left = anchorX + "px";
     tooltip.style.top = anchorY + "px";
     inputField.value = length;
@@ -137,10 +238,10 @@ function removeTooltip(id) {
  * Функция удаляет все подсказки shape-tooltip из документа
  */
 function clearTooltipAll() {
-    let tooltips = document.getElementsByClassName(ttcname);
+    let tooltips = document.querySelectorAll(`.${ttcname}`);
     for (let i = 0; i < tooltips.length; i++) {
         document.body.removeChild(tooltips[i]);
     }
 }
 
-export { addTooltipInfo, clearTooltipAll, addTooltipLength };
+export { addTooltipInfo, clearTooltipAll, addTooltipLength, addTooltipWidthAndHeight };
