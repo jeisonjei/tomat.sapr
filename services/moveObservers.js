@@ -127,8 +127,30 @@ export function boundaryModeObserver(mouse, shapes) {
 
                 // create div element absolutely positioned according to the element position
                 if (!shape.isSelected) {
-                    let message = (shape.getLength() / a.zlc).toFixed(1) + ' мм';
-                    addTooltipInfo(shape.id, shape.type, shape.selectBoundary, message, 'длина');
+                    let htmlMessage = null;
+                    if (shape.type === 'line') {
+                        let length = (shape.getLength() / a.zlc).toFixed(1) + ' мм';
+                        htmlMessage = `<div>
+                                            <p><b>длина</b></p>
+                                       </div>
+                                       <div>
+                                           <p>${length}</p>
+                                       </div>`;
+
+                    }
+                    else if (shape.type === 'rectangle') {
+                        let width = (shape.getWidth() / a.zlc).toFixed(1) + ' мм';
+                        let height = (shape.getHeight() / a.zlc).toFixed(1) + ' мм';
+                        htmlMessage = `<div>
+                                           <p><b>ширина</b></p>
+                                           <p><b>высота</b></p>
+                                       </div>
+                                       <div>
+                                           <p>${width}</p>
+                                           <p>${height}</p>
+                                       </div>`;
+                    }
+                    addTooltipInfo(shape.id, shape.selectBoundary, htmlMessage);
                 }
                 else {
                     clearTooltipAll();

@@ -19,7 +19,7 @@ const gridcname = "grid-tooltip";
  * @param {string} type - тип объекта - это может быть линия, прямоугольник и так далее - "line, rectangle ..."
  * @param {object} selectBoundary - область объекта. На данный момент все объекты - линии, прямоугольники и круги имеют объект "selectBoundary", который является прямоугольником из точек p1, p2, p3, p4
  */
-function addTooltipInfo(id, type, selectBoundary, message, tooltipName) {
+function addTooltipInfo(id, selectBoundary, htmlMessage) {
     if (a.pan) {
         return;
     }
@@ -40,7 +40,7 @@ function addTooltipInfo(id, type, selectBoundary, message, tooltipName) {
         var anchorY = anchor.y + offset;
         tooltip.style.left = anchorX + "px";
         tooltip.style.top = anchorY + "px";
-        tooltip.innerHTML = `<div><b>${tooltipName}</b></div></div>${message}</div>`;
+        tooltip.innerHTML = htmlMessage;
     
         document.body.appendChild(tooltip);
         
