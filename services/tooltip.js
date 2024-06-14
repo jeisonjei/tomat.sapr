@@ -9,6 +9,7 @@ import { Point } from "../models/Point.mjs";
  * поэтому для всех марок на фигурах будет один класс, по которому они и будут выбираться
  */
 const ttcname = "shape-tooltip";
+const gridcname = "grid-tooltip";
 
 
 /**
@@ -28,7 +29,7 @@ function addTooltipInfo(id, type, selectBoundary, message, tooltipName) {
     }
     var tooltip = document.createElement("div");
     tooltip.classList.add(ttcname);
-    tooltip.classList.add("grid-tooltip");
+    tooltip.classList.add(gridcname);
     tooltip.setAttribute("id", id);
     var anchor = getLowerLeftPoint(selectBoundary);
     var padding = 25;
