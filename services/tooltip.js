@@ -19,6 +19,9 @@ const ttcname = "shape-tooltip";
  * @param {object} selectBoundary - область объекта. На данный момент все объекты - линии, прямоугольники и круги имеют объект "selectBoundary", который является прямоугольником из точек p1, p2, p3, p4
  */
 function addTooltipInfo(id, type, selectBoundary, message, tooltipName) {
+    if (a.pan) {
+        return;
+    }
     var existingTooltip = document.querySelector(`.${ttcname}`);
     if (existingTooltip) {
         clearTooltipAll();
