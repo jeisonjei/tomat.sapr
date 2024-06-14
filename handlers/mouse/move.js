@@ -18,7 +18,7 @@ import { drawShapes, drawSingle } from "../../shared/render/shapes";
 
 import { Point } from "../../models/Point.mjs";
 
-import { canvasGetWebglCoordinates, canvasGetMouse } from "../../shared/common.mjs";
+import { canvasGetWebglCoordinates, canvasGetMouse, getLowerLeftPoint } from "../../shared/common.mjs";
 
 import { getAnglePosition } from "../../shared/magnets.mjs";
 
@@ -242,7 +242,7 @@ function handleMouseMove(mouse) {
                     }
 
                     a.line.setSelectBoundary();
-                    addTooltipLength(uuidv4(), a.line.selectBoundary, (a.line.getLength()/a.zlc), a.line.end);
+                    addTooltipLength(uuidv4(), a.line.selectBoundary, (a.line.getLength()/a.zlc), a.line.end, getLowerLeftPoint);
                     
     
 

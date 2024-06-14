@@ -42,27 +42,10 @@ function addTooltipInfo(id, type, selectBoundary, message, tooltipName) {
  * @param {string} id - id объекта
  * @param {number} length - длина линии
  */
-function addTooltipLength(id, selectBoundary, length, lineEndPoint) {
+function addTooltipLength(id, selectBoundary, length, lineEndPoint, anchorFunction) {
     
     
-    var tooltip = document.createElement("div");
-    var inputField = document.createElement("input");
-
-    inputField.setAttribute("type", "text");
-    inputField.setAttribute("value", length);
-    inputField.setAttribute("id", id);
-    inputField.classList.add("shape-tooltip-input");
-
-    tooltip.classList.add("shape-tooltip");
-    tooltip.setAttribute("id", id);
-    var anchor = getLowerLeftPoint(selectBoundary);
-
-    var offset = 5;
-    var anchorX = anchor.x + offset;
-    var anchorY = anchor.y + offset;
-    tooltip.style.left = anchorX + "px";
-    tooltip.style.top = anchorY + "px";
-    inputField.value = length;
+    var { tooltip, inputField } = createTooltipWithInput(length, id, selectBoundary, anchorFunction);
 
     var existingTooltip = document.querySelector('.shape-tooltip');
     
@@ -110,6 +93,28 @@ function addTooltipLength(id, selectBoundary, length, lineEndPoint) {
 
 
 }
+function createTooltipWithInput(length, id, selectBoundary, anchorFunction) {
+    var tooltip = document.createElement("div");
+    var inputField = document.createElement("input");
+
+    inputField.setAttribute("type", "text");
+    inputField.setAttribute("value", length);
+    inputField.setAttribute("id", id);
+    inputField.classList.add("shape-tooltip-input");
+
+    tooltip.classList.add("shape-tooltip");
+    tooltip.setAttribute("id", id);
+    var anchor = anchorFunction(selectBoundary);
+
+    var offset = 5;
+    var anchorX = anchor.x + offset;
+    var anchorY = anchor.y + offset;
+    tooltip.style.left = anchorX + "px";
+    tooltip.style.top = anchorY + "px";
+    inputField.value = length;
+    return { tooltip, inputField };
+}
+
 /**
  * Функция удаления подсказки. У объекта одновременно может отображаться только одна подсказка
  */
