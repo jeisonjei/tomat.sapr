@@ -9,8 +9,10 @@ import { applyTransformationToPoint } from "../../shared/common.mjs";
 
 // --- rxjs
 import { fromEvent } from "rxjs";
+import { clearTooltipAll } from "../../services/tooltip";
 
 function handleMouseWheel(ev) {
+    clearTooltipAll();
     a.zl = ev.deltaY > 0 ? 0.90 : 1.1;
     a.zlc *= a.zl;
     updateShapesPanZoom('zoom');

@@ -5,9 +5,14 @@ import { t } from "../../shared/globalState/t";
 import { g } from "../../shared/globalState/g";
 
 import { mat3 } from "gl-matrix";
+import { clearTooltipAll } from "../../services/tooltip";
 
 
 function handleSpacebarDown() {
+    // убрать марки если начинается режим панорамы
+    clearTooltipAll();
+    // перерисовать фигуры чтобы убрать области выбора элементов boundary
+    drawShapes();
     a.pan = true;
     a.isPanning = true;
 }
