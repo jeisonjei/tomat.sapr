@@ -63,11 +63,11 @@ export function editModeObserver(mouse, shapes) {
                         shape.grip.color = [0, 0, 1, 1];
                         drawSingle(shape.grip);
                         shape.grip.color = [0, 1, 0, 1];
-                        setMode(mode_elem, 'edit');
+                        setMode('edit');
                     }
                     else {
                         if (!a.isMouseDown) {
-                            setMode(mode_elem, 'select');
+                            setMode('select');
 
                         }
                     }
@@ -77,11 +77,11 @@ export function editModeObserver(mouse, shapes) {
                         shape.grip.color = [0, 0, 1, 1];
                         drawSingle(shape.grip);
                         shape.grip.color = [0, 1, 0, 1];
-                        setMode(mode_elem, 'edit');
+                        setMode('edit');
                     }
                     else {
                         if (!a.isMouseDown) {
-                            setMode(mode_elem, 'select');
+                            setMode('select');
                         }
                     }
                     break;
@@ -91,11 +91,11 @@ export function editModeObserver(mouse, shapes) {
                         drawSingle(shape.grip);
                         shape.grip.color = [0, 1, 0, 1];
 
-                        setMode(mode_elem, 'edit');
+                        setMode('edit');
                     }
                     else {
                         if (!a.isMouseDown) {
-                            setMode(mode_elem, 'select');
+                            setMode('select');
                         }
                     }
                     break;
@@ -119,7 +119,7 @@ export function boundaryModeObserver(mouse, shapes) {
         const isinSelectBoundary = shapes.filter(shape => checkFunction(shape, 'isinSelectBoundary', mouse));
         if (isinSelectBoundary.length > 0) {
             if (gm() !== 'break') {
-                setMode(mode_elem, 'boundary');
+                setMode('boundary');
             }
             isinSelectBoundary.forEach(shape => {
                 shape.setSelectBoundary();
@@ -159,10 +159,10 @@ export function boundaryModeObserver(mouse, shapes) {
         }
         else {
             if (gm() !== 'break') {
-                setMode(mode_elem, 'select');
+                setMode('select');
             }
             else {
-                setMode(mode_elem, 'break');
+                setMode('break');
             }
             clearTooltipAll();
 

@@ -43,6 +43,8 @@
   let stampHidden = true;
   let curFontSize = null;
   let isStampVisible = true;
+  let currentMode = null;
+  
 
   $: if (isStampVisible) {
     a.isStampVisible = isStampVisible;
@@ -50,6 +52,7 @@
   $: if (!isStampVisible) {
     a.isStampVisible = isStampVisible;
   }
+  $: console.log(`** a.mode ${a.mode}`);
 
   onMount(async function () {
     curFontSize = b.initFontSize;
@@ -63,6 +66,10 @@
         curFontSize = fontSize;
       },
     );
+
+    a.mode$.subscribe(v=>{
+      currentMode = v;
+    });
   });
 
   function saveShapes() {
@@ -351,7 +358,7 @@
           <HelpComponent hidden={helpHidden}></HelpComponent>
         </div>
         <div style="margin-left: 4px; display: flex; flex-direction:column">
-          <p id="mode"></p>
+          <p id="mode" class="text-slate-600">режим <code>{currentMode}</code></p>
           <p id="tool"></p>
           <p id="cursor"></p>
           <p id="real-scale"></p>

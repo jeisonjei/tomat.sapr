@@ -3,7 +3,6 @@
   import { fade } from "svelte/transition";
   import { s } from "../../../shared/globalState/settings.mjs";
 
-  import { addRxPlugin } from "rxdb";
 
   export let hidden;
 
@@ -57,16 +56,9 @@
   // --------- STAMP PROPERTIES ---------
 
   afterUpdate(function () {
-    const modeElem = document.getElementById("mode");
 
-    if (!hidden) {
-      modeElem.innerHTML = "mode: none";
-    } else {
-      modeElem.innerHTML = "mode: select";
-    }
   });
 
-  let myDatabase;
 
   onMount(function (params) {
 

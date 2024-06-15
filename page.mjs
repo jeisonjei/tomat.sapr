@@ -9,12 +9,11 @@ import { cnv } from "./libs/canvas-text/src/shared/cnv.js";
 import { rerender } from "./libs/canvas-text/src/index.js";
 import { clearTooltipAll } from "./services/tooltip.js";
 
-// rxdb
-const mode_elem = document.getElementById('mode');
 
-function setMode(mode_elem, mode) {
+function setMode(mode) {
     a.mode = mode;
-    mode_elem.innerHTML = `<span class='text-slate-600'>режим: <code>${mode}</code></span>`;
+    a.mode$.next(mode);
+
     if (!cnv.context) {
         return;
     }
@@ -31,13 +30,7 @@ function setMode(mode_elem, mode) {
 
 }
 
-
-setMode(mode_elem, 'select');
-
-
-
 function gm() {
-    // return mode_elem.innerHTML.split(' ')[1];
     return a.mode;
 }
 
@@ -91,13 +84,13 @@ keyDown$.subscribe(event => {
             case 'L':
             case 'д':
             case 'Д':
-                setMode(mode_elem, 'symline');
+                setMode('symline');
                 break;
             case 'r':
             case 'R':
             case 'к':
             case 'К':
-                setMode(mode_elem, 'rotatecopy');
+                setMode('rotatecopy');
                 break;
             default:
                 break;
@@ -129,13 +122,13 @@ keyDown$.subscribe(event => {
         case 'W':
         case 'ц':
         case 'Ц':
-            setMode(mode_elem, 'scale');
+            setMode('scale');
             break;
         case 'b':
         case 'B':
         case 'и':
         case 'И':
-            setMode(mode_elem, 'break');
+            setMode('break');
             break;
         case 's':
         case 'S':
@@ -145,7 +138,7 @@ keyDown$.subscribe(event => {
                 shape.isSelected = false;
             });
             reset();
-            setMode(mode_elem, 'select');
+            setMode('select');
             drawShapes();
 
 
@@ -154,49 +147,49 @@ keyDown$.subscribe(event => {
         case 'L':
         case 'д':
         case 'Д':
-            setMode(mode_elem, 'line');
+            setMode('line');
             break;
         case 'k':
         case 'K':
         case 'л':
         case 'Л':
-            setMode(mode_elem, 'rectangle');
+            setMode('rectangle');
             break;
         case 'q':
         case 'Q':
         case 'й':
         case 'Й':
-            setMode(mode_elem, 'square');
+            setMode('square');
             break;
         case 'e':
         case 'E':
         case 'у':
         case 'У':
-            setMode(mode_elem, 'circle');
+            setMode('circle');
             break;
         case 'm':
         case 'M':
         case 'ь':
         case 'Ь':
-            setMode(mode_elem, 'move');
+            setMode('move');
             break;
         case 'c':
         case 'C':
         case 'с':
         case 'С':
-            setMode(mode_elem, 'copy');
+            setMode('copy');
             break;
         case 'r':
         case 'R':
         case 'к':
         case 'К':
-            setMode(mode_elem, 'rotate');
+            setMode('rotate');
             break;
         case 'i':
         case 'I':
         case 'ш':
         case 'Ш':
-            setMode(mode_elem, 'mirror');
+            setMode('mirror');
             break;
 
 
@@ -296,27 +289,27 @@ const buttons = [textButton, lineButton, rectangleButton, circleButton, selectBu
 buttons.forEach(button => {
     const id = button.id;
     button.addEventListener('mouseover', function () {
-        setMode(mode_elem, 'none');
+        setMode('none');
     });
     button.addEventListener('mouseleave', function () {
         button.blur();
         if (['text', 'line', 'rectangle', 'circle', 'select', 'delete', 'move', 'copy', 'rotate', 'mirror', 'break', 'scale'].includes(id)) {
-            setMode(mode_elem, id);
+            setMode(id);
         }
         else if (['font-size-up', 'font-size-down', 'font-size-field'].includes(id)) {
-            setMode(mode_elem, 'text');
+            setMode('text');
         }
         else {
-            setMode(mode_elem, 'select');
+            setMode('select');
         }
     })
 })
 
-textButton.addEventListener('click', () => setMode(mode_elem, 'text'))
-lineButton.addEventListener('click', () => setMode(mode_elem, 'line'));
-rectangleButton.addEventListener('click', () => setMode(mode_elem, 'rectangle'));
-circleButton.addEventListener('click', () => setMode(mode_elem, 'circle'));
-selectButton.addEventListener('click', () => setMode(mode_elem, 'select'));
+textButton.addEventListener('click', () => setMode('text'))
+lineButton.addEventListener('click', () => setMode('line'));
+rectangleButton.addEventListener('click', () => setMode('rectangle'));
+circleButton.addEventListener('click', () => setMode('circle'));
+selectButton.addEventListener('click', () => setMode('select'));
 deleteButton.addEventListener('click', function () {
     deleteShapes();
     drawShapes();
@@ -326,12 +319,12 @@ deleteButton.addEventListener('click', function () {
     drawText();
 
 });
-moveButton.addEventListener('click',()=>setMode(mode_elem, 'move'));
-copyButton.addEventListener('click',()=>setMode(mode_elem, 'copy'));
-rotateButton.addEventListener('click', ()=>setMode(mode_elem, 'rotate'));
-mirrorButton.addEventListener('click', ()=>setMode(mode_elem, 'mirror'));
-scaleButton.addEventListener('click', ()=>setMode(mode_elem, 'scale'));
-breakButton.addEventListener('click', ()=>setMode(mode_elem, 'break'))
+moveButton.addEventListener('click',()=>setMode('move'));
+copyButton.addEventListener('click',()=>setMode('copy'));
+rotateButton.addEventListener('click', ()=>setMode('rotate'));
+mirrorButton.addEventListener('click', ()=>setMode('mirror'));
+scaleButton.addEventListener('click', ()=>setMode('scale'));
+breakButton.addEventListener('click', ()=>setMode('break'))
 saveDxfButton.addEventListener('click', generateDXFContent);
 
 
@@ -413,7 +406,7 @@ function reset() {
     a.clickScaleStart2 = null;
 }
 
-export { mode_elem, setMode, gm, magnetsCheckbox, drawPrintArea, removePrintArea }
+export {setMode, gm, magnetsCheckbox, drawPrintArea, removePrintArea }
 
 
 
