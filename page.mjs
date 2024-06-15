@@ -13,8 +13,8 @@ import { clearTooltipAll } from "./services/tooltip.js";
 const mode_elem = document.getElementById('mode');
 
 function setMode(mode_elem, mode) {
-
-    mode_elem.innerHTML = 'mode: ' + mode;
+    a.mode = mode;
+    mode_elem.innerHTML = `<span class='text-slate-600'>режим: <code>${mode}</code></span>`;
     if (!cnv.context) {
         return;
     }
@@ -37,7 +37,8 @@ setMode(mode_elem, 'select');
 
 
 function gm() {
-    return mode_elem.innerHTML.split(' ')[1];
+    // return mode_elem.innerHTML.split(' ')[1];
+    return a.mode;
 }
 
 

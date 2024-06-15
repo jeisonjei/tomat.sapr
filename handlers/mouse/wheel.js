@@ -4,7 +4,7 @@ import { mat3 } from "gl-matrix";
 import { g } from "../../shared/globalState/g";
 import { a } from "../../shared/globalState/a";
 import { t } from "../../shared/globalState/t";
-import { applyTransformationToPoint } from "../../shared/common.mjs";
+import { applyTransformationToPoint, getRealScale } from "../../shared/common.mjs";
 
 
 // --- rxjs
@@ -19,6 +19,10 @@ function handleMouseWheel(ev) {
     drawShapes();
 
     updateActiveShapes();
+
+    let scaleElem = document.getElementById('real-scale');
+    var realScale = getRealScale();
+    scaleElem.innerHTML = `<span class='text-slate-600'>масштаб <code>1:${realScale.toFixed(2)}</code></span>`;
 
 
 }

@@ -69,7 +69,7 @@
     dbClear();
     dbCreate(a.shapes);
     dbCreate(textLinesCollection);
-    localStorage.setItem('zlc', a.zlc);
+    localStorage.setItem("zlc", a.zlc);
   }
 
   function changeFontSize(event) {
@@ -104,13 +104,17 @@
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="text" class={toolButtonClass} title="Режим текста">
+            <button
+              tabindex="-1"
+              id="text"
+              class={toolButtonClass}
+              title="Режим текста"
+            >
               <TextIcon meclass={toolIconClass}></TextIcon>
             </button>
           </div>
           <div class="flex-row align-center">
             <input
-              
               type="text"
               name="font-size"
               id="font-size-field"
@@ -128,63 +132,123 @@
           </div>
 
           <div>
-            <button tabindex="-1" id="line" class={toolButtonClass} title="Линия">
+            <button
+              tabindex="-1"
+              id="line"
+              class={toolButtonClass}
+              title="Линия"
+            >
               <LineIcon meclass={toolIconClass}></LineIcon>
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="rectangle" class={toolButtonClass} title="Прямоугольник">
+            <button
+              tabindex="-1"
+              id="rectangle"
+              class={toolButtonClass}
+              title="Прямоугольник"
+            >
               <RectangleIcon meclass={toolIconClass}></RectangleIcon>
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="circle" class={toolButtonClass} title="Круг">
+            <button
+              tabindex="-1"
+              id="circle"
+              class={toolButtonClass}
+              title="Круг"
+            >
               <CircleIcon meclass={toolIconClass}></CircleIcon>
             </button>
           </div>
 
           <div>
-            <button tabindex="-1" id="select" class={toolButtonClass} title="Выбор элементов">
+            <button
+              tabindex="-1"
+              id="select"
+              class={toolButtonClass}
+              title="Выбор элементов"
+            >
               <SelectIcon meclass={toolIconClass}></SelectIcon>
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="delete" class={toolButtonClass} title="Удаление элементов">
+            <button
+              tabindex="-1"
+              id="delete"
+              class={toolButtonClass}
+              title="Удаление элементов"
+            >
               <DeleteIcon meclass={toolIconClass}></DeleteIcon>
             </button>
           </div>
 
           <div>
-            <button tabindex="-1" id="move" class={toolButtonClass} title="Перемещение">
+            <button
+              tabindex="-1"
+              id="move"
+              class={toolButtonClass}
+              title="Перемещение"
+            >
               <MoveIcon meclass={toolIconClass}></MoveIcon>
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="copy" class={toolButtonClass} title="Копирование">
+            <button
+              tabindex="-1"
+              id="copy"
+              class={toolButtonClass}
+              title="Копирование"
+            >
               <CopyIcon meclass={toolIconClass}></CopyIcon>
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="rotate" class={toolButtonClass} title="Поворот">
+            <button
+              tabindex="-1"
+              id="rotate"
+              class={toolButtonClass}
+              title="Поворот"
+            >
               <RotateIcon meclass={toolIconClass}></RotateIcon>
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="mirror" class={toolButtonClass} title="Зеркальное отображение">
+            <button
+              tabindex="-1"
+              id="mirror"
+              class={toolButtonClass}
+              title="Зеркальное отображение"
+            >
               <MirrorIcon meclass={toolIconClass}></MirrorIcon>
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="scale" class={toolButtonClass} title="Масштабировать">
+            <button
+              tabindex="-1"
+              id="scale"
+              class={toolButtonClass}
+              title="Масштабировать"
+            >
               <ScaleIcon meclass={toolIconClass}></ScaleIcon>
             </button>
           </div>
-          <button tabindex="-1" id="break" class={toolButtonClass} title="Обрезать или разорвать линию">
+          <button
+            tabindex="-1"
+            id="break"
+            class={toolButtonClass}
+            title="Обрезать или разорвать линию"
+          >
             <BreakIcon meclass={toolIconClass}></BreakIcon>
           </button>
 
           <div>
-            <button tabindex="-1" id="saveDxf" class={toolButtonClass} title="Экпорт в DXF">
+            <button
+              tabindex="-1"
+              id="saveDxf"
+              class={toolButtonClass}
+              title="Экпорт в DXF"
+            >
               <SaveDxfIcon meclass={toolIconClass}></SaveDxfIcon>
             </button>
           </div>
@@ -200,7 +264,12 @@
             </button>
           </div>
           <div>
-            <button tabindex="-1" id="savePdf" class={toolButtonClass} title="Экспорт в PDF">
+            <button
+              tabindex="-1"
+              id="savePdf"
+              class={toolButtonClass}
+              title="Экспорт в PDF"
+            >
               <SavePdfIcon meclass={toolIconClass}></SavePdfIcon>
             </button>
           </div>
@@ -232,7 +301,9 @@
                 name="angleSnap"
                 id="angleSnap"
                 class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 mx-1"
-                on:change={()=>{a.angle_snap = !a.angle_snap;}}
+                on:change={() => {
+                  a.angle_snap = !a.angle_snap;
+                }}
               />
               <label for="angleSnap">Угл.</label>
             </div>
@@ -279,10 +350,11 @@
           </button>
           <HelpComponent hidden={helpHidden}></HelpComponent>
         </div>
-        <div style="margin-left: 4px">
+        <div style="margin-left: 4px; display: flex; flex-direction:column">
           <p id="mode"></p>
           <p id="tool"></p>
           <p id="cursor"></p>
+          <p id="real-scale"></p>
           <p id="message1"></p>
           <p id="message2"></p>
           <p id="message3"></p>

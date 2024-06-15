@@ -50,6 +50,7 @@ import { cnv } from './libs/canvas-text/src/shared/cnv.js';
 import { list as dbList, initialize as dbInitialize } from './services/database.js'
 
 import { inject } from "@vercel/analytics"
+import { getRealScale } from './shared/common.mjs';
 
 
 
@@ -169,7 +170,10 @@ a.storedText$.subscribe((storedText) => {
 });
 
 a.zlc = !localStorage.getItem('zlc') ? 1 : localStorage.getItem('zlc');
-console.log(`** zlc: ${a.zlc}`);
+let scaleElem = document.getElementById('real-scale');
+var realScale = getRealScale();
+scaleElem.innerHTML = `<span class='text-slate-600'>масштаб <code>1:${realScale.toFixed(2)}</code></span>`;
+
 
 
 

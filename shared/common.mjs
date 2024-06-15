@@ -3,6 +3,9 @@ import { Point } from "../models/Point.mjs";
 import { SelectBoundary } from "../models/frames/SelectBoundary.mjs";
 import { s } from "./globalState/settings.mjs";
 import { g as gl } from "./globalState/g.js"
+import { a } from "./globalState/a.js";
+import jsPDF from "jspdf";
+import { cnv } from "../libs/canvas-text/src/shared/cnv.js";
 
 function getCos(angleDeg) {
   const angleRad = (angleDeg * Math.PI) / 180;
@@ -462,7 +465,25 @@ function findThirdPoint(point1, point2, length) {
   let x3 = point1.x + ratio * xDiff;
   let y3 = point1.y + ratio * yDiff;
 
-  return new Point(x3,y3);
+  return new Point(x3, y3);
+}
+/**
+ * Функция возвращает текущий настоящий масштаб чертежа, то есть тот, который будет при печати в pdf
+ */
+function getRealScale() {
+  const pdf = new jsPDF({
+    unit: 'mm',
+    format: s.format,
+    orientation: "l",
+  });
+
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
+  const scaleX = cnv.context.canvas.width / pdfWidth;
+  var pxScale = 1 / a.zlc;
+  var realScale = pxScale * scaleX;
+  return realScale;
+
 }
 
 
@@ -505,5 +526,6 @@ export {
   getDistance,
   isPointBetweenTwoPointsOnLine,
   getLowerLeftPoint,
-  findThirdPoint
+  findThirdPoint,
+  getRealScale
 };
