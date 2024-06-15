@@ -1,4 +1,4 @@
-import { a } from '../globalState/a.js';
+import { a as globalA } from '../globalState/a.js';
 import { t } from '../globalState/t.js';
 import {s} from '../globalState/settings.mjs';
 import { canvasGetWebglCoordinates } from '../common.mjs';
@@ -12,7 +12,7 @@ export function generateDXFContent() {
     const canvasHeight = s.canvasHeight;
     const canvasWidth = s.canvasWidth;
 
-    a.shapes.forEach((shape) => {
+    globalA.shapes.forEach((shape) => {
         switch (shape.type) {
             case 'rectangle':
                 const rectangle = shape;
@@ -53,12 +53,12 @@ export function generateDXFContent() {
 
     textLinesCollection.forEach((textInput, index) => {
         const textString = textInput.textArray.join('');
-        const size = textInput.fontSize;
+        const size = textInput.fontSize/globalA.zlc;
 
-        const a = textInput.start;
+        const a = scalePoint(textInput.start, canvasHeight, canvasWidth);
         var offset = size * 0.25;
 
-        dxfContent += `0\nTEXT\n8\nLayer1\n10\n${a.x}\n20\n${-a.y+offset}\n40\n${size*0.6}\n1\n${textString}\n7\ncyrillic_ii\n`;
+        dxfContent += `0\nTEXT\n8\nLayer1\n10\n${a.x}\n20\n${a.y+offset}\n40\n${size*0.6}\n1\n${textString}\n7\ncyrillic_ii\n`;
     });
 
     dxfContent += `0\nENDSEC\n0\nEOF`; // DXF footer
@@ -101,7 +101,7 @@ function scalePoint(point, canvasWidth, canvasHeight) {
     const scaledY = (-point.y / 1); // Scale y-coordinate to fit within 100 units
     // const scaledX = (point.x / canvasWidth) * 100; // Scale x-coordinate to fit within 100 units
     // const scaledY = (point.y / canvasHeight) * 100; // Scale y-coordinate to fit within 100 units
-    return { x: scaledX, y: scaledY };
+    return { x: scaledX/globalA.zlc, y: scaledY/globalA.zlc };
 }
 
 function scaleLength(length, canvasWidth, canvasHeight) {
@@ -109,5 +109,5 @@ function scaleLength(length, canvasWidth, canvasHeight) {
     const scaledLength = length / 1; // Scale length to fit within 100 units
     // const aspectRatio = canvasWidth / canvasHeight;
     // const scaledLength = length / Math.max(canvasWidth, canvasHeight) * 100; // Scale length to fit within 100 units
-    return scaledLength * 1; // Adjust length based on aspect ratio
+    return scaledLength / globalA.zlc; // Adjust length based on aspect ratio
 }
