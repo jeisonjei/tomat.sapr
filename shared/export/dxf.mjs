@@ -3,6 +3,7 @@ import { t } from '../globalState/t.js';
 import {s} from '../globalState/settings.mjs';
 import { canvasGetWebglCoordinates } from '../common.mjs';
 import { Point } from '../../models/Point.mjs';
+import { textLinesCollection } from '../../libs/canvas-text/src/shared/state.js';
 
 export function generateDXFContent() {
     // let dxfContent = `0\nSECTION\n2\nENTITIES\n`; // DXF header
@@ -49,14 +50,15 @@ export function generateDXFContent() {
     });
 
     const scaleY = 1 / s.canvasHeight;
-    
-    t.utext.forEach((textInput, index) => {
-        const textString = textInput.text;
-        const size = t.fontSize;
+
+    textLinesCollection.forEach((textInput, index) => {
+        const textString = textInput.textArray.join('');
+        const size = textInput.fontSize;
 
         const a = textInput.start;
+        var offset = size * 0.25;
 
-        dxfContent += `0\nTEXT\n8\n${index}\n10\n${a.x}\n20\n${-a.y}\n40\n${size*0.75}\n1\n${textString}\n`;
+        dxfContent += `0\nTEXT\n8\n${index}\n10\n${a.x}\n20\n${-a.y+offset}\n40\n${size*0.6}\n1\n${textString}\n`;
     });
 
     dxfContent += `0\nENDSEC\n0\nEOF`; // DXF footer
