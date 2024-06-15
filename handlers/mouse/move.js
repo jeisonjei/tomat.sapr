@@ -128,13 +128,20 @@ function handleMouseMove(mouse) {
 
 
         }
+        else {
+            /**
+             * В процессе панорамирования реальная координата фигуры не соответствует видимому положению,
+             * а значит отрисовка рамок выбора у фигур не имеет смысла, как и отображение ручек редактирования.
+             */
+            // enable edit mode
+            editModeObserver(mouse, a.activeShapes);
+            // color grips on move and copy mode
+            colorMagnetsObserver(mouse, a.activeShapes);
+            // enable boundary mode
+            boundaryModeObserver(mouse, a.activeShapes);
+            
+        }
 
-        // enable edit mode
-        editModeObserver(mouse, a.activeShapes);
-        // color grips on move and copy mode
-        colorMagnetsObserver(mouse, a.activeShapes);
-        // enable boundary mode
-        boundaryModeObserver(mouse, a.activeShapes);
 
 
         if (a.isMouseDown || a.clickLineStart || a.clickRectangleStart || a.clickCircleStart || a.clickSquareStart) {
