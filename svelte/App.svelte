@@ -43,7 +43,8 @@
   let stampHidden = true;
   let curFontSize = null;
   let isStampVisible = true;
-  let currentMode = null;
+  let currentMode = '';
+  let currentRealScale = 1;
   
 
   $: if (isStampVisible) {
@@ -52,7 +53,6 @@
   $: if (!isStampVisible) {
     a.isStampVisible = isStampVisible;
   }
-  $: console.log(`** a.mode ${a.mode}`);
 
   onMount(async function () {
     curFontSize = b.initFontSize;
@@ -69,6 +69,9 @@
 
     a.mode$.subscribe(v=>{
       currentMode = v;
+    });
+    a.realScale$.subscribe(v=>{
+      currentRealScale = v;
     });
   });
 
@@ -361,7 +364,7 @@
           <p id="mode" class="text-slate-600">режим <code>{currentMode}</code></p>
           <p id="tool"></p>
           <p id="cursor"></p>
-          <p id="real-scale"></p>
+          <p id="real-scale" class="text-slate-600">масштаб <code>1:{currentRealScale.toFixed(2)}</code></p>
           <p id="message1"></p>
           <p id="message2"></p>
           <p id="message3"></p>

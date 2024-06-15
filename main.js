@@ -170,9 +170,7 @@ a.storedText$.subscribe((storedText) => {
 });
 
 a.zlc = !localStorage.getItem('zlc') ? 1 : localStorage.getItem('zlc');
-let scaleElem = document.getElementById('real-scale');
-var realScale = getRealScale();
-scaleElem.innerHTML = `<span class='text-slate-600'>масштаб <code>1:${realScale.toFixed(2)}</code></span>`;
+a.realScale$.next(getRealScale());
 
 
 

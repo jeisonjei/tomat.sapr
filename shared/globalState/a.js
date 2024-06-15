@@ -10,6 +10,8 @@ import { s } from "./settings.mjs";
 const a = {
     mode: 'none',
     mode$: new Subject(),
+    realScale: null,
+    realScale$: new Subject(),
     shapes: [],
     activeShapes: [],
     shapes$: new Subject(),
