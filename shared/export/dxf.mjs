@@ -58,13 +58,35 @@ export function generateDXFContent() {
         const a = textInput.start;
         var offset = size * 0.25;
 
-        dxfContent += `0\nTEXT\n8\n${index}\n10\n${a.x}\n20\n${-a.y+offset}\n40\n${size*0.6}\n1\n${textString}\n`;
+        dxfContent += `0\nTEXT\n8\nLayer1\n10\n${a.x}\n20\n${-a.y+offset}\n40\n${size*0.6}\n1\n${textString}\n7\ncyrillic_ii\n`;
     });
 
     dxfContent += `0\nENDSEC\n0\nEOF`; // DXF footer
 
     saveDXFFile(dxfContent, 'drawing.dxf');
 }
+
+// export async function generateDXFContent() {
+//     var pyodide = await loadPyodide();
+//     await pyodide.loadPackage('micropip');
+//     const micropip = pyodide.pyimport('micropip');
+//     await micropip.install('ezdxf');
+//     await pyodide.runPythonAsync(`
+//         from pyodide.http import pyfetch
+//         response = await pyfetch('./python/dxf.py')
+//         with open('dxf.py','wb') as f:
+//             f.write(await response.bytes())
+//     `)
+//     var pkg = pyodide.pyimport('dxf');
+//     var sealedShapes = [];
+//     a.shapes.forEach(shape => {
+//         sealedShapes.push(shape.getObject());
+//     })
+//     pkg.createFile(JSON.stringify(sealedShapes));
+
+//     let file = pyodide.FS.readFile("/my_file.dxf", { encoding: 'utf8' });
+//     saveDXFFile(file,'my-file.dxf');
+// }
 
 function saveDXFFile(dxfContent, fileName) {
     const blob = new Blob([dxfContent], { type: 'text/plain;charset=utf-8' });
