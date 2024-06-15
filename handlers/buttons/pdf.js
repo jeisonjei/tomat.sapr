@@ -114,6 +114,10 @@ function handleSavePdfButtonClick() {
         pdf.text(line.textArray.join(''), x, y, { baseline: 'bottom'});
     })
 
+    var pxScale = 1 / a.zlc;
+    var realScale = pxScale  * scaleX;
+    pdf.text(`real scale ${realScale}`, 25, 165);
+    pdf.text(`a.zlc ${a.zlc}`, 25,185);
 
 
     // --- border
