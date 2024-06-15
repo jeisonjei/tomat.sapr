@@ -8,7 +8,8 @@ import { Point } from "../../models/Point.mjs";
 import { s } from "./settings.mjs";
 
 const a = {
-
+    mode: 'none',
+    mode$: new Subject(),
     shapes: [],
     activeShapes: [],
     shapes$: new Subject(),
@@ -19,7 +20,7 @@ const a = {
     isMouseDown: false,
     magnetPosition: null,
     anglePosition: null,
-
+    
     clickMoveStart: null,
     clickCopyStart: null,
     clickRotateStart: null,
