@@ -301,7 +301,7 @@ function handleSavePdfButtonClick() {
     }
 
     pdf.setFontSize(10);
-    pdf.text(`масштаб 1:${getRealScale().toFixed(2)}`, pdfWidth - 30, 148);
+    pdf.text(`масштаб 1:${getRealScale().toFixed(0)}`, pdfWidth - 25, 148);
     
 
 
