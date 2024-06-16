@@ -58,6 +58,19 @@
   let currentMode = "";
   let currentRealScale = 1;
 
+  
+  let scaleList = [
+    {v: 200, label: "1:200"},
+    {v: 100, label: "1:100"},
+    {v: 50, label: "1:50"},
+    {v: 25, label: "1:25"},
+    {v: 10, label:"1:10"},
+    {v: 5, label: "1:5"},
+    {v: 1, label: "1:1"}
+  ]
+
+  let selectedScale;
+
   $: if (isStampVisible) {
     a.isStampVisible = isStampVisible;
   }
@@ -332,14 +345,11 @@
               id="real-scale-select"
               class={toolButtonClass}
               on:change={changeRealScale}
+              bind:value={selectedScale}
             >
-              <option value="200">1:200</option>
-              <option value="100">1:100</option>
-              <option value="50">1:50</option>
-              <option value="25">1:25</option>
-              <option value="10">1:10</option>
-              <option value="5">1:5</option>
-              <option value="1">1:1</option>
+            {#each scaleList as option}
+              <option value={option.v}>{option.label}</option>
+            {/each}
             </select>
           </div>
 
