@@ -486,6 +486,24 @@ function getRealScale() {
 
 }
 
+function calcNewZlc(realScale) {
+
+  const pdf = new jsPDF({
+    unit: 'mm',
+    format: s.format,
+    orientation: "l",
+  });
+
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
+  const scaleX = cnv.context.canvas.width / pdfWidth;
+  
+  var pxScale = realScale / scaleX;
+  var zlc = 1 / pxScale;
+  return zlc;
+
+}
+
 
 export {
   getCos,
@@ -527,5 +545,6 @@ export {
   isPointBetweenTwoPointsOnLine,
   getLowerLeftPoint,
   findThirdPoint,
-  getRealScale
+  getRealScale,
+  calcNewZlc as setRealScale
 };

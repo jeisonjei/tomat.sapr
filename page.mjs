@@ -278,6 +278,7 @@ const fontSizeDownButton = document.getElementById('font-size-down');
 // --- text
 
 const formatSelect = document.getElementById('format');
+const realScaleSelect = document.getElementById('real-scale-select');
 
 const helpTable = document.querySelector('table');
 
@@ -335,7 +336,12 @@ saveDxfButton.addEventListener('click', generateDXFContent);
 formatSelect.addEventListener('change', (event) => {
     s.format = event.target.value.toLowerCase();
     formatSelect.blur();
-})
+});
+
+realScaleSelect.addEventListener('change', (event) => {
+    s.realScale = event.target.value;
+    realScaleSelect.blur();
+});
 
 function drawPrintArea() {
     const pdf = new jsPDF({

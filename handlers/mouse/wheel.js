@@ -1,5 +1,5 @@
 
-import {drawShapes, updateActiveShapes, updateShapesPanZoom } from "../../shared/render/shapes";
+import { drawShapes, updateActiveShapes, updateShapesPanZoom } from "../../shared/render/shapes";
 import { mat3 } from "gl-matrix";
 import { g } from "../../shared/globalState/g";
 import { a } from "../../shared/globalState/a";
@@ -20,9 +20,20 @@ function handleMouseWheel(ev) {
 
     updateActiveShapes();
 
-    a.realScale$.next(getRealScale())    ;
+    a.realScale$.next(getRealScale());
 
 
+}
+function updateZoomLevel(newZoomLevel) {
+
+    a.shapes.forEach(shape => {
+        shape.zoom(newZoomLevel);
+    })
+    drawShapes();
+
+    updateActiveShapes();
+
+    a.realScale$.next(getRealScale());
 }
 
 function registerMouseWheelEvent() {
@@ -30,4 +41,4 @@ function registerMouseWheelEvent() {
     wheel$.subscribe(handleMouseWheel);
 }
 
-export {handleMouseWheel, registerMouseWheelEvent}
+export { handleMouseWheel, registerMouseWheelEvent, updateZoomLevel }

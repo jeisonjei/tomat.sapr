@@ -197,4 +197,6 @@ function updateShapesPanZoom(mode) {
 
 
 
+
+
 export { drawShapes, drawSingle, updateActiveShapes, addShapes, updateShapesPanZoom, deleteShapes }

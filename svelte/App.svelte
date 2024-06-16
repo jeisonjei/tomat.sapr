@@ -8,6 +8,12 @@
   import { functionCalled$ } from "../libs/canvas-text/src/index";
   import { textLinesCollection } from "../libs/canvas-text/src/shared/state";
   import {
+    drawShapes,
+    setZoomLevel,
+    updateActiveShapes,
+  } from "../shared/render/shapes";
+
+  import {
     initialize as dbInitialize,
     create as dbCreate,
     clear as dbClear,
@@ -34,6 +40,11 @@
   import StampIcon from "./components/tomat/icons/StampIcon.svelte";
   import SavePdfIcon from "./components/tomat/icons/SavePdfIcon.svelte";
   import HelpIcon from "./components/tomat/icons/HelpIcon.svelte";
+  import {
+    getRealScale,
+    setRealScale as calcNewZlc,
+  } from "../shared/common.mjs";
+  import { handleMouseWheel, updateZoomLevel } from "../handlers/mouse/wheel";
 
   let color = "blue";
   let toolButtonClass =
@@ -43,9 +54,8 @@
   let stampHidden = true;
   let curFontSize = null;
   let isStampVisible = true;
-  let currentMode = '';
+  let currentMode = "";
   let currentRealScale = 1;
-  
 
   $: if (isStampVisible) {
     a.isStampVisible = isStampVisible;
@@ -67,10 +77,10 @@
       },
     );
 
-    a.mode$.subscribe(v=>{
+    a.mode$.subscribe((v) => {
       currentMode = v;
     });
-    a.realScale$.subscribe(v=>{
+    a.realScale$.subscribe((v) => {
       currentRealScale = v;
     });
   });
@@ -93,6 +103,18 @@
     functionCalled$.next({
       self: "setFont",
     });
+  }
+  function changeRealScale(event) {
+    var value = event.target.value;
+    var curZoom = a.zlc;
+    var newZoom = calcNewZlc(value);
+
+    
+    a.zlc = newZoom;
+    var zoomShapeTo = newZoom/curZoom;
+    updateZoomLevel(zoomShapeTo);
+    
+
   }
 </script>
 
@@ -302,6 +324,22 @@
               <option value="A1">A1</option>
             </select>
           </div>
+          <div>
+            <select
+              tabindex="-1"
+              id="real-scale-select"
+              class={toolButtonClass}
+              on:change={changeRealScale}
+            >
+              <option value="200">1:200</option>
+              <option value="100">1:100</option>
+              <option value="50">1:50</option>
+              <option value="25">1:25</option>
+              <option value="10">1:10</option>
+              <option value="5">1:5</option>
+              <option value="1">1:1</option>
+            </select>
+          </div>
 
           <div class="flex">
             <div class="flex items-center mx-1">
@@ -361,10 +399,14 @@
           <HelpComponent hidden={helpHidden}></HelpComponent>
         </div>
         <div style="margin-left: 4px; display: flex; flex-direction:column">
-          <p id="mode" class="text-slate-600">режим <code>{currentMode}</code></p>
+          <p id="mode" class="text-slate-600">
+            режим <code>{currentMode}</code>
+          </p>
           <p id="tool"></p>
           <p id="cursor"></p>
-          <p id="real-scale" class="text-slate-600">масштаб <code>1:{currentRealScale.toFixed(2)}</code></p>
+          <p id="real-scale" class="text-slate-600">
+            масштаб <code>1:{currentRealScale.toFixed(2)}</code>
+          </p>
           <p id="message1"></p>
           <p id="message2"></p>
           <p id="message3"></p>
