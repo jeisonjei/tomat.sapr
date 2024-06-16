@@ -45,6 +45,7 @@
     setRealScale as calcNewZlc,
   } from "../shared/common.mjs";
   import { handleMouseWheel, updateZoomLevel } from "../handlers/mouse/wheel";
+  import { updateZoomLevel as updateZoomLevelText} from "../libs/canvas-text/src/handlers/mouse/wheel";
 
   let color = "blue";
   let toolButtonClass =
@@ -113,6 +114,7 @@
     a.zlc = newZoom;
     var zoomShapeTo = newZoom/curZoom;
     updateZoomLevel(zoomShapeTo);
+    updateZoomLevelText(zoomShapeTo);
     
 
   }
