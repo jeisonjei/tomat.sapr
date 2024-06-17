@@ -172,6 +172,8 @@ function handleMouseMove(mouse) {
                                         }
                                     }
 
+                                    
+
                                     break;
                                 case 'rectangle':
                                     if (a.ctrl) {
@@ -223,6 +225,8 @@ function handleMouseMove(mouse) {
 
                                     }
 
+                                    shape.updateWidthHeight();
+                                    
                                     break;
                                 case 'circle':
                                     if (['q1', 'q2', 'q3', 'q4'].includes(shape.edit)) {

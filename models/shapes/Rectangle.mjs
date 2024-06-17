@@ -241,6 +241,11 @@ export class Rectangle extends BasicShape {
         this.p4 = transformPointByMatrix3(pan_mat, this.p4);
         this.updateCenter();
     }
+
+    updateWidthHeight() {
+        this.width = Math.abs(this.p2.x - this.p1.x);
+        this.height = Math.abs(this.p3.y - this.p1.y);
+    }
     getWidth() {
         return this.width;
     }
