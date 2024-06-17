@@ -96,6 +96,7 @@
     });
     a.realScale$.subscribe((v) => {
       currentRealScale = v;
+      selectedScale = v;
     });
   });
 
