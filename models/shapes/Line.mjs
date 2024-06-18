@@ -25,13 +25,14 @@ export class Line extends BasicShape {
         this.mid = this.getMid(this.start, this.end);
     }
 
-    constructor(aspectRatio, start, end, color) {
+    constructor(aspectRatio, start, end, color, thickness) {
         super(aspectRatio);
         this.type = 'line';
         this._start = { ...start };
         this._end = { ...end };
         this.mid = this.getMid(start, end);
         this.color = [...color];
+        this.thickness = thickness;
     }
 
     getMid(start, end) {
@@ -52,6 +53,15 @@ export class Line extends BasicShape {
             this.start.x, this.start.y,
             this.end.x, this.end.y,
         ];
+    }
+    /**
+     * Эта функция нужна для получения нормалей с помощью библиотеки polyline-normals - она в качестве аргумента принимает массив вот такого вида
+     */
+    getPath() {
+        return [
+            [this.start.x, this.start.y],
+            [this.end.x, this.end.y]
+        ]
     }
 
 
