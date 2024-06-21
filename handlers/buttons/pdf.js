@@ -53,7 +53,7 @@ function handleSavePdfButtonClick() {
 
     // draw shapes from a.shapes to canvas2d
     pdf.setDrawColor(0, 0, 0);
-    pdf.setLineWidth(0.4);
+    
     pdf.setLineJoin('round'); // possible values are 'miter, round, bevel'
     pdf.setLineCap('round');
 
@@ -67,6 +67,7 @@ function handleSavePdfButtonClick() {
 
 
     const filteredShapes = a.shapes.filter(shape => shape.type !== 'text');
+    const defaultLineThickness = 0.25;
 
     /**
      * Здесь можно легко сделать разные толщины линий для разных объектов. 
@@ -78,15 +79,18 @@ function handleSavePdfButtonClick() {
             const verticesPixels = shape.getVerticesArray();
             switch (shape.type) {
                 case 'line':
+                    pdf.setLineWidth(shape.thickness*defaultLineThickness);
                     pdf.line(verticesPixels[0] / scaleX, verticesPixels[1] / scaleX, verticesPixels[2] / scaleX, verticesPixels[3] / scaleX);
                     break;
                 case 'rectangle':
+                    pdf.setLineWidth(defaultLineThickness);
                     const width = (shape.p3.x - shape.p1.x) / scaleX;
                     const height = (shape.p1.y - shape.p4.y) / scaleX;
                     pdf.rect(verticesPixels[6] / scaleX, verticesPixels[7] / scaleX, width, height);
 
                     break;
                 case 'circle':
+                    pdf.setLineWidth(defaultLineThickness);
                     const center = shape.center;
                     const x = center.x / scaleX;
                     const y = center.y / scaleX;
