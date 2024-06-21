@@ -125,7 +125,7 @@ a.storedShapes$.subscribe((storedShapes) => {
                     
                     const start = shape._start;
                     const end = shape._end;
-                    const line = new Line(shape.aspectRatio,start, end,shape.color)
+                    const line = new Line(shape.aspectRatio,start, end,shape.color, shape.thickness);
                     a.shapes.push(line);
                     break;
                 case 'rectangle':

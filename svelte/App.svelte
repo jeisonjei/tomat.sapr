@@ -45,7 +45,7 @@
     setRealScale as calcNewZlc,
   } from "../shared/common.mjs";
   import { handleMouseWheel, updateZoomLevel } from "../handlers/mouse/wheel";
-  import { updateZoomLevel as updateZoomLevelText} from "../libs/canvas-text/src/handlers/mouse/wheel";
+  import { updateZoomLevel as updateZoomLevelText } from "../libs/canvas-text/src/handlers/mouse/wheel";
 
   let color = "blue";
   let toolButtonClass =
@@ -60,21 +60,20 @@
 
   let curThickness = 2;
 
-  
   let scaleList = [
-    {v: 200, label: "1:200"},
-    {v: 100, label: "1:100"},
-    {v: 50, label: "1:50"},
-    {v: 25, label: "1:25"},
-    {v: 10, label:"1:10"},
-    {v: 5, label: "1:5"},
-    {v: 1, label: "1:1"}
-  ]
+    { v: 200, label: "1:200" },
+    { v: 100, label: "1:100" },
+    { v: 50, label: "1:50" },
+    { v: 25, label: "1:25" },
+    { v: 10, label: "1:10" },
+    { v: 5, label: "1:5" },
+    { v: 1, label: "1:1" },
+  ];
 
   let thicknessList = [
-    {v: 1, label: "1 мм"},
-    {v: 2, label: "2 мм"},
-    {v: 3, label: "3 мм"},
+    { v: 1, label: "1 мм" },
+    { v: 2, label: "2 мм" },
+    { v: 3, label: "3 мм" },
     {v: 4, label: "4 мм"},
     {v: 5, label: "5 мм"},
     {v: 6, label: "6 мм"},
@@ -82,8 +81,7 @@
     {v: 8, label: "8 мм"},
     {v: 9, label: "9 мм"},
     {v: 10, label: "10 мм"},
-    
-  ]
+  ];
 
   let selectedScale;
 
@@ -137,29 +135,33 @@
       self: "setFont",
     });
   }
+
+  
+  
   function changeRealScale(event) {
     var value = event.target.value;
     var curZoom = a.zlc;
     var newZoom = calcNewZlc(value);
 
-    
     a.zlc = newZoom;
-    var zoomShapeTo = newZoom/curZoom;
+    var zoomShapeTo = newZoom / curZoom;
     updateZoomLevel(zoomShapeTo);
     updateZoomLevelText(zoomShapeTo);
-    
-
   }
-  function changeLineThickness(event){
-    var value = event.target.value;
-    curThickness = value;
-    
-    a.line.thickness = curThickness;
-    a.shapes.filter(shape=>shape.isSelected).forEach(shape=>{
-      if('thickness' in shape){
-        shape.thickness = curThickness;
-      }
-    })
+
+
+  
+  function changeLineThickness(event) {
+    var thickness = event.target.value;
+    a.line.thickness = thickness;
+    curThickness = thickness;
+    a.shapes
+      .filter((shape) => shape.isSelected)
+      .forEach((shape) => {
+        if ("thickness" in shape) {
+          shape.thickness = curThickness;
+        }
+      });
   }
 </script>
 
@@ -220,17 +222,17 @@
           </div>
           <div>
             <select
-            title="Толщина линий"
-            tabindex="-1"
-            id="line-thickness"
-            class={toolButtonClass}
-            on:change={changeLineThickness}
-            
-          >
-          {#each thicknessList as option}
-            <option value={option.v}>{option.label}</option>
-          {/each}
-          </select>
+              title="Толщина линий"
+              tabindex="-1"
+              id="line-thickness"
+              class={toolButtonClass}
+              on:change={changeLineThickness}
+              
+            >
+              {#each thicknessList as option}
+                <option value={option.v}>{option.label}</option>
+              {/each}
+            </select>
           </div>
           <div>
             <button
@@ -385,16 +387,16 @@
           </div>
           <div>
             <select
-            title = "Масштаб чертежа"
+              title="Масштаб чертежа"
               tabindex="-1"
               id="real-scale-select"
               class={toolButtonClass}
               on:change={changeRealScale}
               bind:value={selectedScale}
             >
-            {#each scaleList as option}
-              <option value={option.v}>{option.label}</option>
-            {/each}
+              {#each scaleList as option}
+                <option value={option.v}>{option.label}</option>
+              {/each}
             </select>
           </div>
 
@@ -472,6 +474,6 @@
       </div>
     </div>
   </div>
-  <canvas class="drawing"></canvas>
-  <canvas class="text"></canvas>
 </div>
+<canvas class="drawing"></canvas>
+<canvas class="text"></canvas>
