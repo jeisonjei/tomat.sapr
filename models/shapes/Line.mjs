@@ -43,10 +43,7 @@ export class Line extends BasicShape {
 
 
     getVertices() {
-        return new Float32Array([
-            this.start.x, this.start.y,
-            this.end.x, this.end.y,
-        ]);
+        return new Float32Array(this.getTriangulatedVertices());
     }
     getVerticesArray() {
         return [
@@ -54,6 +51,47 @@ export class Line extends BasicShape {
             this.end.x, this.end.y,
         ];
     }
+
+    getTriangulatedVertices() {
+        
+        let start = {...this.start};
+        let end = {...this.end};
+        let width = this.thickness;
+        // Calculate the vector along the line segment
+        let dx = end.x - start.x;
+        let dy = end.y - start.y;
+
+        // Calculate the normalized perpendicular vector
+        let length = Math.hypot(dx, dy);
+        let nx = dy / length;  // Normalized perpendicular vector x
+        let ny = -dx / length; // Normalized perpendicular vector y
+
+        // Calculate the offset points for the rectangle corners
+        let offsetX = nx * width / 2;
+        let offsetY = ny * width / 2;
+
+        // Calculate the four corners of the rectangle
+        let corner1 = { x: start.x + offsetX, y: start.y + offsetY };
+        let corner2 = { x: end.x + offsetX, y: end.y + offsetY };
+        let corner3 = { x: end.x - offsetX, y: end.y - offsetY };
+        let corner4 = { x: start.x - offsetX, y: start.y - offsetY };
+
+        // Return the coordinates of the rectangle corners as two triangles
+        return [
+            corner1.x, corner1.y,
+            corner2.x, corner2.y,
+            corner3.x, corner3.y,
+            corner1.x, corner1.y,
+            corner3.x, corner3.y,
+            corner4.x, corner4.y
+        ];
+
+    
+    
+    }
+
+    
+
     /**
      * Эта функция нужна для получения нормалей с помощью библиотеки polyline-normals - она в качестве аргумента принимает массив вот такого вида
      */
@@ -66,13 +104,13 @@ export class Line extends BasicShape {
 
 
     getClone() {
-        const line = new Line(this.aspectRatio, this.start, this.end, this.color);
+        const line = new Line(this.aspectRatio, this.start, this.end, this.color, this.thickness);
         return line;
     }
 
     isinSelectFrame(frame) {
         const angle = Math.atan2(this.end.y - this.start.y, this.end.x - this.start.x);
-        const offsetX = s.tolerance * Math.sin(angle) ;
+        const offsetX = s.tolerance * Math.sin(angle);
         const offsetY = s.tolerance * Math.cos(angle);
         const point1 = new Point(this.start.x - offsetX, this.start.y + offsetY);
         const point2 = new Point(this.end.x - offsetX, this.end.y + offsetY);
@@ -91,7 +129,7 @@ export class Line extends BasicShape {
     }
     isinSelectFrameAtLeast(frame) {
         const angle = Math.atan2(this.end.y - this.start.y, this.end.x - this.start.x);
-        const offsetX = s.tolerance * Math.sin(angle) ;
+        const offsetX = s.tolerance * Math.sin(angle);
         const offsetY = s.tolerance * Math.cos(angle);
         const point1 = new Point(this.start.x - offsetX, this.start.y + offsetY);
         const point2 = new Point(this.end.x - offsetX, this.end.y + offsetY);
@@ -103,7 +141,7 @@ export class Line extends BasicShape {
             isPointInsideFrame(frame, point3.x, point3.y) ||
             isPointInsideFrame(frame, point4.x, point4.y)
         ) {
-            return true;  
+            return true;
         }
 
         return false;
@@ -152,7 +190,7 @@ export class Line extends BasicShape {
         const shapesLine = shapes_.filter(shape => shape.type === 'line');
 
         for (const shape of shapesCircle) {
-            if (this.isinCircle(shape,mouse)) {
+            if (this.isinCircle(shape, mouse)) {
                 const intersectionPoints = this.findCircleLineIntersections(shape, this);
                 if (intersectionPoints.length > 0) {
                     if (intersectionPoints.length === 1) {
@@ -161,21 +199,21 @@ export class Line extends BasicShape {
                     }
                     else {
                         for (let point of intersectionPoints) {
-                            if (!bs) { 
+                            if (!bs) {
                                 bs = point;
                             } else {
                                 be = point;
                             }
                         }
                     }
-    
+
                 }
                 else {
                     continue;
                 }
-    
+
                 return { bs, be }; // Return immediately if circle condition is met
-    
+
             }
         }
 
@@ -231,21 +269,21 @@ export class Line extends BasicShape {
         }
     }
 
-    
-      
+
+
 
     findCircleLineIntersections(circle, line) {
         const circleCenter = circle.center;
-    
+
         const circleRadius = circle.radius;
-    
+
         const dx = line.end.x - line.start.x;
         const dy = line.end.y - line.start.y;
-    
+
         const a = dx * dx + dy * dy;
         const b = 2 * (dx * (line.start.x - circleCenter.x) + dy * (line.start.y - circleCenter.y));
         const c = circleCenter.x * circleCenter.x + circleCenter.y * circleCenter.y + line.start.x * line.start.x + line.start.y * line.start.y - 2 * (circleCenter.x * line.start.x + circleCenter.y * line.start.y) - circleRadius * circleRadius;
-    
+
         const discriminant = b * b - 4 * a * c;
 
         if (discriminant < 0) {
@@ -256,8 +294,8 @@ export class Line extends BasicShape {
             const t2 = (-b - Math.sqrt(discriminant)) / (2 * a);
             const intersection1 = new Point(line.start.x + t1 * dx, line.start.y + t1 * dy);
             const intersection2 = new Point(line.start.x + t2 * dx, line.start.y + t2 * dy);
-            if (this.isinCircle(circle,line.start) || this.isinCircle(circle, line.end)) {
-                if (this.isinCircle(circle,line.start)) {
+            if (this.isinCircle(circle, line.start) || this.isinCircle(circle, line.end)) {
+                if (this.isinCircle(circle, line.start)) {
                     const side = getSideOfMouseRelativeToLine(line.start, intersection1, line);
                     if (side === 'start') {
                         return [intersection1];
@@ -265,7 +303,7 @@ export class Line extends BasicShape {
                     else {
                         return [intersection2];
                     }
-                    
+
                 }
                 else if (this.isinCircle(circle, line.end)) {
                     const side = getSideOfMouseRelativeToLine(line.end, intersection1, line);
@@ -279,11 +317,11 @@ export class Line extends BasicShape {
             }
             else {
                 return [intersection1, intersection2];
-                
+
             }
         }
     }
-    
+
     doLinesIntersect(line1, line2) {
         const x1 = line1.start.x;
         const y1 = line1.start.y;

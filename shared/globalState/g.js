@@ -94,7 +94,7 @@ export class g{
     
         const a_position = this.context.getAttribLocation(program, 'a_position');
         this.context.enableVertexAttribArray(a_position);
-        this.context.vertexAttribPointer(a_position, 2, this.context.FLOAT, false, 0, 0);
+        this.context.vertexAttribPointer(a_position, 2, this.context.FLOAT, false, 0, 0); // это переключение буфера на указатель a_position
     
     
         this.u_color = this.context.getUniformLocation(program, 'u_color');

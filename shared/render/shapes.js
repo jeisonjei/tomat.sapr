@@ -50,8 +50,8 @@ function drawSingle(shape) {
     if (shape.type === 'text') {
         return;
     }
-    const vertices = shape.getVertices();
-    const size = vertices.length;
+    var vertices = shape.getVertices();
+    var size = vertices.length;
     const [a, b, c, d] = shape.color;
     if (shape.isSelected) {
         switch (shape.type) {
@@ -89,6 +89,7 @@ function drawSingle(shape) {
     else {
         g.context.uniform4f(g.u_color, a, b, c, d);
     }
+
     g.context.bufferData(g.context.ARRAY_BUFFER, vertices, g.context.DYNAMIC_DRAW);
 
     switch (shape.type) {
@@ -108,7 +109,7 @@ function drawSingle(shape) {
             break;
         case 'line':
         case 'symline':
-            g.context.drawArrays(g.context.LINES, 0, size / 2);
+            g.context.drawArrays(g.context.TRIANGLES, 0, size / 2);
             break;
         case 'rectangle':
             g.context.drawArrays(g.context.LINE_LOOP, 0, size / 2);

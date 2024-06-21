@@ -22,7 +22,7 @@ const a = {
     isMouseDown: false,
     magnetPosition: null,
     anglePosition: null,
-    
+
     clickMoveStart: null,
     clickCopyStart: null,
     clickRotateStart: null,
@@ -42,7 +42,7 @@ const a = {
     end: null,
 
     // shapes
-    line: new Line(s.aspectRatio, new Point(0, 0), new Point(0, 0), [1, 0, 0, 1]),
+    line: new Line(s.aspectRatio, new Point(0, 0), new Point(0, 0), [1, 0, 0, 1], 3),
     symline: new SymLine(s.aspectRatio, new Point(0, 0), new Point(0, 0), [1, 0, 0, 1]),
     circle: new Circle(s.aspectRatio, new Point(0, 0), 0, [1, 0, 0, 1]),
     rectangle: new Rectangle(s.aspectRatio, new Point(0, 0), new Point(0, 0), new Point(0, 0), new Point(0, 0), 0, 0, [1, 0, 0, 1]),
