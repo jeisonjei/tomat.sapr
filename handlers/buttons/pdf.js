@@ -8,7 +8,7 @@ import { Point } from '../../models/Point.mjs';
 
 import { cnv } from '../../libs/canvas-text/src/shared/cnv.js';
 import { textLinesCollection } from '../../libs/canvas-text/src/shared/state.js';
-import { getRealScale } from '../../shared/common.mjs';
+import { getRealScale, normalizedRGBAToRGBA } from '../../shared/common.mjs';
 
 
 function handleSavePdfButtonClick() {
@@ -79,7 +79,9 @@ function handleSavePdfButtonClick() {
             const verticesPixels = shape.getVerticesArray();
             switch (shape.type) {
                 case 'line':
-                    pdf.setLineWidth(shape.thickness*defaultLineThickness);
+                    pdf.setLineWidth(shape.thickness * defaultLineThickness);
+                    console.log(`** shape.color: ${normalizedRGBAToRGBA(shape.color)}`);
+                    pdf.setDrawColor(...normalizedRGBAToRGBA(shape.color));
                     pdf.line(verticesPixels[0] / scaleX, verticesPixels[1] / scaleX, verticesPixels[2] / scaleX, verticesPixels[3] / scaleX);
                     break;
                 case 'rectangle':

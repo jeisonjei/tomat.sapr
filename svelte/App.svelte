@@ -40,12 +40,15 @@
   import StampIcon from "./components/tomat/icons/StampIcon.svelte";
   import SavePdfIcon from "./components/tomat/icons/SavePdfIcon.svelte";
   import HelpIcon from "./components/tomat/icons/HelpIcon.svelte";
+  import ColorPicker from "./components/tomat/ColorPicker.svelte";
   import {
     getRealScale,
     setRealScale as calcNewZlc,
+    hexToNormalizedRGBA,
   } from "../shared/common.mjs";
   import { handleMouseWheel, updateZoomLevel } from "../handlers/mouse/wheel";
   import { updateZoomLevel as updateZoomLevelText } from "../libs/canvas-text/src/handlers/mouse/wheel";
+  import * as jscolor from "../libs/jscolor/jscolor";
 
   let color = "blue";
   let toolButtonClass =
@@ -59,6 +62,9 @@
   let currentRealScale = 1;
 
   let selectedLineThickness = {v:2,label:'2 мм'};
+  let selectedLineColor = '#FF0000';
+
+  $: a.line.color = hexToNormalizedRGBA(selectedLineColor);
 
   let scaleList = [
     { v: 200, label: "1:200" },
@@ -162,6 +168,30 @@
         }
       });
   }
+// ******************** jscolor ****************
+jscolor.presets.default = {
+	width: 141,               // make the picker a little narrower
+	position: 'right',        // position it to the right of the target
+	previewPosition: 'left', // display color preview on the right
+	previewSize: 40,          // make the color preview bigger
+	palette: [
+		'#000000', '#7d7d7d', '#870014', '#ec1c23', '#ff7e26',
+		'#fef100', '#22b14b', '#00a1e7', '#3f47cc', '#a349a4',
+		'#ffffff', '#c3c3c3', '#b87957', '#feaec9', '#ffc80d',
+		'#eee3af', '#b5e61d', '#99d9ea', '#7092be', '#c8bfe7',
+	],
+};
+  function changeLineColor(event){
+    console.log(selectedLineColor);
+    a.line.color = hexToNormalizedRGBA(selectedLineColor);
+    a.shapes
+     .filter((shape) => shape.isSelected)
+     .forEach((shape) => {
+        if ("color" in shape) {
+          shape.color = hexToNormalizedRGBA(selectedLineColor);
+        }
+      });
+  }
 </script>
 
 <Stamp bind:hidden={stampHidden}></Stamp>
@@ -170,6 +200,9 @@
     <div>
       <div class="tools z-50 w-100">
         <div class="flex-row flex-wrap jcc">
+          <div>
+            <input id="color-picker" class={toolButtonClass} bind:value={selectedLineColor} on:change={changeLineColor} data-jscolor="{{}}">
+          </div>
           <div>
             <button
               title="Сохранить чертёж"

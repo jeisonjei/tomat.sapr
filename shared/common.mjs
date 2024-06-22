@@ -503,6 +503,27 @@ function calcNewZlc(realScale) {
   return zlc;
 
 }
+function hexToNormalizedRGBA(hex) {
+  // Remove '#' from the beginning of the hex color
+  hex = hex.replace('#', '');
+
+  // Convert hex to RGB
+  let r = parseInt(hex.substring(0, 2), 16) / 255;
+  let g = parseInt(hex.substring(2, 4), 16) / 255;
+  let b = parseInt(hex.substring(4, 6), 16) / 255;
+
+  return [r, g, b, 1.0]; // Return normalized RGBA values
+}
+
+function normalizedRGBAToRGBA(normalizedRGBA) {
+  // Convert normalized RGBA values to 0-255 range
+  let r = Math.round(normalizedRGBA[0] * 255);
+  let g = Math.round(normalizedRGBA[1] * 255);
+  let b = Math.round(normalizedRGBA[2] * 255);
+  let a = normalizedRGBA[3]; // Alpha value remains unchanged
+
+  return [r,g,b]; // Return RGBA color string
+}
 
 
 export {
@@ -546,5 +567,7 @@ export {
   getLowerLeftPoint,
   findThirdPoint,
   getRealScale,
-  calcNewZlc as setRealScale
+  calcNewZlc as setRealScale,
+  hexToNormalizedRGBA,
+  normalizedRGBAToRGBA
 };
