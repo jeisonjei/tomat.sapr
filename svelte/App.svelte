@@ -58,7 +58,7 @@
   let currentMode = "";
   let currentRealScale = 1;
 
-  let curThickness = 2;
+  let selectedLineThickness = {v:2,label:'2 мм'};
 
   let scaleList = [
     { v: 200, label: "1:200" },
@@ -113,7 +113,7 @@
       selectedScale = v;
     });
 
-    a.line.thickness = curThickness;
+    a.line.thickness = selectedLineThickness.v;
   });
 
   function saveShapes() {
@@ -152,14 +152,13 @@
 
   
   function changeLineThickness(event) {
-    var thickness = event.target.value;
-    a.line.thickness = thickness;
-    curThickness = thickness;
+    a.line.thickness = selectedLineThickness.v;
+    
     a.shapes
       .filter((shape) => shape.isSelected)
       .forEach((shape) => {
         if ("thickness" in shape) {
-          shape.thickness = curThickness;
+          shape.thickness = selectedLineThickness.v;
         }
       });
   }
@@ -226,6 +225,7 @@
               tabindex="-1"
               id="line-thickness"
               class={toolButtonClass}
+              bind:value={selectedLineThickness.v}
               on:change={changeLineThickness}
               
             >
