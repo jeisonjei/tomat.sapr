@@ -62,9 +62,7 @@
   let currentRealScale = 1;
 
   let selectedLineThickness = {v:2,label:'2 мм'};
-  let selectedLineColor = '#FF0000';
-
-  $: a.line.color = hexToNormalizedRGBA(selectedLineColor);
+  let selectedLineColor = '#FF7E26';
 
   let scaleList = [
     { v: 200, label: "1:200" },
@@ -119,7 +117,15 @@
       selectedScale = v;
     });
 
+    // ********* thickness *********
     a.line.thickness = selectedLineThickness.v;
+
+    // ********* color *********
+    
+    a.line.color = hexToNormalizedRGBA(selectedLineColor);
+    a.rectangle.color = hexToNormalizedRGBA(selectedLineColor);
+    a.circle.color = hexToNormalizedRGBA(selectedLineColor);
+
   });
 
   function saveShapes() {
@@ -182,8 +188,10 @@ jscolor.presets.default = {
 	],
 };
   function changeLineColor(event){
-    console.log(selectedLineColor);
+    
     a.line.color = hexToNormalizedRGBA(selectedLineColor);
+    a.rectangle.color = hexToNormalizedRGBA(selectedLineColor);
+    a.circle.color = hexToNormalizedRGBA(selectedLineColor);
     a.shapes
      .filter((shape) => shape.isSelected)
      .forEach((shape) => {
