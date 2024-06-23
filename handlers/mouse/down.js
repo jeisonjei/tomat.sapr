@@ -135,32 +135,34 @@ function handleMouseDown(mouse) {
                             intersections = intersections.filter(i => i.length > 0);
                             
                             intersections.forEach((int, index) => {
+                                let bs = int[0];
+                                let be = int[1];
                                 let line = intersectedLines[index];
                                 if (int.length == 1) {
-                                    let side = getSideOfMouseRelativeToLine(mouse, int[0], line);
+                                    let side = getSideOfMouseRelativeToLine(mouse, bs, line);
                                     
                                     if (side ==='start') {
-                                        line.start = int[0];
+                                        line.start = bs;
                                     }
                                     
                                     else if (side === 'end') {
-                                        line.end = int[0];
+                                        line.end = bs;
                                     }
 
                                     // TODO: удалить линию, которая остаётся
 
                                 }
                                 else if(int.length == 2){ // 2 точки
-                                    const side = getSideOfMouseRelativeToLine(mouse, int[0], line);
+                                    const side = getSideOfMouseRelativeToLine(mouse, bs, line);
                                     const line1 = line.getClone();
                                     const line2 = line.getClone();
                                     if (side === 'start') {
-                                        line1.end = int[1];
-                                        line2.start = int[0];
+                                        line1.end = be;
+                                        line2.start = bs;
                                     }
                                     else if (side === 'end') {
-                                        line1.start = int[1];
-                                        line2.end = int[0];
+                                        line1.start = be;
+                                        line2.end = bs;
                                     }
     
     
