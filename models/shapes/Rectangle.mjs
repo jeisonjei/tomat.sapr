@@ -1,6 +1,7 @@
 import { BasicShape } from "../BasicShape.mjs";
 import { convertWebGLToCanvas2DPoint, getMid, getSelectBoundaryRectangle, getTriangulatedVerticesByTwoPoints, isPointInsideFrame, isinSelectBoundaryLine } from "../../shared/common.mjs";
 import { Point } from "../Point.mjs";
+import { Line } from "./Line.mjs";
 import { mat3 } from "gl-matrix";
 import { transformPointByMatrix3 } from "../../shared/common.mjs";
 import { s } from '../../shared/globalState/settings.mjs';
@@ -328,6 +329,26 @@ export class Rectangle extends BasicShape {
     }
     getHeight() {
         return this.height;
+    }
+
+    /**
+     * Функция возвращает 4 линии прямоугольника
+     */
+    getLines() {
+        return [
+            new Line(this.aspectRatio, this.p1, this.p2, this.color, this.thickness),
+            new Line(this.aspectRatio, this.p2, this.p3, this.color, this.thickness),
+            new Line(this.aspectRatio, this.p3, this.p4, this.color, this.thickness),
+            new Line(this.aspectRatio, this.p4, this.p1, this.color, this.thickness),
+        ];
+    }
+    getPoints() {
+        return [
+            this.p1,
+            this.p2,
+            this.p3,
+            this.p4,
+        ];
     }
 
 }
