@@ -80,12 +80,12 @@ function handleSavePdfButtonClick() {
             switch (shape.type) {
                 case 'line':
                     pdf.setLineWidth(shape.thickness * defaultLineThickness);
-                    console.log(`** shape.color: ${normalizedRGBAToRGBA(shape.color)}`);
                     pdf.setDrawColor(...normalizedRGBAToRGBA(shape.color));
                     pdf.line(verticesPixels[0] / scaleX, verticesPixels[1] / scaleX, verticesPixels[2] / scaleX, verticesPixels[3] / scaleX);
                     break;
                 case 'rectangle':
-                    pdf.setLineWidth(defaultLineThickness);
+                    pdf.setLineWidth(shape.thickness * defaultLineThickness);
+                    pdf.setDrawColor(...normalizedRGBAToRGBA(shape.color));
                     const width = (shape.p3.x - shape.p1.x) / scaleX;
                     const height = (shape.p1.y - shape.p4.y) / scaleX;
                     pdf.rect(verticesPixels[6] / scaleX, verticesPixels[7] / scaleX, width, height);
@@ -93,6 +93,7 @@ function handleSavePdfButtonClick() {
                     break;
                 case 'circle':
                     pdf.setLineWidth(defaultLineThickness);
+                    pdf.setDrawColor(...normalizedRGBAToRGBA(shape.color));
                     const center = shape.center;
                     const x = center.x / scaleX;
                     const y = center.y / scaleX;

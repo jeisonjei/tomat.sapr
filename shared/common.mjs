@@ -525,6 +525,41 @@ function normalizedRGBAToRGBA(normalizedRGBA) {
   return [r,g,b]; // Return RGBA color string
 }
 
+function getTriangulatedVerticesByTwoPoints(start, end, width) {
+        
+  // Calculate the vector along the line segment
+  let dx = end.x - start.x;
+  let dy = end.y - start.y;
+
+  // Calculate the normalized perpendicular vector
+  let length = Math.hypot(dx, dy);
+  let nx = dy / length;  // Normalized perpendicular vector x
+  let ny = -dx / length; // Normalized perpendicular vector y
+
+  // Calculate the offset points for the rectangle corners
+  let offsetX = nx * width / 2;
+  let offsetY = ny * width / 2;
+
+  // Calculate the four corners of the rectangle
+  let corner1 = { x: start.x + offsetX, y: start.y + offsetY };
+  let corner2 = { x: end.x + offsetX, y: end.y + offsetY };
+  let corner3 = { x: end.x - offsetX, y: end.y - offsetY };
+  let corner4 = { x: start.x - offsetX, y: start.y - offsetY };
+
+  // Return the coordinates of the rectangle corners as two triangles
+  return [
+      corner1.x, corner1.y,
+      corner2.x, corner2.y,
+      corner3.x, corner3.y,
+      corner1.x, corner1.y,
+      corner3.x, corner3.y,
+      corner4.x, corner4.y
+  ];
+
+
+
+}
+
 
 export {
   getCos,
@@ -569,5 +604,6 @@ export {
   getRealScale,
   calcNewZlc as setRealScale,
   hexToNormalizedRGBA,
-  normalizedRGBAToRGBA
+  normalizedRGBAToRGBA,
+  getTriangulatedVerticesByTwoPoints
 };

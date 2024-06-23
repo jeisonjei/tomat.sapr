@@ -138,7 +138,7 @@ a.storedShapes$.subscribe((storedShapes) => {
                     const width = shape._width;
                     const height = shape._height;
     
-                    const rectangle = new Rectangle(shape.aspectRatio,p1,p2,p3,p4,width,height,shape.color);
+                    const rectangle = new Rectangle(shape.aspectRatio,p1,p2,p3,p4,width,height,shape.color, shape.thickness);
                     a.shapes.push(rectangle);
                     break;
                 case 'circle':

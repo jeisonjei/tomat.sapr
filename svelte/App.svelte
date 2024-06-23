@@ -119,6 +119,7 @@
 
     // ********* thickness *********
     a.line.thickness = selectedLineThickness.v;
+    a.rectangle.thickness = selectedLineThickness.v;
 
     // ********* color *********
     
@@ -162,9 +163,10 @@
   }
 
 
-  
+  // ******************** thickness ****************
   function changeLineThickness(event) {
     a.line.thickness = selectedLineThickness.v;
+    a.rectangle.thickness = selectedLineThickness.v;
     
     a.shapes
       .filter((shape) => shape.isSelected)
@@ -209,7 +211,7 @@ jscolor.presets.default = {
       <div class="tools z-50 w-100">
         <div class="flex-row flex-wrap jcc">
           <div>
-            <input id="color-picker" class={toolButtonClass} bind:value={selectedLineColor} on:change={changeLineColor} data-jscolor="{{}}">
+            <input style="width: 150px;" id="color-picker" class={toolButtonClass} bind:value={selectedLineColor} on:change={changeLineColor} data-jscolor="{{}}">
           </div>
           <div>
             <button

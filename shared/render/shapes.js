@@ -90,6 +90,7 @@ function drawSingle(shape) {
         g.context.uniform4f(g.u_color, a, b, c, d);
     }
 
+
     g.context.bufferData(g.context.ARRAY_BUFFER, vertices, g.context.DYNAMIC_DRAW);
 
     switch (shape.type) {
@@ -112,7 +113,7 @@ function drawSingle(shape) {
             g.context.drawArrays(g.context.TRIANGLES, 0, size / 2);
             break;
         case 'rectangle':
-            g.context.drawArrays(g.context.LINE_LOOP, 0, size / 2);
+            g.context.drawArrays(g.context.TRIANGLES, 0, size / 2);
             break;
         case 'circle':
             g.context.drawArrays(g.context.LINE_LOOP, 0, size / 2);

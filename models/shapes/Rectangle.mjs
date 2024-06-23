@@ -1,5 +1,5 @@
 import { BasicShape } from "../BasicShape.mjs";
-import { convertWebGLToCanvas2DPoint, getMid, getSelectBoundaryRectangle, isPointInsideFrame, isinSelectBoundaryLine } from "../../shared/common.mjs";
+import { convertWebGLToCanvas2DPoint, getMid, getSelectBoundaryRectangle, getTriangulatedVerticesByTwoPoints, isPointInsideFrame, isinSelectBoundaryLine } from "../../shared/common.mjs";
 import { Point } from "../Point.mjs";
 import { mat3 } from "gl-matrix";
 import { transformPointByMatrix3 } from "../../shared/common.mjs";
@@ -55,7 +55,7 @@ export class Rectangle extends BasicShape {
         this.updateMid();
     }
 
-    constructor(aspectRatio, p1, p2, p3, p4, width, height, color) {
+    constructor(aspectRatio, p1, p2, p3, p4, width, height, color, thickness) {
         super(aspectRatio);
         this.type = 'rectangle';
         this._p1 = p1;
@@ -65,6 +65,7 @@ export class Rectangle extends BasicShape {
         this.width = width;
         this.height = height;
         this.color = [...color];
+        this.thickness = thickness;
 
         this.updateMid();
         this.updateCenter();
@@ -86,11 +87,87 @@ export class Rectangle extends BasicShape {
     }
 
     getVertices() {
+        var verts1 = getTriangulatedVerticesByTwoPoints(this.p1, this.p2, this.thickness);
+        var verts2 = getTriangulatedVerticesByTwoPoints(this.p2, this.p3, this.thickness);
+        var verts3 = getTriangulatedVerticesByTwoPoints(this.p3, this.p4, this.thickness);
+        var verts4 = getTriangulatedVerticesByTwoPoints(this.p4, this.p1, this.thickness);
         return new Float32Array([
+            ...verts1,
+            ...verts2,
+            ...verts3,
+            ...verts4]);
+
+    }
+
+    getTriangulatedVertices() {
+        // Calculate the vectors along the rectangle edges
+        let vectors = [];
+        for (let i = 0; i < 4; i++) {
+            let dx = this['p' + ((i % 4) + 1)].x - this['p' + (((i + 1) % 4) + 1)].x;
+            let dy = this['p' + ((i % 4) + 1)].y - this['p' + (((i + 1) % 4) + 1)].y;
+            vectors.push({ dx, dy });
+        }
+    
+        // Calculate the normalized perpendicular vectors
+        let normals = [];
+        for (let i = 0; i < 4; i++) {
+            let length = Math.hypot(vectors[i].dx, vectors[i].dy);
+            let nx = vectors[i].dy / length;  // Normalized perpendicular vector x
+            let ny = -vectors[i].dx / length; // Normalized perpendicular vector y
+            normals.push({ nx, ny });
+        }
+    
+        // Calculate the offset points for the rectangle corners
+        let width = this.thickness;
+        let offsetPoints = [];
+        for (let i = 0; i < 4; i++) {
+            offsetPoints.push({
+                x: this['p' + ((i % 4) + 1)].x + normals[i].nx * width / 2,
+                y: this['p' + ((i % 4) + 1)].y + normals[i].ny * width / 2
+            });
+        }
+    
+        // Return the coordinates of the 8 triangles
+        return new Float32Array([
+            // First triangle
             this.p1.x, this.p1.y,
+            offsetPoints[0].x, offsetPoints[0].y,
+            offsetPoints[1].x, offsetPoints[1].y,
+    
+            // Second triangle
+            this.p1.x, this.p1.y,
+            offsetPoints[1].x, offsetPoints[1].y,
             this.p2.x, this.p2.y,
+    
+            // Third triangle
+            this.p2.x, this.p2.y,
+            offsetPoints[1].x, offsetPoints[1].y,
+            offsetPoints[2].x, offsetPoints[2].y,
+    
+            // Fourth triangle
+            this.p2.x, this.p2.y,
+            offsetPoints[2].x, offsetPoints[2].y,
             this.p3.x, this.p3.y,
+    
+            // Fifth triangle
+            this.p3.x, this.p3.y,
+            offsetPoints[2].x, offsetPoints[2].y,
+            offsetPoints[3].x, offsetPoints[3].y,
+    
+            // Sixth triangle
+            this.p3.x, this.p3.y,
+            offsetPoints[3].x, offsetPoints[3].y,
             this.p4.x, this.p4.y,
+    
+            // Seventh triangle
+            this.p4.x, this.p4.y,
+            offsetPoints[3].x, offsetPoints[3].y,
+            offsetPoints[0].x, offsetPoints[0].y,
+    
+            // Eighth triangle
+            this.p4.x, this.p4.y,
+            offsetPoints[0].x, offsetPoints[0].y,
+            this.p1.x, this.p1.y
         ]);
     }
 
@@ -145,7 +222,7 @@ export class Rectangle extends BasicShape {
     }
 
     getClone() {
-        return new Rectangle(this.aspectRatio, this.p1, this.p2, this.p3, this.p4, this.width, this.height, this.color);
+        return new Rectangle(this.aspectRatio, this.p1, this.p2, this.p3, this.p4, this.width, this.height, this.color, this.thickness);
     }
 
     getBoundary() {
