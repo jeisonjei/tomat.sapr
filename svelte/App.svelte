@@ -62,7 +62,7 @@
   let currentRealScale = 1;
 
   let selectedLineThickness = {v:2,label:'2 мм'};
-  let selectedLineColor = '#FF7E26';
+  let selectedLineColor = '#7D7D7D';
 
   let scaleList = [
     { v: 200, label: "1:200" },

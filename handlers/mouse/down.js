@@ -4,8 +4,8 @@ import { g } from "../../shared/globalState/g";
 import { s } from "../../shared/globalState/settings.mjs";
 
 import { gm } from "../../page.mjs";
-import { drawShapes, drawSingle, addShapes, updateActiveShapes, updateShapesPanZoom } from "../../shared/render/shapes";
-import { transformPointByMatrix3 } from "../../shared/common.mjs";
+import { drawShapes, drawSingle, addShapes, updateActiveShapes, updateShapesPanZoom, deleteShapes, deleteShape } from "../../shared/render/shapes";
+import { findRectangleAndLineIntersectionPoints, pointInsideRectangle, transformPointByMatrix3 } from "../../shared/common.mjs";
 import { getMoveMatrix } from "../../shared/transform.mjs";
 import { getRotateMatrix } from "../../shared/transform.mjs";
 import { getScaleMatrix } from "../../shared/transform.mjs";
@@ -67,6 +67,7 @@ function handleMouseDown(mouse) {
             if (filteredShapes.length === 1) {
                 filteredShapes.forEach(shape => {
                     // так как массив длиной 1, то этот блок выполняется только один раз
+
                     switch (shape.type) {
                         case 'line':
                             const { bs, be } = shape.getBreakPoints(mouse, a.shapes);
@@ -105,7 +106,80 @@ function handleMouseDown(mouse) {
                                 updateActiveShapes();
                             }
                             break;
+                        case 'rectangle':
+                            // удаляем прямоугольник
+                            deleteShape(shape);
+                            // разбиваем прямоугольник на линии
+                            let linesFromRectangle = shape.getLines();
+                            
+                            let linesID = [];
+                            linesFromRectangle.forEach(line => {
+                                addShapes(line);
+                                linesID.push(line.id);
+                            });
 
+
+                            let rectangles = a.shapes.filter(s => s.type === 'rectangle');
+                            let intersections = [];
+                            let intersectedLines = [];
+                            rectangles.forEach(r => {
+                                if (pointInsideRectangle(mouse, r.p1, r.p2, r.p3, r.p4)) {
+                                    linesFromRectangle.forEach(l => {
+                                        if (findRectangleAndLineIntersectionPoints(r.p1, r.p2, r.p3, r.p4, l.start, l.end).length > 0) {
+                                            intersections.push(findRectangleAndLineIntersectionPoints(r.p1, r.p2, r.p3, r.p4, l.start, l.end));
+                                            intersectedLines.push(l);                                            
+                                        }
+                                    })
+                                }
+                            })
+                            intersections = intersections.filter(i => i.length > 0);
+                            
+                            intersections.forEach((int, index) => {
+                                let line = intersectedLines[index];
+                                if (int.length == 1) {
+                                    let side = getSideOfMouseRelativeToLine(mouse, int[0], line);
+                                    
+                                    if (side ==='start') {
+                                        line.start = int[0];
+                                    }
+                                    
+                                    else if (side === 'end') {
+                                        line.end = int[0];
+                                    }
+
+                                    // TODO: удалить линию, которая остаётся
+
+                                }
+                                else if(int.length == 2){ // 2 точки
+                                    const side = getSideOfMouseRelativeToLine(mouse, int[0], line);
+                                    const line1 = line.getClone();
+                                    const line2 = line.getClone();
+                                    if (side === 'start') {
+                                        line1.end = int[1];
+                                        line2.start = int[0];
+                                    }
+                                    else if (side === 'end') {
+                                        line1.start = int[1];
+                                        line2.end = int[0];
+                                    }
+    
+    
+    
+                                    addShapes(line1);
+                                    addShapes(line2);
+                                    
+                                    a.shapes = a.shapes.filter(s => s.id !== line.id);
+    
+
+                                }
+
+                            })
+                            
+
+
+                            // обновляем активные фигуры, так как количество фигур изменилось. Массив activeShapes используется в подписчиках магнитов и областей фигур в файле move.js
+                            updateActiveShapes();
+                            break;
                         default:
                             break;
                     }
@@ -165,7 +239,7 @@ function handleMouseDown(mouse) {
                     a.end = { ...a.anglePosition };
                 }
                 else {
-                    a.end = {...mouse};
+                    a.end = { ...mouse };
                 }
 
                 a.line.end = { ...a.end };
@@ -189,7 +263,7 @@ function handleMouseDown(mouse) {
                     a.end = { ...a.magnetPosition };
                 }
                 else {
-                    a.end = {...mouse};
+                    a.end = { ...mouse };
                 }
                 a.rectangle.width = a.end.x - a.rectangle.p1.x;
                 a.rectangle.height = a.end.y - a.rectangle.p1.y;
@@ -217,10 +291,10 @@ function handleMouseDown(mouse) {
                     a.end = { ...a.magnetPosition };
                 }
                 else {
-                    a.end = {...mouse};
+                    a.end = { ...mouse };
                 }
 
-                let s = {...a.rectangle.p1};
+                let s = { ...a.rectangle.p1 };
                 a.rectangle.width = (a.end.x - s.x);
 
                 const height = (a.end.y - s.y);
@@ -236,11 +310,11 @@ function handleMouseDown(mouse) {
                 a.rectangle.p2 = new Point(s.x + a.rectangle.width, s.y);
                 a.rectangle.p3 = new Point(s.x + a.rectangle.width, s.y + a.rectangle.height);
                 a.rectangle.p4 = new Point(s.x, s.y + a.rectangle.height);
-    
+
                 addShapes(a.rectangle.getClone());
                 a.clickSquareStart = false;
                 clearTooltipAll();
-            }    
+            }
             break;
         case 'circle':
             if (!a.clickCircleStart) {
