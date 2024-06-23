@@ -1,10 +1,11 @@
 import { Observable, filter, of } from "rxjs";
-import { convertWebGLToCanvas2DPoint, findClosestPoints, getLineSelectBoundary, getProjection, getSideOfMouseRelativeToLine, isPointInsideFrame, isinSelectBoundaryLine, transformPointByMatrix3 } from "../../shared/common.mjs";
+import { convertWebGLToCanvas2DPoint, findClosestPoints, findRectangleAndLineIntersectionPoints, getLineSelectBoundary, getProjection, getSideOfMouseRelativeToLine, isPointInsideFrame, isinSelectBoundaryLine, pointInsideRectangle, transformPointByMatrix3 } from "../../shared/common.mjs";
 import { getMoveMatrix } from "../../shared/transform.mjs";
 import { BasicShape } from "../BasicShape.mjs";
 import { Point } from "../Point.mjs";
 import { mat3 } from "gl-matrix";
 import { BasicMagnet } from "../BasicMagnet.mjs";
+
 
 import { s } from "../../shared/globalState/settings.mjs";
 
@@ -53,9 +54,9 @@ export class Line extends BasicShape {
     }
 
     getTriangulatedVertices() {
-        
-        let start = {...this.start};
-        let end = {...this.end};
+
+        let start = { ...this.start };
+        let end = { ...this.end };
         let width = this.thickness;
         // Calculate the vector along the line segment
         let dx = end.x - start.x;
@@ -86,11 +87,11 @@ export class Line extends BasicShape {
             corner4.x, corner4.y
         ];
 
-    
-    
+
+
     }
 
-    
+
 
     /**
      * Эта функция нужна для получения нормалей с помощью библиотеки polyline-normals - она в качестве аргумента принимает массив вот такого вида
@@ -183,11 +184,17 @@ export class Line extends BasicShape {
         this.mid = transformPointByMatrix3(pan_mat, this.mid);
         this.end = transformPointByMatrix3(pan_mat, this.end);
     }
-
+    /**
+     * Функция возвращает две точки пересечения, если текущая линия пересекается с другими фигурами.
+     * Особенность функции в том, что сначала проверяются все круги, и если точки пересечения найдены, происходит возврат из функции - результат получен.
+     * Если точки пересечения с кругами не найдены, таким же образом проверяются все прямоугольники, и также, если точки найдены - возврат из функции.
+     * Далее, если ни с кругами, ни с прямоугольниками текущая линия не пересекается, проверяются линии.
+     */
     getBreakPoints(mouse, shapes_) {
         let bs, be
         const shapesCircle = shapes_.filter(shape => shape.type === 'circle');
         const shapesLine = shapes_.filter(shape => shape.type === 'line');
+        const shapesRectangle = shapes_.filter(shape => shape.type === 'rectangle');
 
         for (const shape of shapesCircle) {
             if (this.isinCircle(shape, mouse)) {
@@ -204,6 +211,7 @@ export class Line extends BasicShape {
                             } else {
                                 be = point;
                             }
+
                         }
                     }
 
@@ -214,6 +222,30 @@ export class Line extends BasicShape {
 
                 return { bs, be }; // Return immediately if circle condition is met
 
+            }
+        }
+        for (const shape of shapesRectangle) {
+            if (this.isinRectangle(shape, mouse)) {
+                let intercections = findRectangleAndLineIntersectionPoints(shape.p1, shape.p2, shape.p3, shape.p4, this.start, this.end);
+                if (intercections.length > 0) {
+                    if (intercections.length === 1) {
+                        bs = intercections[0];
+                        be = null;
+                    }
+                    else {
+                        for (let point of intercections) {
+                            if (!bs) {
+                                bs = point;
+                            } else {
+                                be = point;
+                            }
+                        }
+                    }
+                }
+                else {
+                    continue;
+                }
+                return { bs, be }; // Return immediately if rectangle condition is met
             }
         }
 
@@ -235,6 +267,14 @@ export class Line extends BasicShape {
         const dx = point.x - circle.center.x;
         const dy = point.y - circle.center.y;
         return dx * dx + dy * dy < circle.radius * circle.radius;
+    }
+    /**
+     * Функция проверяет, находится ли мышь внутри прямоугольника
+     */
+    isinRectangle(rectangle, mouse) {
+        var [p1, p2, p3, p4] = rectangle.getPoints();
+        console.log(p1, p2, p3, p4);
+        return pointInsideRectangle(mouse, p1, p2, p3, p4);
     }
 
 
@@ -321,6 +361,7 @@ export class Line extends BasicShape {
             }
         }
     }
+
 
     doLinesIntersect(line1, line2) {
         const x1 = line1.start.x;

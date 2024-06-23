@@ -497,7 +497,7 @@ function calcNewZlc(realScale) {
   const pdfWidth = pdf.internal.pageSize.getWidth();
   const pdfHeight = pdf.internal.pageSize.getHeight();
   const scaleX = cnv.context.canvas.width / pdfWidth;
-  
+
   var pxScale = realScale / scaleX;
   var zlc = 1 / pxScale;
   return zlc;
@@ -522,11 +522,11 @@ function normalizedRGBAToRGBA(normalizedRGBA) {
   let b = Math.round(normalizedRGBA[2] * 255);
   let a = normalizedRGBA[3]; // Alpha value remains unchanged
 
-  return [r,g,b]; // Return RGBA color string
+  return [r, g, b]; // Return RGBA color string
 }
 
 function getTriangulatedVerticesByTwoPoints(start, end, width) {
-        
+
   // Calculate the vector along the line segment
   let dx = end.x - start.x;
   let dy = end.y - start.y;
@@ -548,17 +548,93 @@ function getTriangulatedVerticesByTwoPoints(start, end, width) {
 
   // Return the coordinates of the rectangle corners as two triangles
   return [
-      corner1.x, corner1.y,
-      corner2.x, corner2.y,
-      corner3.x, corner3.y,
-      corner1.x, corner1.y,
-      corner3.x, corner3.y,
-      corner4.x, corner4.y
+    corner1.x, corner1.y,
+    corner2.x, corner2.y,
+    corner3.x, corner3.y,
+    corner1.x, corner1.y,
+    corner3.x, corner3.y,
+    corner4.x, corner4.y
   ];
 
 
 
+
 }
+/**
+ * Функция определяет, находится ли точка внутри прямоугольника
+ * @param {Point} p - точка, которую нужно проверить
+ * @param {Point} p1 - вершина прямоугольника
+ * @param {Point} p2 - вершина прямоугольника
+ * @param {Point} p3 - вершина прямоугольника
+ * @param {Point} p4 - вершина прямоугольника
+ */
+function pointInsideRectangle(p, p1, p2, p3, p4) {
+  // Calculate vectors from the point to each corner of the rectangle
+  let vec1 = { x: p1.x - p.x, y: p1.y - p.y };
+  let vec2 = { x: p2.x - p.x, y: p2.y - p.y };
+  let vec3 = { x: p3.x - p.x, y: p3.y - p.y };
+  let vec4 = { x: p4.x - p.x, y: p4.y - p.y };
+
+  // Calculate the cross product of consecutive vectors
+  function crossProduct(v1, v2) {
+    return v1.x * v2.y - v1.y * v2.x;
+  }
+
+  let cross1 = crossProduct(vec1, vec2);
+  let cross2 = crossProduct(vec2, vec3);
+  let cross3 = crossProduct(vec3, vec4);
+  let cross4 = crossProduct(vec4, vec1);
+
+  // Check if all cross products have the same sign
+  return (cross1 > 0 && cross2 > 0 && cross3 > 0 && cross4 > 0) || (cross1 < 0 && cross2 < 0 && cross3 < 0 && cross4 < 0);
+}
+/**
+ * Функция возвращает точки пересечения прямоугольника и линии, если такие имеются.
+ * @param {Point} p1 - вершина прямоугольника
+ * @param {Point} p2 - вершина прямоугольника
+ * @param {Point} p3 - вершина прямоугольника
+ * @param {Point} p4 - вершина прямоугольника
+ * @param {Point} start - начальная точка линии
+ * @param {Point} end - конечная точка линии
+ */
+function findRectangleAndLineIntersectionPoints(p1, p2, p3, p4, start, end) {
+  function lineIntersection(x1, y1, x2, y2, x3, y3, x4, y4) {
+    let ua, ub, denom;
+    denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+    if (denom === 0) {
+      return null; // Lines are parallel
+    }
+    ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denom;
+    ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denom;
+    if (ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1) {
+      let x = x1 + ua * (x2 - x1);
+      let y = y1 + ua * (y2 - y1);
+      return { x, y };
+    } else {
+      return null; // Intersection point is outside the line segments
+    }
+  }
+
+  let intersections = [];
+
+  // Check for intersection with each side of the rectangle
+  let sides = [
+    [p1, p2],
+    [p2, p3],
+    [p3, p4],
+    [p4, p1]
+  ];
+
+  for (let side of sides) {
+    let intersection = lineIntersection(side[0].x, side[0].y, side[1].x, side[1].y, start.x, start.y, end.x, end.y);
+    if (intersection) {
+      intersections.push(intersection);
+    }
+  }
+
+  return intersections;
+}
+
 
 
 export {
@@ -605,5 +681,7 @@ export {
   calcNewZlc as setRealScale,
   hexToNormalizedRGBA,
   normalizedRGBAToRGBA,
-  getTriangulatedVerticesByTwoPoints
+  getTriangulatedVerticesByTwoPoints,
+  pointInsideRectangle,
+  findRectangleAndLineIntersectionPoints
 };
