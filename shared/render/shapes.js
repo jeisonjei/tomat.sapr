@@ -168,6 +168,13 @@ function deleteShapes(shapes) {
     a.shapes = a.shapes.filter(shape => !shape.isSelected);
     a.shapes$.next(a.shapes);
 }
+function deleteShape(selectedShape) {
+    /**
+     * Функция используется всегда, когда требуется удаление фигуры
+     */
+    a.shapes = a.shapes.filter(shape => shape.id!== selectedShape.id);
+    a.shapes$.next(a.shapes);
+}
 
 a.shapes$.subscribe((shapes) => {
     a.vertices = getNewVertices(shapes);
@@ -201,4 +208,4 @@ function updateShapesPanZoom(mode) {
 
 
 
-export { drawShapes, drawSingle, updateActiveShapes, addShapes, updateShapesPanZoom, deleteShapes }
+export { drawShapes, drawSingle, updateActiveShapes, addShapes, updateShapesPanZoom, deleteShapes, deleteShape }
