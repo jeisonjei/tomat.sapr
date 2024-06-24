@@ -205,6 +205,38 @@ function addTooltipWidthAndHeight(id, width,height, anchor, mouse) {
     });
 
 }
+/**
+ * Функция добавляет поля для ввода радиуса для круга
+ */
+function addTooltipRadius(id, selectBoundary, radius, anchorFunction) {
+    var anchor = anchorFunction(selectBoundary);
+    var { tooltip, inputField } = createTooltipWithInput(radius, id, anchor);
+    var existingTooltip = document.querySelector(`.${ttcname}`);
+    if (!existingTooltip) {
+        inputField.value = radius;
+        inputField.focus();
+        inputField.select();
+        document.body.appendChild(tooltip);
+        inputField.addEventListener("keydown", function (e) {
+            if (e.key === 'Enter') {
+                a.circle.radius = parseFloat(inputField.value*a.zlc);
+                a.circle.setSelectBoundary();
+                addShapes(a.circle.getClone());
+                drawShapes();
+                updateActiveShapes();
+                a.clickCircleStart = false;
+                a.isMouseDown = false;
+                clearTooltipAll();
+            }
+        });
+    }
+    else {
+        let input = existingTooltip.firstChild;
+        input.value = radius;
+        input.focus();
+        input.select();
+    }
+}
 function createTooltipWithInput(length, id, anchor) {
     var tooltip = document.createElement("div");
     var inputField = document.createElement("input");
@@ -244,4 +276,4 @@ function clearTooltipAll() {
     }
 }
 
-export { addTooltipInfo, clearTooltipAll, addTooltipLength, addTooltipWidthAndHeight };
+export { addTooltipInfo, clearTooltipAll, addTooltipLength, addTooltipWidthAndHeight, addTooltipRadius };

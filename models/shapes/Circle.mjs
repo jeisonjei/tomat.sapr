@@ -118,7 +118,6 @@ export class Circle extends BasicShape {
     setSelectBoundary() {
         const radiusX = this.radius;
         const radiusY = this.radius;
-
         const { p1, p2, p3, p4 } = this.getBoundary(radiusX, radiusY);
 
         this.selectBoundary = getSelectBoundaryCircle(p1,p2,p3,p4);
@@ -161,5 +160,8 @@ export class Circle extends BasicShape {
     }
     getLength() {
         
+    }
+    getRadius() {
+        return this.radius;
     }
 }

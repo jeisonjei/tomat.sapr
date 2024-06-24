@@ -325,6 +325,7 @@ function handleMouseDown(mouse) {
             }
             else if (a.clickCircleStart) {
                 a.circle.radius = Math.hypot((a.end.x - a.start.x), a.end.y - a.start.y);;
+                a.circle.setSelectBoundary();
                 addShapes(a.circle.getClone());
                 a.clickCircleStart = false;
                 clearTooltipAll();

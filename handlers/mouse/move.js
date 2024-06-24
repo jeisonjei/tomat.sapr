@@ -31,7 +31,7 @@ import { textLinesCollection } from "../../libs/canvas-text/src/shared/state.js"
 import { fromEvent, map } from "rxjs";
 import { rerender } from "../../libs/canvas-text/src/index.js";
 import { cnv } from "../../libs/canvas-text/src/shared/cnv.js";
-import { addTooltipLength, addTooltipWidthAndHeight } from "../../services/tooltip.js";
+import { addTooltipLength, addTooltipRadius, addTooltipWidthAndHeight } from "../../services/tooltip.js";
 
 // --- other libraries --------------------------------
 import { v4 as uuidv4 } from "uuid";
@@ -144,7 +144,7 @@ function handleMouseMove(mouse) {
 
 
 
-        if (a.isMouseDown || a.clickLineStart || a.clickRectangleStart || a.clickCircleStart || a.clickSquareStart) {
+        if (a.isMouseDown || a.clickLineStart || a.clickRectangleStart || a.clickCircleStart || a.clickSquareStart || a.clickCircleStart) {
             switch (gm()) {
                 case 'edit':
                     const editShapes = a.shapes.filter(shape => shape.edit !== null);
@@ -311,6 +311,8 @@ function handleMouseMove(mouse) {
 
                 case 'circle':
                     a.circle.radius = Math.hypot((mouse.x - a.start.x), mouse.y - a.start.y);
+                    a.circle.setSelectBoundary();
+                    addTooltipRadius(0, a.circle.selectBoundary, a.circle.radius / a.zlc, getLowerLeftPoint);
                     drawSingle(a.circle);
                     break;
 

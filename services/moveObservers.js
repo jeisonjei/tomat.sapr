@@ -150,6 +150,15 @@ export function boundaryModeObserver(mouse, shapes) {
                                            <p>${height}</p>
                                        </div>`;
                     }
+                    else if (shape.type === 'circle') {
+                        let radius = (shape.getRadius() / a.zlc).toFixed(1) + ' мм';
+                        htmlMessage = `<div>
+                                           <p><b>радиус</b></p>
+                                       </div>
+                                       <div>
+                                           <p>${radius}</p>
+                                       </div>`;   
+                    }
                     addTooltipInfo(shape.id, shape.selectBoundary, htmlMessage);
                 }
                 else {
