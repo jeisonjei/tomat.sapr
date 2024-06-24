@@ -44,7 +44,7 @@ const a = {
     // shapes
     line: new Line(s.aspectRatio, new Point(0, 0), new Point(0, 0), [1, 0, 0, 1], 2),
     symline: new SymLine(s.aspectRatio, new Point(0, 0), new Point(0, 0), [1, 0, 0, 1]),
-    circle: new Circle(s.aspectRatio, new Point(0, 0), 0, [1, 0, 0, 1]),
+    circle: new Circle(s.aspectRatio, new Point(0, 0), 0, [1, 0, 0, 1],2),
     rectangle: new Rectangle(s.aspectRatio, new Point(0, 0), new Point(0, 0), new Point(0, 0), new Point(0, 0), 0, 0, [1, 0, 0, 1], 2),
     selectFrame: new AbstractFrame(new Point(0, 0), null, [0, 1, 0, 1]),
 

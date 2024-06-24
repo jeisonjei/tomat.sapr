@@ -116,7 +116,7 @@ function drawSingle(shape) {
             g.context.drawArrays(g.context.TRIANGLES, 0, size / 2);
             break;
         case 'circle':
-            g.context.drawArrays(g.context.LINE_LOOP, 0, size / 2);
+            g.context.drawArrays(g.context.TRIANGLES, 0, size / 2);
 
             break;
         case 'symline':

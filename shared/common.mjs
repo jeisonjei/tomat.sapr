@@ -635,6 +635,16 @@ function findRectangleAndLineIntersectionPoints(p1, p2, p3, p4, start, end) {
   return intersections;
 }
 
+function groupPairs(arr) {
+  var result = [];
+  for (let i = 0; i < arr.length; i += 2 )
+  {
+    if (i + 1 < arr.length) {
+      result.push([arr[i], arr[i + 1]]);
+    }
+  }
+}
+
 
 
 export {
@@ -683,5 +693,6 @@ export {
   normalizedRGBAToRGBA,
   getTriangulatedVerticesByTwoPoints,
   pointInsideRectangle,
-  findRectangleAndLineIntersectionPoints
+  findRectangleAndLineIntersectionPoints,
+  groupPairs
 };

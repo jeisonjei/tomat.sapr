@@ -1,9 +1,10 @@
-import { getSelectBoundaryCircle, getSelectBoundaryRectangle, isPointInsideFrame, isinSelectBoundaryLine } from "../../shared/common.mjs";
+import { getSelectBoundaryCircle, getSelectBoundaryRectangle, getTriangulatedVerticesByTwoPoints, isPointInsideFrame, isinSelectBoundaryLine } from "../../shared/common.mjs";
 import { BasicShape } from "../BasicShape.mjs";
 import { Point } from "../Point.mjs";
 import { mat3 } from "gl-matrix";
 import { transformPointByMatrix3 } from "../../shared/common.mjs";
 import { s } from "../../shared/globalState/settings.mjs";
+
 
 export class Circle extends BasicShape {
     set center(point) {
@@ -23,24 +24,66 @@ export class Circle extends BasicShape {
     get radius() {
         return this._radius;
     }
-    
-    constructor(aspectRatio, center, radius, color) {
+
+    constructor(aspectRatio, center, radius, color, thickness) {
         super(aspectRatio);
         this.type = 'circle';
         this.center = { ...center };
         this.radius = radius;
         this.color = [...color];
+        this.thickness = thickness;
         this.updateQuads();
     }
 
     getVertices() {
-        const circleVertices = [];
+        const points = [];
         for (let i = 0; i <= 360; i++) {
             const angle = i * Math.PI / 180;
             const x = this.center.x + this.radius * Math.cos(angle);
             const y = this.center.y + this.radius * Math.sin(angle);
-            circleVertices.push(x, y);
+            points.push(new Point(x, y));
         }
+        var triangulated=[];
+        for (let i = 0; i < points.length; i+=1){
+            if (i + 1 < points.length) {
+                const point1 = points[i];
+                const point2 = points[i + 1];
+                const triangulatedVertices = getTriangulatedVerticesByTwoPoints(point1, point2, this.thickness);
+                triangulated.push(...triangulatedVertices);
+            }
+        }
+        
+        return new Float32Array(triangulated);
+
+
+    }
+    getTriangulatedVertices() {
+        const circleVertices = [];
+        const numSegments = 360;
+        const width = this.thickness;
+        console.log(`** thickness: ${this.thickness}`);
+
+        for (let i = 0; i <= numSegments; i++) {
+            const angle = i * Math.PI / 180;
+            const x = this.center.x + this.radius * Math.cos(angle);
+            const y = this.center.y + this.radius * Math.sin(angle);
+
+            let dx = x - this.center.x;
+            let dy = y - this.center.y;
+
+            let length = Math.hypot(dx, dy);
+            let nx = dy / length;
+            let ny = -dx / length;
+
+            let offsetX = nx * width / 2;
+            let offsetY = ny * width / 2;
+
+            let corner1 = { x: x + offsetX, y: y + offsetY };
+            let corner2 = { x: x - offsetX, y: y - offsetY };
+
+            circleVertices.push(corner1.x, corner1.y, x, y, corner2.x, corner2.y);
+        }
+
         return new Float32Array(circleVertices);
     }
     getVerticesArray() {
@@ -51,14 +94,15 @@ export class Circle extends BasicShape {
             const y = this.center.y + this.radius * Math.sin(angle);
             circleVertices.push(x, y);
         }
+
         return circleVertices;
     }
     getVerticesPixels(scale) {
-        
+
     }
 
     getClone() {
-        return new Circle(this.aspectRatio, this.center, this.radius, this.color);
+        return new Circle(this.aspectRatio, this.center, this.radius, this.color, this.thickness);
     }
 
 
@@ -105,24 +149,24 @@ export class Circle extends BasicShape {
 
         const isinTop = isinSelectBoundaryLine(mouse, p1, p2);
         const isinRight = isinSelectBoundaryLine(mouse, p2, p3);
-        const isinBottom = isinSelectBoundaryLine(mouse, p4,p3);
+        const isinBottom = isinSelectBoundaryLine(mouse, p4, p3);
         const isinLeft = isinSelectBoundaryLine(mouse, p1, p4);
-        
+
         if (isinTop || isinRight || isinBottom || isinLeft) {
             return true;
         }
         return false;
     }
 
-    
+
     setSelectBoundary() {
         const radiusX = this.radius;
         const radiusY = this.radius;
         const { p1, p2, p3, p4 } = this.getBoundary(radiusX, radiusY);
 
-        this.selectBoundary = getSelectBoundaryCircle(p1,p2,p3,p4);
+        this.selectBoundary = getSelectBoundaryCircle(p1, p2, p3, p4);
 
-        
+
     }
     getBoundary(radiusX, radiusY) {
         const p1 = new Point(this.center.x - radiusX, this.center.y + radiusY);
@@ -159,7 +203,7 @@ export class Circle extends BasicShape {
         this.center = transformPointByMatrix3(pan_mat, this.center);
     }
     getLength() {
-        
+
     }
     getRadius() {
         return this.radius;

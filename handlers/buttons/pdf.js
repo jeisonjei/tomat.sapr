@@ -92,7 +92,7 @@ function handleSavePdfButtonClick() {
 
                     break;
                 case 'circle':
-                    pdf.setLineWidth(defaultLineThickness);
+                    pdf.setLineWidth(shape.thickness * defaultLineThickness);
                     pdf.setDrawColor(...normalizedRGBAToRGBA(shape.color));
                     const center = shape.center;
                     const x = center.x / scaleX;
