@@ -6,6 +6,7 @@ import { SymLine } from "../../models/shapes/SymLine.mjs";
 import { AbstractFrame } from "../../models/frames/AbstractFrame.mjs";
 import { Point } from "../../models/Point.mjs";
 import { s } from "./settings.mjs";
+import { getUnitShape } from "../common.mjs";
 
 const a = {
     mode: 'none',
@@ -47,6 +48,8 @@ const a = {
     circle: new Circle(s.aspectRatio, new Point(0, 0), 0, [1, 0, 0, 1],2),
     rectangle: new Rectangle(s.aspectRatio, new Point(0, 0), new Point(0, 0), new Point(0, 0), new Point(0, 0), 0, 0, [1, 0, 0, 1], 2),
     selectFrame: new AbstractFrame(new Point(0, 0), null, [0, 1, 0, 1]),
+
+    unitShape: getUnitShape('line'),
 
     // zoom
     zl: null,
