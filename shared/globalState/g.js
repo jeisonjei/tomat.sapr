@@ -88,11 +88,11 @@ export class g{
         this.context.viewport(0, 0, this.canvas.width, this.canvas.height);
         this.context.enable(this.context.BLEND);
         this.context.blendFunc(this.context.SRC_ALPHA, this.context.ONE_MINUS_SRC_ALPHA);
+
+        const a_position = this.context.getAttribLocation(program, 'a_position');
     
         const vertex_buffer = this.context.createBuffer();
         this.context.bindBuffer(this.context.ARRAY_BUFFER, vertex_buffer);
-    
-        const a_position = this.context.getAttribLocation(program, 'a_position');
         this.context.enableVertexAttribArray(a_position);
         this.context.vertexAttribPointer(a_position, 2, this.context.FLOAT, false, 0, 0); // это переключение буфера на указатель a_position
     

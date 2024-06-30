@@ -637,8 +637,7 @@ function findRectangleAndLineIntersectionPoints(p1, p2, p3, p4, start, end) {
 
 function groupPairs(arr) {
   var result = [];
-  for (let i = 0; i < arr.length; i += 2 )
-  {
+  for (let i = 0; i < arr.length; i += 2) {
     if (i + 1 < arr.length) {
       result.push([arr[i], arr[i + 1]]);
     }
@@ -649,6 +648,7 @@ function groupPairs(arr) {
  * Функция возвращает массив вершин единичной фигуры
  */
 function getUnitShape(type) {
+  console.log(`** type: ${type}`);
   if (['line', 'symline'].includes(type)) {
     return new Float32Array([
       // first triangle
@@ -659,31 +659,31 @@ function getUnitShape(type) {
       1.0, .5,
       1.0, -.5,
       -0.0, .5,
-  ]);
+    ]);
 
   }
   else if (type === 'circle') {
     const points = [];
     for (let i = 0; i <= numSegments; i++) {
-        const angle = i * Math.PI / 180;
-        const x = center.x + radius * Math.cos(angle);
-        const y = center.y + radius * Math.sin(angle);
-        points.push(p.g(x,y));
+      const angle = i * Math.PI / 180;
+      const x = center.x + radius * Math.cos(angle);
+      const y = center.y + radius * Math.sin(angle);
+      points.push(p.g(x, y));
     }
-    var triangulated=[];
-    for (let i = 0; i < points.length; i+=1){
-        if (i + 1 < points.length) {
-            const point1 = points[i];
-            const point2 = points[i + 1];
-            const triangulatedVertices = getTriangulatedVerticesByTwoPoints(point1, point2, lineWidth);
-            triangulated.push(...triangulatedVertices);
-        }
+    var triangulated = [];
+    for (let i = 0; i < points.length; i += 1) {
+      if (i + 1 < points.length) {
+        const point1 = points[i];
+        const point2 = points[i + 1];
+        const triangulatedVertices = getTriangulatedVerticesByTwoPoints(point1, point2, lineWidth);
+        triangulated.push(...triangulatedVertices);
+      }
     }
-    
+
     return new Float32Array(triangulated);
   }
   else if (['rectangle', 'square'].includes(type)) {
-    
+
   }
 }
 
@@ -737,5 +737,5 @@ export {
   pointInsideRectangle,
   findRectangleAndLineIntersectionPoints,
   groupPairs,
-  getUnitShape  
+  getUnitShape
 };
